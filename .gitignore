@@ -1,0 +1,24 @@
+# BMAD Ignores
+.agent/
+_bmad/
+_bmad-output/
+
+# Project specifics (Java/JSP)
+target/
+*.class
+*.log
+.settings/
+.project
+.classpath
+
+# IDE/Tools
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# Environment
+.venv/
+node_modules/
+.env
+.antigravity/logs/

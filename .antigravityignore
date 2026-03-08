@@ -1,0 +1,10 @@
+# Exporter les dossiers internes de BMAD pour économiser des tokens
+.bmad/logs/
+.bmad/temp/
+.bmad/doc/
+.bmad/examples/
+node_modules/
+dist/
+build/
+target/
+*.log
