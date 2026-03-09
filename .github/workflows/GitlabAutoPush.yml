@@ -1,0 +1,32 @@
+name: GitLab auto Push
+
+on:
+  push:
+    branches: main 
+    tags: [ '*' ] 
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (GitHub)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add GitLab remote
+        run: |
+          git remote add gitlab ${{ secrets.GITLAB_URL }}
+          # Si le dépôt GitLab est vide, force le premier push :
+          git push gitlab --mirror
+
+      - name: Push changes to GitLab
+        run: |
+          # Synchronise toutes les branches/tags (sans supprimer les refs distantes)
+          git push gitlab --all
+          git push gitlab --tags
