@@ -1,5 +1,8 @@
 Projet de développement web 2026
 
+Status de la communication avec Gitlab
+[![GitLab auto Push](https://github.com/babycrashdev/m1_dwa/actions/workflows/GitlabAutoPush.yml/badge.svg?branch=main)](https://github.com/babycrashdev/m1_dwa/actions/workflows/GitlabAutoPush.yml)
+
 CookieCliker/Rplace
 
 Proposition d'architecture
