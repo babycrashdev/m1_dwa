@@ -1,96 +1,73 @@
-# 🎨 r/Place Clicker - Cahier d'Analyse et de Design
+# 🎨 r/Place Clicker - Cahier d'Analyse et de Design (V2)
 
-## 🎮 Concept Global
+## 🎮 Concept Global : La Symbiose des Mondes
 
-Le projet consiste en une grille interactive de **50x50 pixels** accessible en temps réel par tous les utilisateurs. C'est un mélange entre le célèbre **r/Place** (dessin collaboratif) et un **Cookie Clicker** (progression incrémentale).
+Le projet repose sur un contraste dynamique entre deux expériences de jeu interdépendantes :
 
----
-
-## 📜 Règles du Jeu
-
-### 1. Principe Général
-
-- **Grille Collaborative** : 2500 pixels (50x50) modifiables en temps réel par les utilisateurs connectés.
-- **Accessibilité** :
-  - **Visiteur** : Spectateur uniquement (voit les changements sans pouvoir agir).
-  - **Joueur Authentifié** : Peut poser des pixels et accumuler des crédits.
-- **Pas de Tour par Tour** : Toutes les modifications se font en simultané (concurrence).
-
-### 2. Économie (Crédits & Pixels)
-
-- **Coût des Pixels** :
-  - Pixel vierge : **10 crédits**.
-  - Recouvrement : **+5 crédits** à chaque modification (ex: 3 fois coloré = 25 crédits).
-- **Régénération des Crédits** :
-  - Passive : 1 crédit toutes les 10 secondes.
-  - Active : En cliquant sur un bouton dédié (style Clicker).
-  - Optimisée : Via l'achat de bonus.
+1.  **La Guerre des Pixels (La Grille)** : Un champ de bataille tactique et collaboratif de **50x50 pixels**.
+2.  **Le Havre (La Ferme Clicker)** : Un espace de gestion paisible et personnel où le joueur développe sa puissance logistique.
 
 ---
 
-## 🛠️ Fonctionnalités & Interface
+## ⚔️ La Guerre des Pixels (Frontend Grille)
 
-### 👤 Gestion des Comptes
+### 1. Stratégie Territoriale & Topologie
 
-- Informations requises : Pseudo (unique), Mot de passe, Âge, Pays.
-- Modification possible du profil (sauf le pseudo).
+- **Expansion par Contiguïté** : Placement adjacent obligatoire (H/V).
+- **Le Siège de Capitale** : Une capitale ne peut pas être capturée instantanément. Elle nécessite un état de "Siège" (encerclement ou contact prolongé pendant 1h) avant d'être neutralisée.
+- **Règles d'Ambassade** : Placement interdit à moins de 5 pixels d'une capitale adverse ou dans des zones actives. Priorité aux zones en sommeil ou neutres.
+- **Identité Tactique** : Utilisation de **Filtres de Vue** commutables :
+  - _Mode Art_ : Affichage propre sans pollution visuelle.
+  - _Mode Territoire_ : Affichage des bordures de clan et propriétaires.
+  - _Mode Ressources_ : Visualisation des biomes et gisements.
 
-### 🕹️ Interface de Jeu
+### 2. Économie de Guerre
 
-- **Vue Commune** : Grille en temps réel + Classement des joueurs.
-- **Infos Pixel** : Affichage de l'auteur au survol (tooltip/hover).
-- **Zone Joueur** (Authentifié uniquement) :
-  - Solde de crédits.
-  - Prix actuel de chaque pixel.
-  - Liste des bonus débloqués/disponibles.
-  - Sélecteur de couleur pour l'achat de pixels.
-
-### 🍪 Système Clicker (Bonus)
-
-- **Générateurs** : Automatisation de la récolte (curseurs, fermes, etc.).
-- **Améliorations** :
-  - Couleurs supplémentaires.
-  - Outils de pose large (ex: curseur 2x2 pour 4 pixels d'un coup).
-
-### 📊 Statistiques & Classements
-
-- **Liste des joueurs** enregistrés.
-- **Profil statistique** : Pixels placés, pixels encore en place, record de longévité.
-- **Classements** :
-  - Par pourcentage de couverture de la grille.
-  - Par pixel le plus ancien encore actif.
+- **Coût & Maturité** : Escalade des prix par recouvrement. Bonus de maturité si le pixel survit.
+- **Drones Sentinelles** : Ne peuvent être assignés qu'à des pixels contrôlés depuis plus de **30 minutes** (évite la protection de conquêtes éclairs).
 
 ---
 
-## 💻 Contraintes Techniques
+## 🚜 Le Havre (Système Clicker & Logistique)
+
+### 1. Gestion des Ressources
+
+- **Biomes & Production** : Localisation géographique des matières premières.
+- **L'Espace Vital (Overgrowth)** : Si le territoire baisse, la végétation envahit la ferme avec un **délai de grâce de 3h**. La perte n'est jamais immédiate, laissant une fenêtre de reconquête.
+
+### 2. Régénération & Améliorations
+
+- **Clicker & Usines** : Production de crédits hybride.
+- **Marché Noir** : Items rares limités à **1 achat unique par joueur** par session. Enchères aveugles pour les objets de rareté "Légendaire" afin de contrer les scripts.
+
+---
+
+## 🌐 Dynamiques Mondiales
+
+### 1. Événements & Gouvernance
+
+- **Migration Dynamique** : Les gisements de ressources se déplacent si une entité contrôle plus de **70%** d'une zone pendant une période prolongée.
+- **Conseil des Factions** : "1 Joueur = 1 Vote". Système démocratique pur favorisant les coalitions contre les clans dominants.
+- **Cataclysmes** : Black Void et Pluie de Comètes pour redistribuer les cartes.
+
+---
+
+## 💻 Spécifications Techniques
 
 ### 📂 Données (Backend)
 
-- **Base de données** : Relationnelle (SQL).
-- **Accès** : Framework **JPA** et/ou **JDBC**.
-- **Architecture** : Découplage total entre la couche de données, la couche métier et la couche Web.
+- **Base de données** : Relationnelle (SQL) via **JPA/JDBC**.
+- **Architecture** : Découplage strict entre la couche de données (Pixels, Profits, Inventaires), la couche métier (Règles de contiguïté, Événements) et la couche Web.
 
 ### 🌐 Web (Frontend)
 
-- **Technologies** : HTML5, CSS3, Javascript.
-- **Serveur** : JSP (JavaServer Pages).
+- **Interface** : JSP (JavaServer Pages), HTML5, CSS3, Javascript.
+- **Identité** : 8 couleurs de base, extensibles via raffinage dans la ferme. Hologrammes/Messages de troc au survol des pixels.
 
 ---
 
-## 📝 Évaluation & Livrables
+## 📝 Gestion & Livrables
 
-### 🚀 Gestion de Projet (Git)
-
-- Commits réguliers et explicites.
-- Travail en équipe : Préciser les membres présents lors des commits en trinôme.
-- Utilisation systématique du `pull` en début de session.
-
-### 📦 Contenu du Rendu
-
-1. **Code Source** complet.
-2. **Rapport (README)** comprenant :
-   - Choix de conception et d'implémentation.
-   - Manuel d'utilisation (Tuto).
-   - Répartition des tâches.
-   - **Partie Données** : Schéma Entité-Association, Schéma Relationnel, Mapping Objet (JPA/JDBC).
-   - **Architecture** : Diagrammes UML et schéma d'architecture globale.
+1.  **Code Source** complet et commits explicites.
+2.  **Rapport (README)** : Incluant diagrammes UML, schémas relationnels et manuel d'utilisation.
+3.  **Répartition des tâches** : Spécifiée dans le rendu final.
