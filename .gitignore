@@ -1,7 +1,7 @@
 # BMAD Ignores
 .agent/
 _bmad/
-_bmad-output/
+
 
 # Project specifics (Java/JSP)
 target/
