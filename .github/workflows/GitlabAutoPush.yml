@@ -24,6 +24,7 @@ jobs:
           git config --global credential.helper store
           echo "https://oauth2:${{ secrets.GITLAB_TOKEN }}@git.univ-pau.fr/tcharrier004/rplaceclicker_dev_web_2026.git" > ~/.git-credentials
           git remote add gitlab https://git.univ-pau.fr/tcharrier004/rplaceclicker_dev_web_2026.git
-          git push gitlab --mirror
+          git push gitlab --all
+          git push gitlab --tags
         env:
           GIT_ASKPASS: /bin/echo
