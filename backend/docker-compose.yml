@@ -1,7 +1,6 @@
 services:
   database:
     image: mariadb:latest
-    user: "1000:1000"
     container_name: rplaceclicker_db
     environment:
       MARIADB_ROOT_PASSWORD: root
@@ -9,7 +8,7 @@ services:
       MARIADB_USER: user
       MARIADB_PASSWORD: user
     volumes:
-      - ./db:/var/lib/mysql
+      - ./rplacedb:/var/lib/mysql
     ports:
       - "3306:3306"
     restart: always

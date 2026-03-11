@@ -22,3 +22,6 @@ target/
 node_modules/
 .env
 .antigravity/logs/
+
+# BDD
+rplacedb/
