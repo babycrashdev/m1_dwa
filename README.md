@@ -13,17 +13,17 @@ graph LR
 C((Client)) <--> S((Server))
 S <--> B[(BDD)]
 
-subgraph Client javascript
-C <--> U[UI]
-U <--> U1[Section Rplace]
-U <--> U2[Section Cliquer]
-U2 <--> F[logique]
+subgraph Client
+C --> C1[Framework : VueJs]
+C --> C2[Store : Pinia]
+C --> C3[client HTTP : Axios]
+C --> C4[persistance : LocalStorage]
 end
 
 subgraph docker - Server
-S --> S1[Rplace logique]
+S --> S1[SpringBoot]
+S --> S4[Spring Data JPA]
 S --> S2[gestion connexions]
-S --> S3[accès à la BDD]
 end
 subgraph docker - Base de données
 B --> P[Compte joueur]
