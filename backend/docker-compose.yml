@@ -1,4 +1,5 @@
 services:
+  
   database:
     image: mariadb:latest
     container_name: rplaceclicker_db
@@ -12,3 +13,22 @@ services:
     ports:
       - "3306:3306"
     restart: always
+
+  server:
+    image: eclipse-temurin:17-jre-jammy
+    container_name: rplaceclicker_serv
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./rplaceserv/target/m1dwa-server-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://database:3306/rplacedb
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=user
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MariaDBDialect
+    depends_on:
+      - database
+    entrypoint: ["java", "-jar", "app.jar"]
+
