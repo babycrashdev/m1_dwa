@@ -1,4 +1,4 @@
-/*Générer par IA*/
+/*Généré par IA*/
 
 .auth-container {
   position: fixed;
@@ -91,11 +91,22 @@
   border-color: rgba(255, 255, 255, 0.8);
 }
 
+/* Masquer les flèches par défaut du champ nombre */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .input-icon {
   position: absolute;
   right: 20px;
   font-size: 18px;
   color: rgba(255, 255, 255, 0.7);
+  pointer-events: none; /* L'icône ne bloque pas l'input */
 }
 
 .form-options {
@@ -111,21 +122,67 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  user-select: none;
+  font-size: 14px;
 }
 
 .remember-me input {
-  margin-right: 8px;
-  accent-color: white;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  height: 18px;
+  width: 18px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  margin-right: 10px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.remember-me:hover input ~ .checkmark {
+  border-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.remember-me input:checked ~ .checkmark {
+  background-color: white;
+  border-color: white;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 1.5px;
+  width: 4px;
+  height: 9px;
+  border: solid #333;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.remember-me input:checked ~ .checkmark:after {
+  display: block;
 }
 
 .forgot-password {
-  color: white;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
 }
 
 .forgot-password:hover {
-  opacity: 0.7;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.0);
+  opacity: 1;
+  text-decoration: underline;
 }
 
 .submit-btn {

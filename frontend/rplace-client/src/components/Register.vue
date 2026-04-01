@@ -63,6 +63,7 @@
           <div v-if="mode === 'login'" class="form-options">
             <label class="remember-me">
               <input type="checkbox" v-model="user.rememberMe" />
+              <span class="checkmark"></span>
               Se souvenir de moi
             </label>
             <a href="#" class="forgot-password" @click.prevent="">Mot de passe oublié ?</a>
@@ -72,20 +73,28 @@
             <div class="form-row">
               <div class="form-group">
                 <div class="input-wrapper">
-                  <input id="age" v-model.number="user.age" type="number" placeholder="Âge" required />
+                  <input 
+                    id="age" 
+                    v-model.number="user.age" 
+                    type="number" 
+                    placeholder="Âge" 
+                    maxlength="3"
+                    min="1" 
+                    max="120"
+                    required 
+                  />
+                  <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  </span>
                 </div>
               </div>
 
               <div class="form-group">
                 <div class="input-wrapper">
-                  <select id="country" v-model="user.country" required>
-                    <option value="" disabled selected>Pays</option>
-                    <option value="France">France</option>
-                    <option value="Belgique">Belgique</option>
-                    <option value="Suisse">Suisse</option>
-                    <option value="Canada">Canada</option>
-                    <option value="Autre">Autre</option>
-                  </select>
+                  <input id="country" v-model="user.country" type="text" placeholder="Pays" required />
+                  <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  </span>
                 </div>
               </div>
             </div>
