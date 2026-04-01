@@ -15,10 +15,10 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    @Value("${app.jwtSecret:6XibCXmINtznZPzVklzlOXm134KruJJPye9KrYFtEbi}")
+    @Value("${app.jwtSecret}")
     private String jwtSecret;
-
-    @Value("${app.jwtExpirationMs:86400000}")
+    
+    @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     private SecretKey getSigningKey() {
