@@ -1,9 +1,11 @@
-
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #f0f2f5;
-  color: #1a1a1b;
+  background-image: url("https://codingstella.com/wp-content/uploads/2024/01/download-6-scaled.jpeg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .app-container {

@@ -17,7 +17,7 @@
       </div>
 
       <div v-else class="auth-section">
-        <Register />
+        <Register @close="showAuth = false" />
       </div>
     </main>
 

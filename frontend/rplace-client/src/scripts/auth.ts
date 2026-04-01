@@ -12,7 +12,8 @@ export function useAuth() {
     username: '',
     password: '',
     age: null as number | null,
-    country: ''
+    country: '',
+    rememberMe: false
   });
 
   // Reset messages when switching mode
