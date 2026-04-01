@@ -40,6 +40,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         logger.info("Registering new user: {}", user.getUsername());
+        
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            logger.warn("Registration failed: Username {} already exists", user.getUsername());
+            return ResponseEntity.status(400).body("Ce pseudo est déjà pris");
+        }
+
         userRepository.save(user);
         logger.info("User registered successfully: {}", user.getUsername());
         return ResponseEntity.ok("Utilisateur enregistré");

@@ -1,38 +1,35 @@
-<script setup lang="ts">
-import Register from './components/Register.vue'
-</script>
 
 <template>
-  <main>
-    <Register />
-  </main>
+  <div class="app-container">
+    <!-- Navigation / Header -->
+    <header class="nav-bar">
+      <div class="logo">
+        <span class="logo-pixel"></span>
+      </div>
+      <button @click="showAuth = !showAuth" class="auth-toggle-btn">
+        {{ showAuth ? 'Accueil' : 'Se Connecter' }}
+      </button>
+    </header>
+
+    <main class="content-wrapper">
+      <div v-if="!showAuth" class="hero-section">
+        <h1>Grille</h1>
+      </div>
+
+      <div v-else class="auth-section">
+        <Register />
+      </div>
+    </main>
+
+    <footer class="footer">
+    </footer>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script setup lang="ts">
+  import Register from './components/Register.vue'
+  import { useApp } from './scripts/app';
+  const { showAuth } = useApp();
+</script>
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<style src="./styles/main.css"></style>
