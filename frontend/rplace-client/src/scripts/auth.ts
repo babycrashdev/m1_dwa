@@ -1,0 +1,86 @@
+
+import { ref, reactive, watch } from 'vue';
+import axios from 'axios';
+import { useAuthStore } from '../stores/auth';
+
+export function useAuth() {
+  const authStore = useAuthStore();
+  const mode = ref<'login' | 'register' | 'logout'>('login');
+  const loading = ref(false);
+  const message = ref('');
+  const messageType = ref<'success' | 'error'>('success');
+
+  const user = reactive({
+    username: '',
+    password: '',
+    age: null as number | null,
+    country: '',
+    rememberMe: false
+  });
+
+  watch(mode, () => {
+    message.value = '';
+  });
+
+  const handleSubmit = async () => {
+    loading.value = true;
+    message.value = '';
+    
+    const endpoint = mode.value === 'login' ? '/api/auth/login' : '/api/auth/register';
+    const payload = mode.value === 'login' 
+      ? { username: user.username, password: user.password }
+      : { ...user };
+
+    try {
+      const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
+      
+      if (mode.value === 'login') {
+        const { token, username } = response.data;
+        authStore.setToken(token);
+        authStore.setUser({ username });
+        message.value = "Connexion réussie !";
+        messageType.value = 'success';
+      } else {
+        message.value = response.data;
+        messageType.value = 'success';
+        setTimeout(() => mode.value = 'login', 1500);
+      }
+    } catch (error: any) {
+      message.value = error.response?.data || "Une erreur est survenue";
+      messageType.value = 'error';
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const logout = () => {
+    authStore.logout();
+    message.value = "Déconnecté";
+    messageType.value = 'success';
+  };
+
+  const handleLogout = (emitClose?: () => void) => {
+    logout();
+    if (emitClose) {
+      setTimeout(() => emitClose(), 1000);
+    }
+  };
+
+  watch(() => authStore.isAuthenticated, (isAuth) => {
+    if (isAuth) mode.value = 'logout';
+    else if (mode.value === 'logout') mode.value = 'login';
+  });
+
+  return {
+    mode,
+    loading,
+    message,
+    messageType,
+    user,
+    handleSubmit,
+    logout,
+    handleLogout,
+    authStore,
+    isAuthenticated: authStore.isAuthenticated
+  };
+}
