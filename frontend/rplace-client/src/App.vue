@@ -1,13 +1,11 @@
-
 <template>
   <div class="app-container">
-    <!-- Navigation / Header -->
     <header class="nav-bar">
       <div class="logo">
         <span class="logo-pixel"></span>
       </div>
       <button @click="showAuth = !showAuth" class="auth-toggle-btn">
-        {{ showAuth ? 'Accueil' : 'Se Connecter' }}
+        {{ authStore.isAuthenticated ? (showAuth ? 'Accueil' : authStore.user?.username) : (showAuth ? 'Accueil' : 'Se Connecter') }}
       </button>
     </header>
 
@@ -29,7 +27,10 @@
 <script setup lang="ts">
   import Register from './components/Register.vue'
   import { useApp } from './scripts/app';
+  import { useAuthStore } from './stores/auth';
+
   const { showAuth } = useApp();
+  const authStore = useAuthStore();
 </script>
 
 <style src="./styles/main.css"></style>

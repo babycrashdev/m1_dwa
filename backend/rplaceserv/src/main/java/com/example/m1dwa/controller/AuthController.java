@@ -1,12 +1,24 @@
+/*Source: https://github.com/bezkoder/spring-boot-spring-security-jwt-authentication/tree/master
+
+Debug par IA*/
+
 package com.example.m1dwa.controller;
 
+import com.example.m1dwa.config.JwtUtils;
 import com.example.m1dwa.model.User;
 import com.example.m1dwa.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,39 +27,52 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody User loginRequest) {
-        logger.info("Received login request for user: {}", loginRequest.getUsername());
+        logger.info("Tentative de connexion pour l'utilisateur: {}", loginRequest.getUsername());
         
-        return userRepository.findByUsername(loginRequest.getUsername())
-            .map(user -> {
-                if (user.getPassword().equals(loginRequest.getPassword())) {
-                    logger.info("Authentication successful for user: {}", user.getUsername());
-                    return ResponseEntity.ok("Connexion réussie");
-                } else {
-                    logger.warn("Authentication failed for user: {} (Incorrect password)", loginRequest.getUsername());
-                    return ResponseEntity.status(401).body("Mot de passe incorrect");
-                }
-            })
-            .orElseGet(() -> {
-                logger.warn("Authentication failed for user: {} (User not found)", loginRequest.getUsername());
-                return ResponseEntity.status(404).body("Utilisateur non trouvé");
-            });
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
+            
+            logger.info("Connexion réussie pour: {}", loginRequest.getUsername());
+            return ResponseEntity.ok(Map.of(
+                "token", jwt,
+                "username", loginRequest.getUsername()
+            ));
+        } catch (Exception e) {
+            logger.warn("Échec de connexion : {}", e.getMessage());
+            return ResponseEntity.status(401).body("Identifiants incorrects");
+        }
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        logger.info("Registering new user: {}", user.getUsername());
+        logger.info("Inscription de l'utilisateur: {}", user.getUsername());
         
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            logger.warn("Registration failed: Username {} already exists", user.getUsername());
+            logger.warn("Échec d'inscription : Pseudo {} déjà utilisé", user.getUsername());
             return ResponseEntity.status(400).body("Ce pseudo est déjà pris");
         }
 
+        user.setPassword(encoder.encode(user.getPassword()));
         userRepository.save(user);
-        logger.info("User registered successfully: {}", user.getUsername());
-        return ResponseEntity.ok("Utilisateur enregistré");
+        
+        logger.info("Utilisateur {} enregistré avec succès", user.getUsername());
+        return ResponseEntity.ok("Inscription réussie, vous pouvez vous connecter.");
     }
 }

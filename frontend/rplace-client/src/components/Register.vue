@@ -4,11 +4,32 @@
       <button class="close-btn" @click="$emit('close')">&times;</button>
       
       <div class="auth-form">
-        <h2>{{ mode === 'login' ? 'Connexion' : 'Inscription' }}</h2>
+        <h2>{{ mode === 'logout' ? 'Session' : (mode === 'login' ? 'Connexion' : 'Inscription') }}</h2>
         
         <p v-if="message" :class="['message', messageType]">{{ message }}</p>
 
-        <form @submit.prevent="handleSubmit">
+        <!-- Connecté -->
+        <div v-if="mode === 'logout'" class="logout-section">
+          <div class="user-info">
+            <div class="user-avatar">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <p class="welcome-text">Connecté en tant que</p>
+            <p class="username-display">{{ authStore.user?.username }}</p>
+          </div>
+          
+          <div class="logout-actions">
+            <button @click="handleLogout(() => $emit('close'))" class="submit-btn">
+              Se déconnecter
+            </button>
+            <button @click="$emit('close')" class="cancel-btn">
+              Retour au jeu
+            </button>
+          </div>
+        </div>
+
+        <!-- Déconnecté -->
+        <form v-else @submit.prevent="handleSubmit">
           <div class="form-group">
             <div class="input-wrapper">
               <input 
@@ -90,9 +111,17 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { useAuth } from '../scripts/auth';
-const { mode, loading, message, messageType, user, handleSubmit } = useAuth();
-defineEmits(['close']);
+
+const { mode, loading, message, messageType, user, handleSubmit, handleLogout, authStore } = useAuth();
+const emit = defineEmits(['close']);
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    mode.value = 'logout';
+  }
+});
 </script>
 
 <style src="../styles/auth.css" scoped></style>

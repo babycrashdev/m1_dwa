@@ -1,9 +1,11 @@
 
 import { ref, reactive, watch } from 'vue';
 import axios from 'axios';
+import { useAuthStore } from '../stores/auth';
 
 export function useAuth() {
-  const mode = ref<'login' | 'register'>('login');
+  const authStore = useAuthStore();
+  const mode = ref<'login' | 'register' | 'logout'>('login');
   const loading = ref(false);
   const message = ref('');
   const messageType = ref<'success' | 'error'>('success');
@@ -16,7 +18,6 @@ export function useAuth() {
     rememberMe: false
   });
 
-  // Reset messages when switching mode
   watch(mode, () => {
     message.value = '';
   });
@@ -32,10 +33,16 @@ export function useAuth() {
 
     try {
       const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
-      message.value = response.data;
-      messageType.value = 'success';
       
-      if (mode.value === 'register') {
+      if (mode.value === 'login') {
+        const { token, username } = response.data;
+        authStore.setToken(token);
+        authStore.setUser({ username });
+        message.value = "Connexion réussie !";
+        messageType.value = 'success';
+      } else {
+        message.value = response.data;
+        messageType.value = 'success';
         setTimeout(() => mode.value = 'login', 1500);
       }
     } catch (error: any) {
@@ -46,12 +53,34 @@ export function useAuth() {
     }
   };
 
+  const logout = () => {
+    authStore.logout();
+    message.value = "Déconnecté";
+    messageType.value = 'success';
+  };
+
+  const handleLogout = (emitClose?: () => void) => {
+    logout();
+    if (emitClose) {
+      setTimeout(() => emitClose(), 1000);
+    }
+  };
+
+  watch(() => authStore.isAuthenticated, (isAuth) => {
+    if (isAuth) mode.value = 'logout';
+    else if (mode.value === 'logout') mode.value = 'login';
+  });
+
   return {
     mode,
     loading,
     message,
     messageType,
     user,
-    handleSubmit
+    handleSubmit,
+    logout,
+    handleLogout,
+    authStore,
+    isAuthenticated: authStore.isAuthenticated
   };
 }
