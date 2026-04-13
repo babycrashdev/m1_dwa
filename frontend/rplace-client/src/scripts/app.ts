@@ -1,11 +1,14 @@
 
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
 import { useAuthStore } from '../stores/auth';
+import { useAppStore } from '../stores/app';
+import { storeToRefs } from 'pinia';
 
 export function useApp() {
   const authStore = useAuthStore();
-  const showAuth = ref(false);
-  const currentView = ref<'grid' | 'clicker'>('grid');
+  const appStore = useAppStore();
+  
+  const { showAuth, currentView } = storeToRefs(appStore);
 
   watch(() => authStore.isAuthenticated, (isAuth) => {
     if (!isAuth && currentView.value === 'clicker') {

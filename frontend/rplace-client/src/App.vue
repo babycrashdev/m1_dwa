@@ -2,7 +2,8 @@
   <div class="app-container">
     <Profile />
 
-    <div class="nav-container">
+    <!-- Navigation gérée par le store global -->
+    <div v-if="!showAuth" class="nav-container">
       <div class="nav-controls">
         <button 
           @click="switchView(currentView === 'grid' ? 'clicker' : 'grid')" 
@@ -45,7 +46,7 @@
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 
-  const { showAuth, currentView, switchView } = useApp();
+  const { showAuth, currentView, switchView} = useApp();
   const authStore = useAuthStore();
 </script>
 
