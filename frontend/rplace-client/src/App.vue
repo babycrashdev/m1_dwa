@@ -1,10 +1,21 @@
 <template>
   <div class="app-container">
-    <header class="nav-bar">
-      <div class="logo">
-        <span class="logo-pixel"></span>
+    <div class="user-profile-card" @click="toggleAuth">
+      <div class="avatar-mini">
+        {{ authStore.isAuthenticated ? authStore.user?.username?.charAt(0).toUpperCase() : '?' }}
       </div>
+      <div class="user-info-text">
+        <span class="user-name">
+          {{ authStore.isAuthenticated ? authStore.user?.username : 'Invité' }}
+        </span>
+        <span class="user-context-info" v-if="authStore.isAuthenticated">
+          {{ currentView === 'grid' ? authStore.user?.country : authStore.user?.age + ' ans' }}
+        </span>
+        <span class="user-context-info" v-else>Connexion</span>
+      </div>
+    </div>
 
+    <div class="nav-container">
       <div class="nav-controls">
         <button 
           @click="switchView(currentView === 'grid' ? 'clicker' : 'grid')" 
@@ -24,15 +35,12 @@
           </svg>
         </button>
       </div>
-
-      <button @click="toggleAuth" class="auth-toggle-btn">
-        {{ authStore.isAuthenticated ? (showAuth ? 'Retour' : authStore.user?.username) : (showAuth ? 'Retour' : 'Se Connecter') }}
-      </button>
-    </header>
+    </div>
 
     <main class="content-wrapper">
-      <div v-if="showAuth" class="auth-section">
-        <Register @close="showAuth = false" />
+      <div v-if="showAuth">
+        <Profile v-if="authStore.isAuthenticated" @close="showAuth = false" />
+        <Register v-else @close="showAuth = false" />
       </div>
 
       <template v-else>
@@ -56,6 +64,7 @@
   import Clicker from './components/Clicker.vue'
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
+  import Profile from './components/Profile.vue';
 
   const { showAuth, currentView, switchView, toggleAuth } = useApp();
   const authStore = useAuthStore();

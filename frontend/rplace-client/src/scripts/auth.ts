@@ -35,9 +35,9 @@ export function useAuth() {
       const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
       
       if (mode.value === 'login') {
-        const { token, username } = response.data;
+        const { token, username, age, country } = response.data;
         authStore.setToken(token);
-        authStore.setUser({ username });
+        authStore.setUser({ username, age, country });
         message.value = "Connexion réussie !";
         messageType.value = 'success';
       } else {

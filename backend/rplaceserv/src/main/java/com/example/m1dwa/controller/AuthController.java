@@ -49,10 +49,14 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(loginRequest.getUsername());
             
+            User user = userRepository.findByUsername(loginRequest.getUsername()).get();
+            
             logger.info("Connexion réussie pour: {}", loginRequest.getUsername());
             return ResponseEntity.ok(Map.of(
                 "token", jwt,
-                "username", loginRequest.getUsername()
+                "username", user.getUsername(),
+                "age", user.getAge(),
+                "country", user.getCountry()
             ));
         } catch (Exception e) {
             logger.warn("Échec de connexion : {}", e.getMessage());
