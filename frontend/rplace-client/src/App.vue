@@ -1,19 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="user-profile-card" @click="toggleAuth">
-      <div class="avatar-mini">
-        {{ authStore.isAuthenticated ? authStore.user?.username?.charAt(0).toUpperCase() : '?' }}
-      </div>
-      <div class="user-info-text">
-        <span class="user-name">
-          {{ authStore.isAuthenticated ? authStore.user?.username : 'Invité' }}
-        </span>
-        <span class="user-context-info" v-if="authStore.isAuthenticated">
-          {{ currentView === 'grid' ? authStore.user?.country : authStore.user?.age + ' ans' }}
-        </span>
-        <span class="user-context-info" v-else>Connexion</span>
-      </div>
-    </div>
+    <Profile />
 
     <div class="nav-container">
       <div class="nav-controls">
@@ -38,20 +25,13 @@
     </div>
 
     <main class="content-wrapper">
-      <div v-if="showAuth">
-        <Profile v-if="authStore.isAuthenticated" @close="showAuth = false" />
-        <Register v-else @close="showAuth = false" />
+      <div v-if="currentView === 'grid'" class="hero-section">
+        <!-- <Grid /> -->
       </div>
 
-      <template v-else>
-        <div v-if="currentView === 'grid'" class="hero-section">
-          <!-- <Grid /> -->
-        </div>
-
-        <div v-if="currentView === 'clicker'" class="game-section">
-          <Clicker />
-        </div>
-      </template>
+      <div v-if="currentView === 'clicker'" class="game-section">
+        <Clicker />
+      </div>
     </main>
 
     <footer class="footer">
@@ -60,13 +40,12 @@
 </template>
 
 <script setup lang="ts">
-  import Register from './components/Register.vue'
+  import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue'
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
-  import Profile from './components/Profile.vue';
 
-  const { showAuth, currentView, switchView, toggleAuth } = useApp();
+  const { showAuth, currentView, switchView } = useApp();
   const authStore = useAuthStore();
 </script>
 
