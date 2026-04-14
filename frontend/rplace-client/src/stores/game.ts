@@ -1,17 +1,42 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import axios from 'axios';
 
 export const useGameStore = defineStore('game', () => {
     const money = ref(0);
     const cars = ref<{ id: number; pathIndex: number; weight: number; value: number }[]>([]);
-    
+
     const currentWeight = ref(0);
     const spawnProgress = ref(0);
+    const pendingSync = ref(0);
     const SPAWN_INTERVAL_MS = 4000;
     const TICK_INTERVAL_MS = 50;
 
     function addWeight() {
         currentWeight.value++;
+    }
+
+    async function syncToBackend() {
+        if (pendingSync.value === 0) return;
+
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const amountToSync = pendingSync.value;
+        try {
+            const response = await axios.post('http://localhost:8080/api/user/clicker/sync',
+                { increment: amountToSync },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            pendingSync.value -= amountToSync;
+            if (response.data.moneys !== undefined) {
+                money.value = response.data.moneys;
+            }
+            console.log("Synchronisation réussie:", response.data.moneys);
+        } catch (error) {
+            console.error("Échec de la synchronisation:", error);
+        }
     }
 
     function spawnGroupedCar() {
@@ -25,9 +50,10 @@ export const useGameStore = defineStore('game', () => {
             cars.value.push(newCar);
             currentWeight.value = 0;
             console.log(newCar.weight, "voitures expediees");
-            
+
             // TODO: Animation + mouvement
             sellCar(newCar.id);
+            syncToBackend();
         }
     }
 
@@ -37,20 +63,21 @@ export const useGameStore = defineStore('game', () => {
             const car = cars.value[index];
             if (car) {
                 money.value += car.value;
+                pendingSync.value += car.value;
                 cars.value.splice(index, 1);
                 console.log("Voiture vendue ! Gain :", car.value, "Total :", money.value);
-                // TODO: appel api backend
             }
         }
     }
 
     let progressInterval: number | null = null;
+
     function startSpawnerTimer() {
         if (progressInterval) return;
         
         progressInterval = window.setInterval(() => {
             spawnProgress.value += (TICK_INTERVAL_MS / SPAWN_INTERVAL_MS) * 100;
-            
+
             if (spawnProgress.value >= 100) {
                 spawnProgress.value = 0;
                 spawnGroupedCar();
