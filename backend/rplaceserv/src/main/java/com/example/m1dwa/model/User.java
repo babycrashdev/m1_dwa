@@ -27,4 +27,7 @@ public class User {
 
     @Column(nullable = false)
     private String country;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Wallet wallet;
 }

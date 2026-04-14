@@ -6,6 +6,8 @@ package com.example.m1dwa.controller;
 
 import com.example.m1dwa.config.JwtUtils;
 import com.example.m1dwa.model.User;
+import com.example.m1dwa.model.Wallet;
+import com.example.m1dwa.repository.WalletRepository;
 import com.example.m1dwa.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,9 @@ public class AuthController {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private WalletRepository walletRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody User loginRequest) {
@@ -75,6 +80,11 @@ public class AuthController {
 
         user.setPassword(encoder.encode(user.getPassword()));
         userRepository.save(user);
+        
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setMoneys(0);
+        walletRepository.save(wallet);
         
         logger.info("Utilisateur {} enregistré avec succès", user.getUsername());
         return ResponseEntity.ok("Inscription réussie, vous pouvez vous connecter.");
