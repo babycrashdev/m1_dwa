@@ -11,6 +11,9 @@
         {{ currentView === 'grid' ? authStore.user?.country : authStore.user?.age + ' ans' }}
       </span>
       <span class="user-context-info" v-else>Connexion</span>
+      <span class="user-pixels" v-if="currentView === 'clicker'">
+        ✨ {{ gameStore.money }}
+      </span>
     </div>
   </div>
 
@@ -20,9 +23,11 @@
 <script setup lang="ts">
 import { useAuthStore } from '../stores/auth';
 import { useApp } from '../scripts/app';
+import { useGameStore } from '../stores/game';
 import Register from './Register.vue';
 
 const authStore = useAuthStore();
+const gameStore = useGameStore();
 const { showAuth, toggleAuth, currentView } = useApp();
 </script>
 
