@@ -1,22 +1,30 @@
-<!--Temporaire-->
 <template>
-  <div class="clicker-container">
-    <div class="clicker-card">
-      <div class="score-display">
-        <h2>Pixels Accumulés</h2>
-        <div class="score-value">{{ score }}</div>
-      </div>
-      
-      <button @click="click" class="big-pixel-btn">
-        <div class="btn-icon"></div>
-      </button>
+  <div class="clicker-layout">
+    <div class="layout-header"></div>
+
+    <div class="area-spawner">
+      <ManualSpawner />
+    </div>
+
+    <div class="area-city">
+      <CityMap />
+    </div>
+
+    <div class="area-upgrade">
+      <UpgradePanel />
+    </div>
+
+    <div class="area-inventory">
+      <InventoryBar />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useClicker } from '../scripts/clicker';
-const { score, click } = useClicker();
+import CityMap from './clicker/CityMap.vue';
+import UpgradePanel from './clicker/UpgradePanel.vue';
+import ManualSpawner from './clicker/ManualSpawner.vue';
+import InventoryBar from './clicker/InventoryBar.vue';
 </script>
 
-<style src="../styles/clicker.css" scoped></style>
+<style src="../styles/clicker/clickerLayout.css" scoped></style>

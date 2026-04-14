@@ -1,11 +1,11 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-image: url("public/local/FondTemp2.png");
+  /*background-image: url("public/local/FondTemp2.png");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: fixed;*/
 }
 
 .app-container {

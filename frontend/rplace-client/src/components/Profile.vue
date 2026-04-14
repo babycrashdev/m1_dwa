@@ -25,3 +25,5 @@ import Register from './Register.vue';
 const authStore = useAuthStore();
 const { showAuth, toggleAuth, currentView } = useApp();
 </script>
+
+<style src="../styles/profile.css" scoped></style>

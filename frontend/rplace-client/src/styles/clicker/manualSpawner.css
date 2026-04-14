@@ -1,0 +1,30 @@
+.manual-spawner {
+  width: 100%;
+  height: 100%;
+}
+
+.spawn-btn {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.spawn-btn:active {
+  transform: scale(0.95);
+}
+
+.car-icon {
+  font-size: 2rem;
+}
