@@ -2,7 +2,6 @@
   <div class="app-container">
     <Profile />
 
-    <!-- Navigation gérée par le store global -->
     <div v-if="!showAuth" class="nav-container">
       <div class="nav-controls">
         <button 
