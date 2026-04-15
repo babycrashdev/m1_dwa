@@ -1,34 +1,41 @@
 package com.example.m1dwa.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "pixels")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Pixel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(nullable = false)
+    private int x;
 
     @Column(nullable = false)
-    private String password;
+    private int y;
 
     @Column(nullable = false)
-    private int age;
+    private String color;
 
-    @Column(nullable = false)
-    private String country;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User lastModifiedBy;
 
     @Column(nullable = true)
-    private LocalDateTime lastPixelPlacedAt;
+    private LocalDateTime lastModifiedAt;
+
+    public Pixel(int x, int y, String color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+    }
 }
