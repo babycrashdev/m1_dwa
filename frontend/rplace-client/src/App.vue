@@ -11,7 +11,7 @@
 
     <main class="content-wrapper">
       <div v-if="!showAuth" class="hero-section">
-        <h1>Grille</h1>
+        <RPlace />
       </div>
 
       <div v-else class="auth-section">
@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
   import Register from './components/Register.vue'
+  import RPlace from './components/RPlace.vue'
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 
