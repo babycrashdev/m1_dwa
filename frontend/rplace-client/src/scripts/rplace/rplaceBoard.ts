@@ -151,7 +151,7 @@ export function useRPlaceBoard() {
     };
   };
 
-  onMounted(() => {
+  onMounted(async () => {
     if (canvasRef.value) {
       ctx = canvasRef.value.getContext('2d', { alpha: false });
       if (ctx) {
@@ -165,8 +165,9 @@ export function useRPlaceBoard() {
       window.addEventListener('mouseup', handleMouseUp);
       canvasRef.value.addEventListener('wheel', handleWheel, { passive: false });
 
-      // TODO : remplissage aléatoire pour test
-      store.generateTestGrid();
+      await store.fetchInitialBoard();
+      store.connectWebSocket();
+      //store.generateTestGrid();
 
       draw();
     }

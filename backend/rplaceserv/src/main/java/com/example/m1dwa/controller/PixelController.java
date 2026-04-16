@@ -19,9 +19,6 @@ public class PixelController {
 
     @GetMapping
     public List<PixelDTO> getAllPixels() {
-        return pixelRepository.findAll()
-                .stream()
-                .map(pixel -> new PixelDTO(pixel.getX(), pixel.getY(), pixel.getColor()))
-                .collect(Collectors.toList());
+        return pixelRepository.findAllSimplified();
     }
 }
