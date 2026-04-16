@@ -1,18 +1,18 @@
 services:
   
-  database:
-    image: mariadb:latest
-    container_name: rplaceclicker_db
-    environment:
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MARIADB_DATABASE: ${DB_NAME}
-      MARIADB_USER: ${DB_USER}
-      MARIADB_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - ./rplacedb:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    restart: always
+ # database:
+ #   image: mariadb:latest
+ #   container_name: rplaceclicker_db
+ #   environment:
+ #     MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+ #     MARIADB_DATABASE: ${DB_NAME}
+ #     MARIADB_USER: ${DB_USER}
+ #     MARIADB_PASSWORD: ${DB_PASSWORD}
+ #   volumes:
+ #     - ./rplacedb:/var/lib/mysql
+ #   ports:
+ #     - "3306:3306"
+ #   restart: always
 
   server:
     image: eclipse-temurin:17-jre-jammy
@@ -31,7 +31,7 @@ services:
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MariaDBDialect
       - APP_JWT_SECRET=${JWT_SECRET}
       - APP_JWT_EXPIRATION=${JWT_EXPIRATION}
-    depends_on:
-      - database
+   # depends_on:
+   #   - database
     entrypoint: ["java", "-jar", "app.jar"]
 
