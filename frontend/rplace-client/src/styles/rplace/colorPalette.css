@@ -20,3 +20,9 @@
 .color-swatch:hover {
   transform: scale(1.1);
 }
+
+.color-swatch.active {
+  border-color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}

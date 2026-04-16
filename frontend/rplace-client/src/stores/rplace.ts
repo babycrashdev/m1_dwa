@@ -15,6 +15,12 @@ export const useRPlaceStore = defineStore('rplace', {
         const b = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
         this.pixels[i] = `#${r}${g}${b}`;
       }
+    },
+    placePixel(x: number, y: number) {
+      if (x >= 0 && x < this.gridSize && y >= 0 && y < this.gridSize) {
+        const index = y * this.gridSize + x;
+        this.pixels[index] = this.selectedColor;
+      }
     }
   }
 });

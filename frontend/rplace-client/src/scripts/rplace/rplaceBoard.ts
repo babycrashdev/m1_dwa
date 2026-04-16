@@ -1,8 +1,10 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
+import { useAuthStore } from '../../stores/auth';
 
 export function useRPlaceBoard() {
   const store = useRPlaceStore();
+  const authStore = useAuthStore();
   const canvasRef = ref<HTMLCanvasElement | null>(null);
   let ctx: CanvasRenderingContext2D | null = null;
   let animationFrame: number;
@@ -12,17 +14,18 @@ export function useRPlaceBoard() {
     y: 0,
     scale: 10,
     isDragging: false,
+    dragMoved: false,
     lastMouseX: 0,
     lastMouseY: 0
   };
 
   const overviewImage = new Image();
-  // TODO: Mettre l'image global de la map
+  // TODO: Mettre l'image globale de la map
   overviewImage.src = '/local/FondTemp2.png';
   let isImageLoaded = false;
   overviewImage.onload = () => { isImageLoaded = true; };
 
-  // Realise et debug grace a l'IA
+  // Réalisé et débuggé grâce à l'IA
   const draw = () => {
     if (!ctx || !canvasRef.value) return;
 
@@ -33,7 +36,7 @@ export function useRPlaceBoard() {
     ctx.scale(camera.scale, camera.scale);
     ctx.translate(-store.gridSize / 2, -store.gridSize / 2);
 
-    // Scale 5 (a changer pour avoir l'image de fond plus tot/tard)
+    // Scale 5 (à changer pour avoir l'image de fond plus tôt/tard)
     if (camera.scale < 5 && isImageLoaded) {
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(overviewImage, 0, 0, store.gridSize, store.gridSize);
@@ -76,6 +79,7 @@ export function useRPlaceBoard() {
   const handleMouseDown = (e: MouseEvent) => {
     if (e.button === 0) {
       camera.isDragging = true;
+      camera.dragMoved = false;
       camera.lastMouseX = e.clientX;
       camera.lastMouseY = e.clientY;
     }
@@ -86,6 +90,10 @@ export function useRPlaceBoard() {
       const dx = e.clientX - camera.lastMouseX;
       const dy = e.clientY - camera.lastMouseY;
       
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        camera.dragMoved = true;
+      }
+
       camera.x += dx;
       camera.y += dy;
       
@@ -94,7 +102,16 @@ export function useRPlaceBoard() {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: MouseEvent) => {
+    if (camera.isDragging && !camera.dragMoved && camera.scale >= 5) {
+      if (authStore.isAuthenticated) {
+        const { x, y } = screenToGrid(e.clientX, e.clientY);
+        store.placePixel(x, y);
+      } else {
+        // TODO : afficher un message à l'utilisateur
+        console.warn('Vous devez être connecté pour dessiner !');
+      }
+    }
     camera.isDragging = false;
   };
 
