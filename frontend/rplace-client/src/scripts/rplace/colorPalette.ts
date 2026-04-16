@@ -7,8 +7,13 @@ export function useColorPalette() {
     '#FF4500', '#FFA800', '#FFD635', '#00A368', 
     '#3690EA', '#ffffffff', '#811E9F', '#000000'
   ];
+  const selectColor = (color: string) => {
+    store.selectedColor = color;
+  };
 
   return {
-    colors
+    colors,
+    selectedColor: store.selectedColor,
+    selectColor
   };
 }
