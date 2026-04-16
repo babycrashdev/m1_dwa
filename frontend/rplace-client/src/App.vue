@@ -26,7 +26,7 @@
 
     <main class="content-wrapper">
       <div v-if="currentView === 'grid'" class="hero-section">
-        <!-- <Grid /> -->
+        <RPlace />
       </div>
 
       <div v-if="currentView === 'clicker'" class="game-section">
@@ -40,8 +40,10 @@
 </template>
 
 <script setup lang="ts">
+  import Register from './components/Register.vue';
+  import RPlace from './components/RPlace.vue';
   import Profile from './components/Profile.vue';
-  import Clicker from './components/Clicker.vue'
+  import Clicker from './components/Clicker.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 
