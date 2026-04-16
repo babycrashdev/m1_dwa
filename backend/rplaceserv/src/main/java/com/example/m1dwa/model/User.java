@@ -31,4 +31,7 @@ public class User {
 
     @Column(nullable = true)
     private LocalDateTime lastPixelPlacedAt;
+  
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Wallet wallet;
 }
