@@ -11,18 +11,18 @@ export function useRPlaceBoard() {
 
 
   const offscreenCanvas = document.createElement('canvas');
-  offscreenCanvas.width = 100;
-  offscreenCanvas.height = 100;
+  offscreenCanvas.width = store.gridSize;
+  offscreenCanvas.height = store.gridSize;
   const offscreenCtx = offscreenCanvas.getContext('2d', { alpha: false });
 
   const updateBuffer = () => {
     if (!offscreenCtx) return;
     offscreenCtx.fillStyle = '#ffffff';
-    offscreenCtx.fillRect(0, 0, 100, 100);
+    offscreenCtx.fillRect(0, 0, store.gridSize, store.gridSize);
 
     for (let i = 0; i < store.pixels.length; i++) {
-      const x = i % 100;
-      const y = Math.floor(i / 100);
+      const x = i % store.gridSize;
+      const y = Math.floor(i / store.gridSize);
       const color = store.pixels[i];
       if (color && color !== '#ffffff') {
         offscreenCtx.fillStyle = color;
@@ -217,8 +217,8 @@ export function useRPlaceBoard() {
 
       await store.fetchInitialBoard();
       store.connectWebSocket();
-      //store.generateTestGrid();
       
+      //store.generateTestGrid();
       updateBuffer();
 
       draw();

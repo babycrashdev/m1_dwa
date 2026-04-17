@@ -24,6 +24,9 @@ public class PixelWSController {
     private final PixelRepository pixelRepository;
     private final UserRepository userRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${rplace.grid.size}")
+    private int gridSize;
+
     @MessageMapping("/place")
     @SendTo("/topic/board")
     public PixelDTO handlePlacePixel(PlacePixelRequest request, Authentication authentication) {
@@ -36,8 +39,8 @@ public class PixelWSController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + username));
 
-        if (request.x() < 0 || request.x() >= 100 || request.y() < 0 || request.y() >= 100) {
-            log.error("Coordonnées invalides: {}, {}", request.x(), request.y());
+        if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
+            log.error("Coordonnées invalides: {}, {} (limite: {})", request.x(), request.y(), gridSize);
             return null;
         }
 

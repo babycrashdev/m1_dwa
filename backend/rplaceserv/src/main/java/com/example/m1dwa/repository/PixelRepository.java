@@ -14,6 +14,8 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
     Optional<Pixel> findByXAndY(int x, int y);
 
     // Requête optimisée pour récupérer tous les pixels sous forme de DTO (proposé par l'IA, à vérifier)
-    @Query("SELECT new com.example.m1dwa.dto.PixelDTO(p.x, p.y, p.color) FROM Pixel p")
-    List<PixelDTO> findAllSimplified();
+    @Query("SELECT new com.example.m1dwa.dto.PixelDTO(p.x, p.y, p.color) FROM Pixel p WHERE p.x < :size AND p.y < :size")
+    List<PixelDTO> findAllSimplified(int size);
+
+    boolean existsByXAndY(int x, int y);
 }

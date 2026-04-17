@@ -3,10 +3,12 @@ import { Client } from '@stomp/stompjs';
 import axios from 'axios';
 import { useAuthStore } from './auth';
 
+const GRID_SIZE = 100;
+
 export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
-    pixels: Array(100 * 100).fill('#FFFFFF') as string[],
-    gridSize: 100,
+    pixels: Array(GRID_SIZE * GRID_SIZE).fill('#FFFFFF') as string[],
+    gridSize: GRID_SIZE,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
     stompClient: null as Client | null,
@@ -86,7 +88,8 @@ export const useRPlaceStore = defineStore('rplace', {
 
     // Temporaire : génère une grille aléatoire pour tester
     generateTestGrid() {
-      for (let i = 0; i < 10000; i++) {
+      const total = this.gridSize * this.gridSize;
+      for (let i = 0; i < total; i++) {
         const r = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
         const g = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
         const b = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
