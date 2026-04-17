@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
 
@@ -8,6 +8,47 @@ export function useRPlaceBoard() {
   const canvasRef = ref<HTMLCanvasElement | null>(null);
   let ctx: CanvasRenderingContext2D | null = null;
   let animationFrame: number;
+
+
+  const offscreenCanvas = document.createElement('canvas');
+  offscreenCanvas.width = 100;
+  offscreenCanvas.height = 100;
+  const offscreenCtx = offscreenCanvas.getContext('2d', { alpha: false });
+
+  const updateBuffer = () => {
+    if (!offscreenCtx) return;
+    offscreenCtx.fillStyle = '#ffffff';
+    offscreenCtx.fillRect(0, 0, 100, 100);
+
+    for (let i = 0; i < store.pixels.length; i++) {
+      const x = i % 100;
+      const y = Math.floor(i / 100);
+      const color = store.pixels[i];
+      if (color && color !== '#ffffff') {
+        offscreenCtx.fillStyle = color;
+        offscreenCtx.fillRect(x, y, 1, 1);
+      }
+    }
+  };
+
+  const updatePixelOnBuffer = (x: number, y: number, color: string) => {
+    if (!offscreenCtx || !color) return;
+    offscreenCtx.fillStyle = color;
+    offscreenCtx.fillRect(x, y, 1, 1);
+  };
+
+  watch(() => store.isInitialLoaded, (loaded) => {
+    if (loaded) updateBuffer();
+  });
+
+  store.$onAction(({ name, args, after }) => {
+    if (name === 'placePixel' || name === 'updatePixelFromWS') {
+      after(() => {
+        const [x, y, color] = args as [number, number, string];
+        updatePixelOnBuffer(x, y, color || store.selectedColor);
+      });
+    }
+  });
 
   const camera = {
     x: 0,
@@ -20,10 +61,11 @@ export function useRPlaceBoard() {
   };
 
   const overviewImage = new Image();
-  // TODO: Mettre l'image globale de la map
   overviewImage.src = '/local/FondTemp2.png';
   let isImageLoaded = false;
   overviewImage.onload = () => { isImageLoaded = true; };
+
+  const hoveredPixel = ref({ x: -1, y: -1 });
 
   // Réalisé et débuggé grâce à l'IA
   const draw = () => {
@@ -42,17 +84,16 @@ export function useRPlaceBoard() {
       ctx.drawImage(overviewImage, 0, 0, store.gridSize, store.gridSize);
     } else {
       ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, store.gridSize, store.gridSize);
+      ctx.drawImage(offscreenCanvas, 0, 0);
 
-      for (let y = 0; y < store.gridSize; y++) {
-        for (let x = 0; x < store.gridSize; x++) {
-          const color = store.pixels[y * store.gridSize + x] ?? '#ffffff';
-          if (color !== '#ffffff') {
-            ctx.fillStyle = color;
-            ctx.fillRect(x, y, 1, 1);
-          }
-        }
+      if (hoveredPixel.value.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
+        ctx.fillStyle = store.selectedColor;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+        ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.1;
+        ctx.strokeRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
       }
     }
 
@@ -86,6 +127,13 @@ export function useRPlaceBoard() {
   };
 
   const handleMouseMove = (e: MouseEvent) => {
+    const { x, y } = screenToGrid(e.clientX, e.clientY);
+    if (x >= 0 && x < store.gridSize && y >= 0 && y < store.gridSize) {
+      hoveredPixel.value = { x, y };
+    } else {
+      hoveredPixel.value = { x: -1, y: -1 };
+    }
+
     if (camera.isDragging) {
       const dx = e.clientX - camera.lastMouseX;
       const dy = e.clientY - camera.lastMouseY;
@@ -104,12 +152,14 @@ export function useRPlaceBoard() {
 
   const handleMouseUp = (e: MouseEvent) => {
     if (camera.isDragging && !camera.dragMoved && camera.scale >= 5) {
-      if (authStore.isAuthenticated) {
-        const { x, y } = screenToGrid(e.clientX, e.clientY);
-        store.placePixel(x, y);
-      } else {
+      if (!authStore.isAuthenticated) {
         // TODO : afficher un message à l'utilisateur
         console.warn('Vous devez être connecté pour dessiner !');
+      } else if (store.cooldownSeconds > 0) {
+        console.warn(`Veuillez attendre ${store.cooldownSeconds}s`);
+      } else {
+        const { x, y } = screenToGrid(e.clientX, e.clientY);
+        store.placePixel(x, y);
       }
     }
     camera.isDragging = false;
@@ -168,6 +218,8 @@ export function useRPlaceBoard() {
       await store.fetchInitialBoard();
       store.connectWebSocket();
       //store.generateTestGrid();
+      
+      updateBuffer();
 
       draw();
     }

@@ -41,8 +41,7 @@ export const useRPlaceStore = defineStore('rplace', {
           console.log('Connecté au WebSocket');
           this.stompClient?.subscribe('/topic/board', (message) => {
             const pixel = JSON.parse(message.body);
-            const index = pixel.y * this.gridSize + pixel.x;
-            this.pixels[index] = pixel.color;
+            this.updatePixelFromWS(pixel.x, pixel.y, pixel.color);
           });
         },
         onStompError: (frame) => {
@@ -51,6 +50,11 @@ export const useRPlaceStore = defineStore('rplace', {
       });
 
       this.stompClient.activate();
+    },
+
+    updatePixelFromWS(x: number, y: number, color: string) {
+      const index = y * this.gridSize + x;
+      this.pixels[index] = color;
     },
 
     placePixel(x: number, y: number) {

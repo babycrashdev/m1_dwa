@@ -1,6 +1,7 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #1a1a1a;
   /*background-image: url("public/local/FondTemp2.png");
   background-position: center;
   background-size: cover;
