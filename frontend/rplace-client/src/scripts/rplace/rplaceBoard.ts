@@ -11,9 +11,13 @@ export function useRPlaceBoard() {
 
 
   const offscreenCanvas = document.createElement('canvas');
-  offscreenCanvas.width = store.gridSize;
-  offscreenCanvas.height = store.gridSize;
-  const offscreenCtx = offscreenCanvas.getContext('2d', { alpha: false });
+  let offscreenCtx: CanvasRenderingContext2D | null = null;
+
+  const setupBuffer = () => {
+    offscreenCanvas.width = store.gridSize;
+    offscreenCanvas.height = store.gridSize;
+    offscreenCtx = offscreenCanvas.getContext('2d', { alpha: false });
+  };
 
   const updateBuffer = () => {
     if (!offscreenCtx) return;
@@ -203,6 +207,10 @@ export function useRPlaceBoard() {
 
   onMounted(async () => {
     if (canvasRef.value) {
+      await store.fetchConfig();
+      
+      setupBuffer();
+
       ctx = canvasRef.value.getContext('2d', { alpha: false });
       if (ctx) {
         ctx.imageSmoothingEnabled = false;
@@ -216,6 +224,7 @@ export function useRPlaceBoard() {
       canvasRef.value.addEventListener('wheel', handleWheel, { passive: false });
 
       await store.fetchInitialBoard();
+      
       store.connectWebSocket();
       
       //store.generateTestGrid();

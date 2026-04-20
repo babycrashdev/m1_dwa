@@ -3,25 +3,40 @@ import { Client } from '@stomp/stompjs';
 import axios from 'axios';
 import { useAuthStore } from './auth';
 
-const GRID_SIZE = 100;
-
 export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
-    pixels: Array(GRID_SIZE * GRID_SIZE).fill('#FFFFFF') as string[],
-    gridSize: GRID_SIZE,
+    pixels: [] as string[],
+    gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
     stompClient: null as Client | null,
     isInitialLoaded: false
   }),
   actions: {
+    async fetchConfig() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/config/rplace');
+        this.gridSize = response.data.gridSize;
+        this.pixels = Array(this.gridSize * this.gridSize).fill('#FFFFFF');
+        console.log(`Configuration récupérée : Grille de ${this.gridSize}x${this.gridSize}`);
+      } catch (error) {
+        console.error('Impossible de récupérer la config r/place', error);
+        this.gridSize = 100;
+        this.pixels = Array(100 * 100).fill('#FFFFFF');
+      }
+    },
+
     async fetchInitialBoard() {
+      if (this.gridSize === 0) await this.fetchConfig();
+      
       try {
         const response = await axios.get('http://localhost:8080/api/pixels');
         if (Array.isArray(response.data)) {
           response.data.forEach((pixel: any) => {
             const index = pixel.y * this.gridSize + pixel.x;
-            this.pixels[index] = pixel.color;
+            if (index < this.pixels.length) {
+              this.pixels[index] = pixel.color;
+            }
           });
           this.isInitialLoaded = true;
         }
