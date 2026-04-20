@@ -24,7 +24,7 @@ export const useGameStore = defineStore('game', () => {
 
         const amountToSync = pendingSync.value;
         try {
-            const response = await axios.post('http://localhost:8080/api/user/clicker/sync',
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/sync`,
                 { increment: amountToSync },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

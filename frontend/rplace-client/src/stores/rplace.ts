@@ -15,7 +15,7 @@ export const useRPlaceStore = defineStore('rplace', {
   actions: {
     async fetchConfig() {
       try {
-        const response = await axios.get('http://localhost:8080/api/config/rplace');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/config/rplace`);
         this.gridSize = response.data.gridSize;
         this.pixels = Array(this.gridSize * this.gridSize).fill('#FFFFFF');
         console.log(`Configuration récupérée : Grille de ${this.gridSize}x${this.gridSize}`);
@@ -30,7 +30,7 @@ export const useRPlaceStore = defineStore('rplace', {
       if (this.gridSize === 0) await this.fetchConfig();
       
       try {
-        const response = await axios.get('http://localhost:8080/api/pixels');
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/pixels`);
         if (Array.isArray(response.data)) {
           response.data.forEach((pixel: any) => {
             const index = pixel.y * this.gridSize + pixel.x;
@@ -50,7 +50,7 @@ export const useRPlaceStore = defineStore('rplace', {
       if (this.stompClient || !authStore.token) return;
 
       this.stompClient = new Client({
-        brokerURL: 'ws://localhost:8080/ws',
+        brokerURL: import.meta.env.VITE_WS_URL,
         connectHeaders: {
           Authorization: `Bearer ${authStore.token}`
         },

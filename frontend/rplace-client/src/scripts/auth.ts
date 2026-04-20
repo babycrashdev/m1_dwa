@@ -33,14 +33,14 @@ export function useAuth() {
       : { ...user };
 
     try {
-      const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}${endpoint}`, payload);
       
       if (mode.value === 'login') {
         const { token } = response.data;
         authStore.setToken(token);
         
         try {
-          const userResponse = await axios.get('http://localhost:8080/api/user/me', {
+          const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/me`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const userData = userResponse.data;

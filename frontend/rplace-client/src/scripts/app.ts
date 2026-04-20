@@ -15,7 +15,7 @@ export function useApp() {
   onMounted(async () => {
     if (authStore.isAuthenticated && authStore.token) {
         try {
-            const response = await axios.get('http://localhost:8080/api/user/me', {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/me`, {
                 headers: { Authorization: `Bearer ${authStore.token}` }
             });
             authStore.setUser(response.data);
