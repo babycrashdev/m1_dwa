@@ -47,15 +47,18 @@ export const useRPlaceStore = defineStore('rplace', {
 
     connectWebSocket() {
       const authStore = useAuthStore();
-      if (this.stompClient || !authStore.token) return;
+      if (this.stompClient) return;
+
+      const connectHeaders: Record<string, string> = {};
+      if (authStore.token) {
+        connectHeaders['Authorization'] = `Bearer ${authStore.token}`;
+      }
 
       this.stompClient = new Client({
         brokerURL: import.meta.env.VITE_WS_URL,
-        connectHeaders: {
-          Authorization: `Bearer ${authStore.token}`
-        },
+        connectHeaders: connectHeaders,
         onConnect: () => {
-          console.log('Connecté au WebSocket');
+          console.log(authStore.token ? 'Connecté au WebSocket (Authentifié)' : 'Connecté au WebSocket (Anonyme)');
           this.stompClient?.subscribe('/topic/board', (message) => {
             const pixel = JSON.parse(message.body);
             this.updatePixelFromWS(pixel.x, pixel.y, pixel.color);
@@ -67,6 +70,14 @@ export const useRPlaceStore = defineStore('rplace', {
       });
 
       this.stompClient.activate();
+    },
+
+    disconnectWebSocket() {
+      if (this.stompClient) {
+        this.stompClient.deactivate();
+        this.stompClient = null;
+        console.log('WebSocket déconnecté');
+      }
     },
 
     updatePixelFromWS(x: number, y: number, color: string) {
