@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>m1dwa-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.2.0</version>
 	<name>m1dwa-server</name>
 	<description>Server for m1_dwa project</description>
 	<properties>
