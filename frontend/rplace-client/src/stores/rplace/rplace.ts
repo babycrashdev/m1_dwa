@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { Client } from '@stomp/stompjs';
 import axios from 'axios';
-import { useAuthStore } from './auth';
-import { useGameStore } from './game';
+import { useAuthStore } from '../auth';
+import { useGameStore } from '../clicker/game';
 
 export interface PixelData {
   x: number;

@@ -1,5 +1,5 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { useRPlaceStore } from '../../stores/rplace';
+import { useRPlaceStore } from '../../stores/rplace/rplace';
 import { useAuthStore } from '../../stores/auth';
 
 export function useRPlaceBoard() {

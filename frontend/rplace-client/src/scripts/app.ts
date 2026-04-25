@@ -1,7 +1,7 @@
 import { watch, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useAppStore } from '../stores/app';
-import { useGameStore } from '../stores/game';
+import { useGameStore } from '../stores/clicker/game';
 import { storeToRefs } from 'pinia';
 import axios from 'axios';
 
