@@ -33,6 +33,9 @@ public class Pixel {
     @Column(nullable = true)
     private LocalDateTime lastModifiedAt;
 
+    @Column(nullable = false)
+    private long price = 0;
+
     public Pixel(int x, int y, String color) {
         this.x = x;
         this.y = y;
