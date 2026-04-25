@@ -1,0 +1,14 @@
+worker:
+  basePrice: 100
+  priceMultiplier: 1.5
+  baseIntervalMs: 10000
+  baseProduction: 1
+  upgrades:
+    efficiency:
+      basePrice: 250
+      priceMultiplier: 1.8
+      reductionPerLevelMs: 1000
+    production:
+      basePrice: 500
+      priceMultiplier: 2.0
+      increasePerLevel: 1

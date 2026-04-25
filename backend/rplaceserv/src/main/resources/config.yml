@@ -1,0 +1,9 @@
+# General Game Configuration
+rplace:
+  gridSize: 100
+  initialPrice: 10
+  pixelPriceIncrement: 5
+
+clicker:
+  syncIntervalMs: 10000
+  baseCarValue: 10

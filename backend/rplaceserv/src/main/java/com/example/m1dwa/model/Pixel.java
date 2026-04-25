@@ -34,7 +34,7 @@ public class Pixel {
     private LocalDateTime lastModifiedAt;
 
     @Column(nullable = false)
-    private long price = "${rplace.pixel.initial-price}";
+    private long price = 0;
 
     public Pixel(int x, int y, String color) {
         this.x = x;

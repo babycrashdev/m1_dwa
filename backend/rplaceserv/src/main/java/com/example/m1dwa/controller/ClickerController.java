@@ -1,49 +1,57 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 package com.example.m1dwa.controller;
 
-import com.example.m1dwa.repository.WalletRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.m1dwa.dto.ClickerStateDTO;
+import com.example.m1dwa.service.ClickerService;
+import com.example.m1dwa.service.GameConfigService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/user/clicker")
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class ClickerController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClickerController.class);
+    private final ClickerService clickerService;
+    private final GameConfigService gameConfigService;
 
-    @Autowired
-    private WalletRepository walletRepository;
+    @GetMapping("/config/clicker")
+    public ResponseEntity<?> getClickerConfig() {
+        return ResponseEntity.ok(Map.of(
+            "global", gameConfigService.getClickerConfig(),
+            "upgrades", gameConfigService.getUpgrades()
+        ));
+    }
 
-    @PostMapping("/sync")
-    /* Aider par l'IA pour faire fonctionner correctement */
-    public ResponseEntity<?> syncClickerData(@RequestBody Map<String, Long> payload, Authentication authentication) {
-        String username = authentication.getName();
-        Long increment = payload.get("increment");
+    @GetMapping("/user/clicker/state")
+    public ResponseEntity<ClickerStateDTO> getPlayerState(Authentication authentication) {
+        return ResponseEntity.ok(clickerService.getClickerState(authentication.getName()));
+    }
 
-        if (increment == null || increment < 0) {
-            return ResponseEntity.badRequest().body("Argument d'increment invalide");
+    @PostMapping("/user/clicker/upgrade")
+    public ResponseEntity<ClickerStateDTO> upgrade(
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        
+        String type = request.get("type");
+        String subType = request.get("subType");
+        
+        return ResponseEntity.ok(clickerService.upgrade(authentication.getName(), type, subType));
+    }
+
+    @PostMapping("/user/clicker/sync")
+    public ResponseEntity<?> syncMoneys(
+            @RequestBody Map<String, Long> request,
+            Authentication authentication) {
+        
+        Long amount = request.get("amount");
+        if (amount != null && amount > 0) {
+            clickerService.syncMoneys(authentication.getName(), amount);
         }
-
-        logger.debug("Synchronisation pour {}: +{} moneys", username, increment);
-
-        int updated = walletRepository.incrementMoneys(username, increment);
-
-        if (updated == 0) {
-            return ResponseEntity.status(404).body("Utilisateur ou portefeuille introuvable");
-        }
-
-        long currentMoneys = walletRepository.findByUserUsername(username)
-                .map(wallet -> wallet.getMoneys())
-                .orElse(0L);
-
-        return ResponseEntity.ok(Map.of("moneys", currentMoneys));
+        return ResponseEntity.ok().build();
     }
 }
