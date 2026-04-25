@@ -35,6 +35,30 @@ M --> M1[Position/couleur des pixels]
 M --> M2[Prix des pixels]
 end
 
-
-
 ```
+
+---
+## Lancement application
+
+### 1. Backend & Infrastructure (Docker)
+```bash
+# Compiler le serveur
+cd backend/rplaceserv
+mvn clean package
+
+# Lancer la DB et l'API
+cd backend
+docker-compose up -d
+```
+
+### 2. Frontend (Vue.js)
+```bash
+# Lancer le client
+cd frontend/rplace-client
+npm install
+npm run dev
+```
+---
+**Accès :**
+- Frontend : http://localhost:5173
+- API : http://localhost:8080

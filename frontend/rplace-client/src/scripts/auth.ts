@@ -2,6 +2,7 @@
 import { ref, reactive, watch } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
+import { useGameStore } from '../stores/game';
 
 export function useAuth() {
   const authStore = useAuthStore();
@@ -32,12 +33,30 @@ export function useAuth() {
       : { ...user };
 
     try {
-      const response = await axios.post(`http://localhost:8080${endpoint}`, payload);
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}${endpoint}`, payload);
       
       if (mode.value === 'login') {
-        const { token, username } = response.data;
+        const { token } = response.data;
         authStore.setToken(token);
-        authStore.setUser({ username });
+        
+        try {
+          const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/me`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const userData = userResponse.data;
+          authStore.setUser(userData);
+          
+          const gameStore = useGameStore();
+          gameStore.money = userData.moneys || 0;
+        } catch (meError) {
+          console.error("Erreur lors de la récupération du profil:", meError);
+          authStore.setUser({ 
+            username: response.data.username, 
+            age: response.data.age, 
+            country: response.data.country 
+          });
+        }
+
         message.value = "Connexion réussie !";
         messageType.value = 'success';
       } else {

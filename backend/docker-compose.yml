@@ -21,7 +21,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./rplaceserv/target/m1dwa-server-0.0.1-SNAPSHOT.jar:/app/app.jar
+      - ./rplaceserv/target/m1dwa-server-0.2.0.jar:/app/app.jar
     working_dir: /app
     environment:
       - SPRING_DATASOURCE_URL=${DB_URL}

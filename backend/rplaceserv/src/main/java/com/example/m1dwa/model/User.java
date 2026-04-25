@@ -1,6 +1,7 @@
 package com.example.m1dwa.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -27,4 +28,10 @@ public class User {
 
     @Column(nullable = false)
     private String country;
+
+    @Column(nullable = true)
+    private LocalDateTime lastPixelPlacedAt;
+  
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Wallet wallet;
 }
