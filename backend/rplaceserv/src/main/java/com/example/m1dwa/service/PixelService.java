@@ -28,10 +28,10 @@ public class PixelService {
     @Value("${rplace.grid.size}")
     private int gridSize;
 
-    @Value("${rplace.pixel.initial-price:10}")
+    @Value("${rplace.pixel.initial-price}")
     private long initialPrice;
 
-    @Value("${rplace.pixel.price-increment:5}")
+    @Value("${rplace.pixel.price-increment}")
     private long priceIncrement;
 
     @Transactional

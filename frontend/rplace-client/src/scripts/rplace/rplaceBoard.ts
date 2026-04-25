@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
 
@@ -27,9 +27,9 @@ export function useRPlaceBoard() {
     for (let i = 0; i < store.pixels.length; i++) {
       const x = i % store.gridSize;
       const y = Math.floor(i / store.gridSize);
-      const color = store.pixels[i];
-      if (color && color !== '#ffffff') {
-        offscreenCtx.fillStyle = color;
+      const pixel = store.pixels[i];
+      if (pixel && pixel.color && pixel.color !== '#ffffff') {
+        offscreenCtx.fillStyle = pixel.color;
         offscreenCtx.fillRect(x, y, 1, 1);
       }
     }
@@ -52,10 +52,15 @@ export function useRPlaceBoard() {
   });
 
   store.$onAction(({ name, args, after }) => {
-    if (name === 'placePixel' || name === 'updatePixelFromWS') {
+    if (name === 'placePixel') {
       after(() => {
-        const [x, y, color] = args as [number, number, string];
-        updatePixelOnBuffer(x, y, color || store.selectedColor);
+        const [x, y] = args as [number, number];
+        updatePixelOnBuffer(x, y, store.selectedColor);
+      });
+    } else if (name === 'updatePixelFromWS') {
+      after(() => {
+        const [pixelData] = args as [any];
+        updatePixelOnBuffer(pixelData.x, pixelData.y, pixelData.color);
       });
     }
   });
@@ -76,6 +81,24 @@ export function useRPlaceBoard() {
   overviewImage.onload = () => { isImageLoaded = true; };
 
   const hoveredPixel = ref({ x: -1, y: -1 });
+  const mousePos = ref({ x: 0, y: 0 });
+
+  const hoveredPixelData = computed(() => {
+    if (hoveredPixel.value.x === -1) return null;
+    const index = hoveredPixel.value.y * store.gridSize + hoveredPixel.value.x;
+    return store.pixels[index] || null;
+  });
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit'
+    });
+  };
 
   // Réalisé et débuggé grâce à l'IA
   const draw = () => {
@@ -137,6 +160,7 @@ export function useRPlaceBoard() {
   };
 
   const handleMouseMove = (e: MouseEvent) => {
+    mousePos.value = { x: e.clientX, y: e.clientY };
     const { x, y } = screenToGrid(e.clientX, e.clientY);
     if (x >= 0 && x < store.gridSize && y >= 0 && y < store.gridSize) {
       hoveredPixel.value = { x, y };
@@ -165,11 +189,13 @@ export function useRPlaceBoard() {
       if (!authStore.isAuthenticated) {
         // TODO : afficher un message à l'utilisateur
         console.warn('Vous devez être connecté pour dessiner !');
-      } else if (store.cooldownSeconds > 0) {
-        console.warn(`Veuillez attendre ${store.cooldownSeconds}s`);
       } else {
         const { x, y } = screenToGrid(e.clientX, e.clientY);
-        store.placePixel(x, y);
+        try {
+          store.placePixel(x, y);
+        } catch (error: any) {
+          console.warn(error.message);
+        }
       }
     }
     camera.isDragging = false;
@@ -249,6 +275,10 @@ export function useRPlaceBoard() {
   });
 
   return {
-    canvasRef
+    canvasRef,
+    hoveredPixel,
+    mousePos,
+    hoveredPixelData,
+    formatDate
   };
 }

@@ -2,27 +2,48 @@ import { defineStore } from 'pinia';
 import { Client } from '@stomp/stompjs';
 import axios from 'axios';
 import { useAuthStore } from './auth';
+import { useGameStore } from './game';
+
+export interface PixelData {
+  x: number;
+  y: number;
+  color: string;
+  price: number;
+  ownerName?: string;
+  lastModifiedAt?: string;
+}
 
 export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
-    pixels: [] as string[],
+    pixels: [] as PixelData[],
     gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
     stompClient: null as Client | null,
-    isInitialLoaded: false
+    isInitialLoaded: false,
+    initialPrice: 10
   }),
   actions: {
     async fetchConfig() {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/config/rplace`);
         this.gridSize = response.data.gridSize;
-        this.pixels = Array(this.gridSize * this.gridSize).fill('#FFFFFF');
+        this.pixels = Array.from({ length: this.gridSize * this.gridSize }, (_, i) => ({
+          x: i % this.gridSize,
+          y: Math.floor(i / this.gridSize),
+          color: '#FFFFFF',
+          price: this.initialPrice
+        }));
         console.log(`Configuration récupérée : Grille de ${this.gridSize}x${this.gridSize}`);
       } catch (error) {
         console.error('Impossible de récupérer la config r/place', error);
         this.gridSize = 100;
-        this.pixels = Array(100 * 100).fill('#FFFFFF');
+        this.pixels = Array.from({ length: 100 * 100 }, (_, i) => ({
+          x: i % 100,
+          y: Math.floor(i / 100),
+          color: '#FFFFFF',
+          price: 10
+        }));
       }
     },
 
@@ -35,7 +56,14 @@ export const useRPlaceStore = defineStore('rplace', {
           response.data.forEach((pixel: any) => {
             const index = pixel.y * this.gridSize + pixel.x;
             if (index < this.pixels.length) {
-              this.pixels[index] = pixel.color;
+              this.pixels[index] = {
+                x: pixel.x,
+                y: pixel.y,
+                color: pixel.color,
+                price: pixel.price,
+                ownerName: pixel.ownerName,
+                lastModifiedAt: pixel.lastModifiedAt
+              };
             }
           });
           this.isInitialLoaded = true;
@@ -60,8 +88,8 @@ export const useRPlaceStore = defineStore('rplace', {
         onConnect: () => {
           console.log(authStore.token ? 'Connecté au WebSocket (Authentifié)' : 'Connecté au WebSocket (Anonyme)');
           this.stompClient?.subscribe('/topic/board', (message) => {
-            const pixel = JSON.parse(message.body);
-            this.updatePixelFromWS(pixel.x, pixel.y, pixel.color);
+            const pixelData = JSON.parse(message.body);
+            this.updatePixelFromWS(pixelData);
           });
         },
         onStompError: (frame) => {
@@ -80,17 +108,37 @@ export const useRPlaceStore = defineStore('rplace', {
       }
     },
 
-    updatePixelFromWS(x: number, y: number, color: string) {
-      const index = y * this.gridSize + x;
-      this.pixels[index] = color;
+    updatePixelFromWS(pixelData: PixelData) {
+      const authStore = useAuthStore();
+      const gameStore = useGameStore();
+      const index = pixelData.y * this.gridSize + pixelData.x;
+      
+      if (pixelData.ownerName === authStore.user?.username) {
+        const oldPixel = this.pixels[index];
+        const pricePaid = oldPixel ? oldPixel.price : 10;
+        gameStore.money -= pricePaid;
+        console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+      }
+
+      this.pixels[index] = pixelData;
     },
 
     placePixel(x: number, y: number) {
-      if (this.cooldownSeconds > 0) return;
+      const gameStore = useGameStore();
+      const index = y * this.gridSize + x;
+      const pixel = this.pixels[index];
+
+      // TODO : afficher un message à l'utilisateur
+      if (this.cooldownSeconds > 0) {
+        throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
+      }
       
+      if (pixel && gameStore.money < pixel.price) {
+        throw new Error("Solde insuffisant !");
+      }
+
       if (!this.stompClient || !this.stompClient.connected) {
-        console.error('WebSocket non connecté');
-        return;
+        throw new Error("WebSocket non connecté");
       }
 
       const payload = { x, y, color: this.selectedColor };
@@ -119,8 +167,14 @@ export const useRPlaceStore = defineStore('rplace', {
         const r = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
         const g = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
         const b = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        this.pixels[i] = `#${r}${g}${b}`;
+        this.pixels[i] = {
+          x: i % this.gridSize,
+          y: Math.floor(i / this.gridSize),
+          color: `#${r}${g}${b}`,
+          price: 10
+        };
       }
     }
   }
 });
+
