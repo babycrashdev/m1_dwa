@@ -101,7 +101,7 @@ public class ClickerService {
     }
 
     private Upgrade getOrCreateWorkerUpgrade(User user) {
-        return upgradeRepository.findByUserAndType(user, UpgradeType.WORKER)
+        return upgradeRepository.findFirstByUserAndType(user, UpgradeType.WORKER)
                 .orElseGet(() -> {
                     Upgrade newUpgrade = new Upgrade();
                     newUpgrade.setUser(user);

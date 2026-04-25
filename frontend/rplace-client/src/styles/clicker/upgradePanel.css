@@ -1,65 +1,154 @@
 .upgrade-panel {
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 15, 25, 0.8);
+  backdrop-filter: blur(15px);
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  color: white;
+  overflow-y: auto;
 }
 
 .resource-header {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.resource-header h3 {
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
 }
 
 .resource-item {
   display: flex;
   justify-content: space-between;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 10px 15px;
-  border-radius: 10px;
+  align-items: center;
 }
+
+.label { font-size: 0.75rem; font-weight: 600; }
+.value { font-family: 'Inter', sans-serif; font-weight: 700; }
+.value.highlight { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
 
 .upgrade-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  overflow-y: auto;
+  gap: 20px;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
 .upgrade-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 15px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.upgrade-card:hover {
-  transform: translateX(-5px);
+.upgrade-card:not(.disabled):hover {
   background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.upgrade-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
 }
 
 .upgrade-icon {
-  width: 40px;
-  height: 40px;
-  background: #444;
-  border-radius: 8px;
+  font-size: 1.5rem;
 }
 
 .upgrade-info {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
-.name { font-weight: bold; font-size: 0.9rem; }
-.cost { font-size: 0.8rem; color: #aaa; }
+.name { font-weight: 700; font-size: 0.95rem; }
+.desc { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); }
+.cost { font-weight: 800; color: #ffd700; font-size: 0.9rem; margin-top: 4px; }
+
+.level-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sub-upgrades-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.upgrade-card.sub {
+  padding: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+}
+
+/* Cycle de production */
+.production-cycle {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+  transition: width 0.1s linear;
+}
+
+.progress-label {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  text-align: right;
+}

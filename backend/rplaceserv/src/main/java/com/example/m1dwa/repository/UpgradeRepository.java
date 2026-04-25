@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface UpgradeRepository extends JpaRepository<Upgrade, Long> {
     List<Upgrade> findByUser(User user);
-    Optional<Upgrade> findByUserAndType(User user, UpgradeType type);
-    Optional<Upgrade> findByUserUsernameAndType(String username, UpgradeType type);
+    Optional<Upgrade> findFirstByUserAndType(User user, UpgradeType type);
+    Optional<Upgrade> findFirstByUserUsernameAndType(String username, UpgradeType type);
 }
