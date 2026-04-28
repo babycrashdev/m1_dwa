@@ -1,15 +1,14 @@
 <template>
   <div class="clicker-layout">
+    <CityMap />
     <div class="layout-header"></div>
 
     <div class="area-spawner">
       <ManualSpawner />
     </div>
 
-    <div class="area-city">
-      <CityMap />
-    </div>
 
+    <!-- 
     <div class="area-upgrade">
       <UpgradePanel />
     </div>
@@ -17,6 +16,7 @@
     <div class="area-inventory">
       <InventoryBar />
     </div>
+    -->
   </div>
 </template>
 

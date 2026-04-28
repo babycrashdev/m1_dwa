@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios';
 import { useUpgradeStore } from './upgradeStore';
+import { useDeliveryStore } from './deliveryStore';
 
 export const useGameStore = defineStore('game', () => {
     const money = ref(0);
@@ -13,6 +14,7 @@ export const useGameStore = defineStore('game', () => {
     const TICK_INTERVAL_MS = 50;
     
     const upgradeStore = useUpgradeStore();
+    const deliveryStore = useDeliveryStore();
 
     function addWeight(amount: number = 1) {
         currentWeight.value += amount;
@@ -40,17 +42,8 @@ export const useGameStore = defineStore('game', () => {
 
     function spawnGroupedCar() {
         if (currentWeight.value > 0) {
-            const carValue = upgradeStore.config?.global.baseCarValue || 10;
-            const totalValue = currentWeight.value * carValue;
-            
-            console.log(`[Game] Expédition de ${currentWeight.value} voitures pour ${totalValue} money`);
-            
-            money.value += totalValue;
-            pendingSync.value += totalValue;
+            deliveryStore.startDelivery(currentWeight.value);
             currentWeight.value = 0;
-
-            // TODO: Animation + mouvement
-            syncToBackend();
         }
     }
 
@@ -83,6 +76,7 @@ export const useGameStore = defineStore('game', () => {
         pendingSync,
         addWeight,
         startSpawnerTimer,
-        stopSpawnerTimer
+        stopSpawnerTimer,
+        syncToBackend
     };
 });
