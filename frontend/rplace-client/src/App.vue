@@ -21,6 +21,7 @@
             <line x1="15" y1="3" x2="15" y2="21"/>
           </svg>
         </button>
+        <LeaderboardButton />
       </div>
     </div>
 
@@ -44,6 +45,7 @@
   import RPlace from './components/RPlace.vue';
   import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue';
+  import LeaderboardButton from './components/LeaderboardButton.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 
