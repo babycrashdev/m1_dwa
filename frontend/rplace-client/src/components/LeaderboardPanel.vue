@@ -48,115 +48,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { useLeaderboardPanel } from '../scripts/leaderboardPanel';
 
 defineEmits(['close']);
 
-const topPixels = ref<{username: string, score: number}[]>([]);
-const topCredits = ref<{username: string, balance: number}[]>([]);
-
-onMounted(async () => {
-  try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-    
-    // On lance les deux appels en même temps pour gagner du temps
-    const [pixelsRes, creditsRes] = await Promise.all([
-      axios.get(`${apiUrl}/api/leaderboard/top-pixels`),
-      axios.get(`${apiUrl}/api/leaderboard/top-credits`)
-    ]);
-
-    topPixels.value = pixelsRes.data;
-    topCredits.value = creditsRes.data;
-  } catch (error) {
-    console.error("Erreur lors de la récupération des classements:", error);
-  }
-});
+const { topPixels, topCredits } = useLeaderboardPanel();
 </script>
 
 
 <!-- Contenu généré par IA en dessous-->
 
 <style src="../styles/auth.css" scoped></style>
-<style scoped>
-.leaderboard-card {
-  max-width: 950px;
-  width: 95%;
-}
-
-.leaderboard-columns {
-  display: flex;
-  gap: 25px;
-  margin-top: 10px;
-}
-
-.leaderboard-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 15px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
-}
-
-.column-title {
-  text-align: center;
-  font-size: 1rem;
-  color: #fbbf24;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 700;
-}
-
-.leaderboard-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  font-size: 0.9rem;
-  position: relative;
-}
-
-.empty-row {
-  opacity: 0.5;
-  border-style: dashed;
-}
-
-.leaderboard-row:hover:not(.empty-row) {
-  background: rgba(255, 255, 255, 0.12);
-  transform: scale(1.05) translateY(-2px);
-  border-color: #fbbf24;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-  z-index: 10;
-  cursor: pointer;
-}
-
-.rank-name {
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.rank-value {
-  font-weight: 700;
-  color: #fbbf24;
-}
-
-@media (max-width: 900px) {
-  .leaderboard-columns {
-    flex-direction: column;
-  }
-  .leaderboard-card {
-    max-height: 85vh;
-    overflow-y: auto;
-    padding: 30px 20px;
-  }
-}
-</style>
+<style src="../styles/leaderboardPanel.css" scoped></style>

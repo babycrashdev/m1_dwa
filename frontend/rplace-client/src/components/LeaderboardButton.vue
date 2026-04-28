@@ -9,11 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { useApp } from '../scripts/app';
-
-const { toggleLeaderboard } = useApp();
-
-const openLeaderboard = () => {
-  toggleLeaderboard();
-};
+import { useLeaderboardButton } from '../scripts/leaderboardButton';
+const { openLeaderboard } = useLeaderboardButton();
 </script>
+
+<style src="../styles/leaderboardButton.css" scoped></style>
