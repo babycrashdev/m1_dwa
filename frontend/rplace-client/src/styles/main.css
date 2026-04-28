@@ -19,15 +19,14 @@ body {
 .nav-container {
   position: fixed;
   top: 5.5rem;
-  left: 3.5rem;
-  transform: translateX(-50%);
+  left: 2rem;
   z-index: 1000;
 }
 
 .nav-controls {
   display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+  flex-direction: row;
+  gap: 1rem;
 }
 
 .view-toggle-btn {

@@ -10,18 +10,26 @@
           <!-- Top Pixels -->
           <div class="leaderboard-column">
             <h3 class="column-title">Top pixels</h3>
-            <div v-for="i in 5" :key="'pixel-'+i" class="leaderboard-row">
-              <span class="rank-name">Pseudo {{ i }}</span>
-              <span class="rank-value">--- {{}}</span>
+            <div v-for="(player, idx) in topPixels" :key="'pixel-'+idx" class="leaderboard-row">
+              <span class="rank-name">{{ player.username }}</span>
+              <span class="rank-value">{{ player.score }}px</span>
+            </div>
+            <div v-for="i in Math.max(0, 5 - topPixels.length)" :key="'empty-pix-'+i" class="leaderboard-row empty-row">
+              <span class="rank-name">---</span>
+              <span class="rank-value">0px</span>
             </div>
           </div>
 
           <!-- Top Credits -->
           <div class="leaderboard-column">
             <h3 class="column-title">Top credits</h3>
-            <div v-for="i in 5" :key="'credit-'+i" class="leaderboard-row">
-              <span class="rank-name">Pseudo {{ i }}</span>
-              <span class="rank-value">--- {{ }}</span>
+            <div v-for="(player, idx) in topCredits" :key="'credit-'+idx" class="leaderboard-row">
+              <span class="rank-name">{{ player.username }}</span>
+              <span class="rank-value">{{ player.balance }}✨</span>
+            </div>
+            <div v-for="i in Math.max(0, 5 - topCredits.length)" :key="'empty-cre-'+i" class="leaderboard-row empty-row">
+              <span class="rank-name">---</span>
+              <span class="rank-value">0✨</span>
             </div>
           </div>
 
@@ -29,7 +37,7 @@
           <div class="leaderboard-column">
             <h3 class="column-title">Pixel le plus vieux</h3>
             <div v-for="i in 5" :key="'age-'+i" class="leaderboard-row">
-              <span class="rank-name">Pseudo {{ i }}</span>
+              <span class="rank-name">--- {{}}</span>
               <span class="rank-value">--- {{}}</span>
             </div>
           </div>
@@ -40,7 +48,30 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
 defineEmits(['close']);
+
+const topPixels = ref<{username: string, score: number}[]>([]);
+const topCredits = ref<{username: string, balance: number}[]>([]);
+
+onMounted(async () => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    
+    // On lance les deux appels en même temps pour gagner du temps
+    const [pixelsRes, creditsRes] = await Promise.all([
+      axios.get(`${apiUrl}/api/leaderboard/top-pixels`),
+      axios.get(`${apiUrl}/api/leaderboard/top-credits`)
+    ]);
+
+    topPixels.value = pixelsRes.data;
+    topCredits.value = creditsRes.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des classements:", error);
+  }
+});
 </script>
 
 
@@ -89,14 +120,23 @@ defineEmits(['close']);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-size: 0.9rem;
+  position: relative;
 }
 
-.leaderboard-row:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.3);
+.empty-row {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.leaderboard-row:hover:not(.empty-row) {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.05) translateY(-2px);
+  border-color: #fbbf24;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  cursor: pointer;
 }
 
 .rank-name {
