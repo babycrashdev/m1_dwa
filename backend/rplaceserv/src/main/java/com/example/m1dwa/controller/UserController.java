@@ -23,6 +23,36 @@ public class UserController {
     @Autowired
     private WalletRepository walletRepository;
 
+    @Autowired
+    private com.example.m1dwa.repository.PixelRepository pixelRepository;
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserProfile(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(404).body("Utilisateur non trouvé");
+        }
+
+        Wallet wallet = walletRepository.findByUserUsername(username).orElseGet(() -> {
+            Wallet newWallet = new Wallet();
+            newWallet.setUser(user);
+            newWallet.setMoneys(0);
+            return walletRepository.save(newWallet);
+        });
+
+        long pixelCount = pixelRepository.countByLastModifiedByUsername(username);
+
+        return ResponseEntity.ok(new com.example.m1dwa.dto.UserProfileDTO(
+            user.getUsername(),
+            user.getCountry(),
+            user.getAge(),
+            wallet.getMoneys(),
+            pixelCount
+        ));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         String username = authentication.getName();

@@ -2,6 +2,7 @@
   <div class="app-container">
     <Profile />
     <LeaderboardPanel v-if="showLeaderboard" @close="toggleLeaderboard" />
+    <InfoPanel v-if="currentView === 'grid' && authStore.isAuthenticated" />
 
     <div v-if="!showAuth" class="nav-container">
       <div class="nav-controls">
@@ -48,6 +49,7 @@
   import Clicker from './components/Clicker.vue';
   import LeaderboardButton from './components/LeaderboardButton.vue';
   import LeaderboardPanel from './components/LeaderboardPanel.vue';
+  import InfoPanel from './components/InfoPanel.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 

@@ -20,4 +20,6 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
     List<PixelDTO> findAllSimplified(int size);
 
     boolean existsByXAndY(int x, int y);
+
+    long countByLastModifiedByUsername(String username);
 }
