@@ -10,7 +10,7 @@ export function useApp() {
   const appStore = useAppStore();
   const gameStore = useGameStore();
   
-  const { showAuth, currentView } = storeToRefs(appStore);
+  const { showAuth, showLeaderboard, currentView } = storeToRefs(appStore);
 
   onMounted(async () => {
     if (authStore.isAuthenticated && authStore.token) {
@@ -46,10 +46,16 @@ export function useApp() {
     showAuth.value = !showAuth.value;
   };
 
+  const toggleLeaderboard = () => {
+    showLeaderboard.value = !showLeaderboard.value;
+  };
+
   return {
     showAuth,
+    showLeaderboard,
     currentView,
     switchView,
-    toggleAuth
+    toggleAuth,
+    toggleLeaderboard
   };
 }

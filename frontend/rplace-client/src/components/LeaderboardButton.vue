@@ -9,7 +9,11 @@
 </template>
 
 <script setup lang="ts">
+import { useApp } from '../scripts/app';
+
+const { toggleLeaderboard } = useApp();
+
 const openLeaderboard = () => {
-  console.log("Ouverture du classement (à implémenter)");
+  toggleLeaderboard();
 };
 </script>
