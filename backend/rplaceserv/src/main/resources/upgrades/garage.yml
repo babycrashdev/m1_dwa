@@ -1,0 +1,9 @@
+garage:
+  category: BUILDING
+  basePrice: 1000
+  priceMultiplier: 2.0
+  upgrades:
+    value:
+      basePrice: 500
+      priceMultiplier: 1.5
+      increasePerLevel: 5

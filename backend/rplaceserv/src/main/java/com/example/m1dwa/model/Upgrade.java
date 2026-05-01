@@ -22,9 +22,8 @@ public class Upgrade {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UpgradeType type;
+    private String type;
 
     @Column(nullable = false)
     private int level = 0;

@@ -80,6 +80,7 @@ public class GameConfigService {
 
     private UpgradeDefinition mapToUpgradeDefinition(Map<String, Object> map) {
         UpgradeDefinition def = new UpgradeDefinition();
+        def.setCategory(map.getOrDefault("category", "DEFAULT").toString());
         def.setBasePrice(Long.valueOf(map.get("basePrice").toString()));
         def.setPriceMultiplier(Double.valueOf(map.get("priceMultiplier").toString()));
         def.setBaseIntervalMs(Long.valueOf(map.get("baseIntervalMs").toString()));

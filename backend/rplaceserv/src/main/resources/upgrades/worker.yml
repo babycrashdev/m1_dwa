@@ -1,4 +1,5 @@
 worker:
+  category: WORKER
   basePrice: 100
   priceMultiplier: 1.5
   baseIntervalMs: 10000

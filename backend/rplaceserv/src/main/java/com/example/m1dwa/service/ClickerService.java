@@ -3,7 +3,6 @@ package com.example.m1dwa.service;
 import com.example.m1dwa.config.UpgradeDefinition;
 import com.example.m1dwa.dto.ClickerStateDTO;
 import com.example.m1dwa.model.Upgrade;
-import com.example.m1dwa.model.UpgradeType;
 import com.example.m1dwa.model.User;
 import com.example.m1dwa.model.Wallet;
 import com.example.m1dwa.repository.UpgradeRepository;
@@ -30,15 +29,18 @@ public class ClickerService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
-        Upgrade upgrade = getOrCreateWorkerUpgrade(user);
+        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        Map<String, Integer> levelsMap = new java.util.HashMap<>();
+        
+        for (Upgrade u : upgrades) {
+            levelsMap.put(u.getType() + "_level", u.getLevel());
+            levelsMap.put(u.getType() + "_efficiency", u.getEfficiencyLevel());
+            levelsMap.put(u.getType() + "_production", u.getProductionLevel());
+        }
         
         return new ClickerStateDTO(
             user.getWallet().getMoneys(),
-            Map.of(
-                "workerCount", upgrade.getLevel(),
-                "efficiencyLevel", upgrade.getEfficiencyLevel(),
-                "productionLevel", upgrade.getProductionLevel()
-            )
+            levelsMap
         );
     }
 
@@ -47,10 +49,10 @@ public class ClickerService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
-        Upgrade upgrade = getOrCreateWorkerUpgrade(user);
         UpgradeDefinition config = gameConfigService.getUpgrades().get(upgradeType.toUpperCase());
-        
         if (config == null) throw new RuntimeException("Type d'upgrade inconnu: " + upgradeType);
+
+        Upgrade upgrade = getOrCreateUpgrade(user, upgradeType.toUpperCase());
 
         long price = 0;
         int currentLevel = 0;
@@ -100,12 +102,12 @@ public class ClickerService {
         log.debug("Synchronisation de {} moneys pour {}", amount, username);
     }
 
-    private Upgrade getOrCreateWorkerUpgrade(User user) {
-        return upgradeRepository.findFirstByUserAndType(user, UpgradeType.WORKER)
+    private Upgrade getOrCreateUpgrade(User user, String type) {
+        return upgradeRepository.findFirstByUserAndType(user, type)
                 .orElseGet(() -> {
                     Upgrade newUpgrade = new Upgrade();
                     newUpgrade.setUser(user);
-                    newUpgrade.setType(UpgradeType.WORKER);
+                    newUpgrade.setType(type);
                     newUpgrade.setLevel(0);
                     newUpgrade.setEfficiencyLevel(0);
                     newUpgrade.setProductionLevel(0);

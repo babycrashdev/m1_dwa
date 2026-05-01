@@ -5,6 +5,7 @@ import java.util.Map;
 
 @Data
 public class UpgradeDefinition {
+    private String category;
     private long basePrice;
     private double priceMultiplier;
     private long baseIntervalMs;
