@@ -11,6 +11,12 @@ export interface SubUpgradeConfig {
     increasePerLevel?: number;
 }
 
+export interface BoostConfig {
+    durationMs: number;
+    cooldownMs: number;
+    increaseDurationMs: number;
+}
+
 export interface UpgradeConfig {
     id: string; 
     category: string;
@@ -18,7 +24,17 @@ export interface UpgradeConfig {
     priceMultiplier: number;
     baseIntervalMs?: number;
     baseProduction?: number;
+    bonusValueBonus?: number;
+    boosts?: BoostConfig;
     upgrades: Record<string, SubUpgradeConfig>;
+}
+
+export interface UpgradeStatus {
+    level: number;
+    efficiency: number;
+    production: number;
+    lastBoostAt?: number;
+    lastAutoBonusAt?: number;
 }
 
 export interface ClickerConfig {
@@ -31,17 +47,70 @@ export const useUpgradeStore = defineStore('upgrade', () => {
     const gameStore = useGameStore();
 
     const config = ref<ClickerConfig | null>(null);
-    const levels = ref<Record<string, number>>({});
+    const levels = ref<Record<string, UpgradeStatus>>({});
 
     const cycleProgress = ref(0);
+    const autoBonusProgress = ref<Record<string, number>>({});
+    const hasAutoBonusCharge = ref<Record<string, boolean>>({});
+
     let tickerInterval: number | null = null;
     const TICK_RATE_MS = 100;
 
     function getLevel(id: string, subType: string = 'main'): number {
         if (!id) return 0;
         const upperId = id.toUpperCase();
-        const key = subType === 'main' ? `${upperId}_level` : `${upperId}_${subType}`;
-        return levels.value[key] || 0;
+        const status = levels.value[upperId];
+        if (!status) return 0;
+        
+        if (subType === 'main') return status.level;
+        if (subType === 'efficiency' || subType === 'time') return status.efficiency || 0;
+        if (subType === 'production') return status.production || 0;
+        return 0;
+    }
+
+    function isBoostActive(id: string): boolean {
+        const upperId = id.toUpperCase();
+        const status = levels.value[upperId];
+        const upg = config.value?.upgrades[upperId];
+        if (!status?.lastBoostAt || !upg?.boosts) return false;
+        
+        const now = Date.now();
+        const endTime = status.lastBoostAt + upg.boosts.durationMs;
+        return now < endTime;
+    }
+
+    function getBuildingInterval(id: string): number {
+        const upperId = id.toUpperCase();
+        const upg = config.value?.upgrades[upperId];
+        if (!upg) return 10000;
+        
+        const timeLevel = getLevel(upperId, 'time');
+        const reduction = timeLevel * (upg.upgrades.time?.reductionPerLevelMs || 0);
+        return Math.max(1000, (upg.baseIntervalMs || 10000) - reduction);
+    }
+
+    function consumeAndGetTotalBonus(): number {
+        if (!config.value) return 0;
+        let total = 0;
+
+        Object.keys(config.value.upgrades).forEach(id => {
+            const upperId = id.toUpperCase();
+            const upg = config.value!.upgrades[id];
+            if (!upg || upg.category !== 'BUILDING') return;
+
+            const bonus = upg.bonusValueBonus || 0;
+            
+            if (isBoostActive(upperId)) {
+                total += bonus;
+            } 
+            else if (hasAutoBonusCharge.value[upperId]) {
+                total += bonus;
+                hasAutoBonusCharge.value[upperId] = false;
+                autoBonusProgress.value[upperId] = 0;
+            }
+        });
+
+        return total;
     }
 
     const groupedUpgrades = computed(() => {
@@ -78,19 +147,15 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         return Math.max(1000, (workerCfg.baseIntervalMs || 10000) - reduction);
     });
 
-    // Calcul du bonus total des bâtiments pour la valeur des voitures
+    // Calcul du bonus de base
     const totalBuildingBonus = computed(() => {
         if (!config.value || !config.value.upgrades) return 0;
         let total = 0;
-        
         Object.entries(config.value.upgrades).forEach(([id, upgrade]) => {
-            if (upgrade.category?.toUpperCase() === 'BUILDING') {
-                const valLevel = getLevel(id, 'value');
-                const bonusPerLevel = upgrade.upgrades.value?.increasePerLevel || 0;
-                total += valLevel * bonusPerLevel;
+            if (upgrade.category?.toUpperCase() === 'BUILDING' && getLevel(id) > 0) {
+                total += (upgrade.bonusValueBonus || 0);
             }
         });
-        
         return total;
     });
 
@@ -132,23 +197,56 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         }
     }
 
+    async function activateBoost(type: string) {
+        if (!authStore.token) return;
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/boost`, 
+                { type: type.toUpperCase() },
+                { headers: { Authorization: `Bearer ${authStore.token}` } }
+            );
+            levels.value = response.data.upgradeLevels;
+        } catch (error: any) {
+            console.error("Erreur boost", error.response?.data || error.message);
+        }
+    }
+
     function startProductionLoop() {
         if (tickerInterval) return;
         
         tickerInterval = window.setInterval(() => {
             const workerCount = getLevel('WORKER');
-            if (!authStore.isAuthenticated || workerCount === 0) {
+            if (authStore.isAuthenticated && workerCount > 0) {
+                const increment = (TICK_RATE_MS / currentIntervalMs.value) * 100;
+                cycleProgress.value += increment;
+
+                if (cycleProgress.value >= 100) {
+                    cycleProgress.value = 0;
+                    const totalProduction = workerCount * productionPerWorker.value;
+                    gameStore.addWeight(totalProduction);
+                }
+            } else {
                 cycleProgress.value = 0;
-                return;
             }
 
-            const increment = (TICK_RATE_MS / currentIntervalMs.value) * 100;
-            cycleProgress.value += increment;
+            if (config.value) {
+                Object.entries(config.value.upgrades).forEach(([id, upg]) => {
+                    const upperId = id.toUpperCase();
+                    if (upg.category !== 'BUILDING' || getLevel(upperId) <= 0) return;
 
-            if (cycleProgress.value >= 100) {
-                cycleProgress.value = 0;
-                const totalProduction = workerCount * productionPerWorker.value;
-                gameStore.addWeight(totalProduction);
+                    if (isBoostActive(upperId)) return;
+
+                    if (hasAutoBonusCharge.value[upperId]) return;
+
+                    const interval = getBuildingInterval(upperId);
+                    const increment = (TICK_RATE_MS / interval) * 100;
+                    
+                    const current = autoBonusProgress.value[upperId] || 0;
+                    autoBonusProgress.value[upperId] = Math.min(100, current + increment);
+
+                    if (autoBonusProgress.value[upperId] >= 100) {
+                        hasAutoBonusCharge.value[upperId] = true;
+                    }
+                });
             }
         }, TICK_RATE_MS);
     }
@@ -164,14 +262,20 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         config,
         levels,
         cycleProgress,
+        autoBonusProgress,
+        hasAutoBonusCharge,
         productionPerWorker,
         currentIntervalMs,
         groupedUpgrades,
         totalBuildingBonus,
         getLevel,
+        isBoostActive,
+        getBuildingInterval,
+        consumeAndGetTotalBonus,
         fetchConfig,
         fetchState,
         buyUpgrade,
+        activateBoost,
         startProductionLoop,
         stopProductionLoop
     };

@@ -20,7 +20,8 @@ export const useDeliveryStore = defineStore('delivery', () => {
         if (weight <= 0) return;
 
         const baseValue = upgradeStore.config?.global.baseCarValue || 10;
-        const totalValue = weight * (baseValue + upgradeStore.totalBuildingBonus);
+        const dynamicBonus = upgradeStore.consumeAndGetTotalBonus();
+        const totalValue = weight * (baseValue + dynamicBonus);
         const id = Date.now() + Math.random();
 
         const newDelivery: Delivery = {

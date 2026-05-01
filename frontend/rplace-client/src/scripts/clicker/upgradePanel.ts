@@ -75,7 +75,7 @@ export function useUpgradePanel() {
             'BUILDING': 'Bâtiment',
             'efficiency': 'Efficacité',
             'production': 'Productivité',
-            'value': 'Valeur marchande'
+            'time': 'Vitesse auto-bonus'
         };
         return mapping[name] || name.charAt(0).toUpperCase() + name.slice(1);
     };
@@ -93,9 +93,31 @@ export function useUpgradePanel() {
             return 'Amélioration de base';
         }
         if (subType === 'efficiency') return 'Réduit le temps de cycle';
+        if (subType === 'time') return 'Charge le bonus passif plus vite';
         if (subType === 'production') return 'Plus de voitures par cycle';
-        if (subType === 'value') return 'Augmente le prix de vente';
         return 'Bonus spécial';
+    };
+
+    const getAutoBonusProgress = (id: string): number => {
+        return upgradeStore.autoBonusProgress[id.toUpperCase()] || 0;
+    };
+
+    const isBoostActive = (id: string): boolean => {
+        return upgradeStore.isBoostActive(id);
+    };
+
+    const getBoostCooldownRemaining = (id: string): number => {
+        const status = upgradeStore.levels[id.toUpperCase()];
+        const upg = upgradeStore.config?.upgrades[id.toUpperCase()];
+        if (!status?.lastBoostAt || !upg?.boosts) return 0;
+        
+        const now = Date.now();
+        const nextAvailable = status.lastBoostAt + upg.boosts.cooldownMs;
+        return Math.max(0, nextAvailable - now);
+    };
+
+    const activateBoost = (id: string) => {
+        upgradeStore.activateBoost(id);
     };
 
     return {
@@ -110,6 +132,10 @@ export function useUpgradePanel() {
         productionSummary,
         formatName,
         getIcon,
-        getUpgradeDesc
+        getUpgradeDesc,
+        getAutoBonusProgress,
+        isBoostActive,
+        getBoostCooldownRemaining,
+        activateBoost
     };
 }

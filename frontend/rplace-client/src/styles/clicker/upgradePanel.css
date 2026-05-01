@@ -140,15 +140,98 @@
 .cost { font-weight: 800; color: #ffd700; font-size: 0.9rem; margin-top: 4px; }
 
 .level-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background: rgba(255, 255, 255, 0.1);
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
+  color: white;
+}
+
+.building-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.auto-bonus-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bonus-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.bonus-label .status {
+  color: #4ade80;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+}
+
+.progress-mini {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3b82f6;
+  width: 0;
+  transition: width 0.1s linear;
+}
+
+.progress-fill.charged {
+  background: #4ade80;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.boost-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.boost-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.boost-button.active {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  animation: pulse-boost 2s infinite;
+}
+
+.boost-button.cooldown {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
+
+@keyframes pulse-boost {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 .sub-upgrades-grid {
@@ -171,7 +254,6 @@
   font-style: italic;
 }
 
-/* Cycle de production */
 .production-cycle {
   margin-top: 10px;
   display: flex;

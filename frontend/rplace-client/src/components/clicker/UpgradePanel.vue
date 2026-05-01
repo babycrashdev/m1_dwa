@@ -50,9 +50,36 @@
             </div>
             <div class="level-badge">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
           </div>
+
+          <div class="building-actions" v-if="upgrade.category === 'BUILDING' && upgradeStore.getLevel(upgrade.id!) > 0">
+            <div class="auto-bonus-area">
+              <div class="bonus-label">
+                <span>Auto-bonus (+{{ upgrade.bonusValueBonus }} ✨)</span>
+                <span class="status" v-if="upgradeStore.hasAutoBonusCharge[upgrade.id!]">PRÊT !</span>
+              </div>
+              <div class="progress-mini">
+                <div class="progress-fill" :style="{ width: getAutoBonusProgress(upgrade.id!) + '%' }" :class="{ charged: upgradeStore.hasAutoBonusCharge[upgrade.id!] }"></div>
+              </div>
+            </div>
+
+            <button 
+              class="boost-button" 
+              :class="{ 
+                active: isBoostActive(upgrade.id!), 
+                cooldown: getBoostCooldownRemaining(upgrade.id!) > 0 && !isBoostActive(upgrade.id!) 
+              }"
+              @click.stop="activateBoost(upgrade.id!)"
+              :disabled="getBoostCooldownRemaining(upgrade.id!) > 0"
+            >
+              <span v-if="isBoostActive(upgrade.id!)">🔥 BOOST ACTIF !</span>
+              <span v-else-if="getBoostCooldownRemaining(upgrade.id!) > 0">
+                ⌛ {{ (getBoostCooldownRemaining(upgrade.id!) / 1000).toFixed(0) }}s
+              </span>
+              <span v-else>🚀 ACTIVER BOOST</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Sous-améliorations (Spécialisations) -->
         <div class="upgrade-section" v-if="Object.keys(upgrade.upgrades).length > 0">
           <div class="sub-upgrades-grid">
             <div 
@@ -95,7 +122,11 @@ const {
     productionSummary,
     formatName,
     getIcon,
-    getUpgradeDesc
+    getUpgradeDesc,
+    getAutoBonusProgress,
+    isBoostActive,
+    getBoostCooldownRemaining,
+    activateBoost
 } = useUpgradePanel();
 </script>
 

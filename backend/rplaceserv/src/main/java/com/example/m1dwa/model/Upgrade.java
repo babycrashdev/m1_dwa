@@ -23,7 +23,7 @@ public class Upgrade {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String type;
 
     @Column(nullable = false)
