@@ -2,8 +2,14 @@ garage:
   category: BUILDING
   basePrice: 1000
   priceMultiplier: 2.0
+  bonusValueBonus: 5
+  baseIntervalMs: 10000
   upgrades:
-    value:
-      basePrice: 500
-      priceMultiplier: 1.5
-      increasePerLevel: 5
+    time:
+      basePrice: 250
+      priceMultiplier: 1.8
+      reductionPerLevelMs: 1000
+  boosts:
+    durationMs : 10000
+    cooldownMs: 60000
+    increaseDurationMs : 1000

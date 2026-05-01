@@ -81,10 +81,10 @@ public class GameConfigService {
     private UpgradeDefinition mapToUpgradeDefinition(Map<String, Object> map) {
         UpgradeDefinition def = new UpgradeDefinition();
         def.setCategory(map.getOrDefault("category", "DEFAULT").toString());
-        def.setBasePrice(Long.valueOf(map.get("basePrice").toString()));
-        def.setPriceMultiplier(Double.valueOf(map.get("priceMultiplier").toString()));
-        def.setBaseIntervalMs(Long.valueOf(map.get("baseIntervalMs").toString()));
-        def.setBaseProduction(Long.valueOf(map.get("baseProduction").toString()));
+        def.setBasePrice(parseSafeLong(map.get("basePrice"), 0L));
+        def.setPriceMultiplier(parseSafeDouble(map.get("priceMultiplier"), 1.0));
+        def.setBaseIntervalMs(parseSafeLong(map.get("baseIntervalMs"), 0L));
+        def.setBaseProduction(parseSafeLong(map.get("baseProduction"), 0L));
         
         Map<String, Map<String, Object>> rawUpgrades = (Map<String, Map<String, Object>>) map.get("upgrades");
         Map<String, UpgradeDefinition.SubUpgradeDefinition> subUpgrades = new HashMap<>();
@@ -93,15 +93,15 @@ public class GameConfigService {
             for (Map.Entry<String, Map<String, Object>> entry : rawUpgrades.entrySet()) {
                 UpgradeDefinition.SubUpgradeDefinition sub = new UpgradeDefinition.SubUpgradeDefinition();
                 Map<String, Object> subMap = entry.getValue();
-                sub.setBasePrice(Long.valueOf(subMap.get("basePrice").toString()));
-                sub.setPriceMultiplier(Double.valueOf(subMap.get("priceMultiplier").toString()));
+                sub.setBasePrice(parseSafeLong(subMap.get("basePrice"), 0L));
+                sub.setPriceMultiplier(parseSafeDouble(subMap.get("priceMultiplier"), 1.0));
 
                 if (subMap.containsKey("reductionPerLevelMs")) {
-                    sub.setReductionPerLevelMs(Long.valueOf(subMap.get("reductionPerLevelMs").toString()));
+                    sub.setReductionPerLevelMs(parseSafeLong(subMap.get("reductionPerLevelMs"), 0L));
                 }
 
                 if (subMap.containsKey("increasePerLevel")) {
-                    sub.setIncreasePerLevel(Long.valueOf(subMap.get("increasePerLevel").toString()));
+                    sub.setIncreasePerLevel(parseSafeLong(subMap.get("increasePerLevel"), 0L));
                 }
 
                 subUpgrades.put(entry.getKey(), sub);
@@ -109,7 +109,24 @@ public class GameConfigService {
         }
 
         def.setUpgrades(subUpgrades);
-
         return def;
+    }
+
+    private Long parseSafeLong(Object val, Long defaultVal) {
+        if (val == null) return defaultVal;
+        try {
+            return Long.valueOf(val.toString());
+        } catch (Exception e) {
+            return defaultVal;
+        }
+    }
+
+    private Double parseSafeDouble(Object val, Double defaultVal) {
+        if (val == null) return defaultVal;
+        try {
+            return Double.valueOf(val.toString());
+        } catch (Exception e) {
+            return defaultVal;
+        }
     }
 }

@@ -1,14 +1,21 @@
 <template>
   <div class="upgrade-panel">
     <div class="resource-header">
-      <h3>LOGISTIQUE</h3>
-      <div class="resource-item">
+      <h3 v-if="activeTab === 'WORKER'">LOGISTIQUE</h3>
+      <h3 v-else-if="activeTab === 'BUILDING'">IMMOBILIER</h3>
+      <h3 v-else>AMÉLIORATIONS</h3>
+
+      <div class="resource-item" v-if="activeTab === 'WORKER'">
         <span class="label">PRODUCTION</span>
         <span class="value highlight">{{ productionSummary }}</span>
       </div>
       
-      <!-- Barre de progression des ouvriers -->
-      <div class="production-cycle" v-if="upgradeStore.levels.workerCount > 0">
+      <div class="resource-item" v-else-if="activeTab === 'BUILDING'">
+        <span class="label">BONUS VENTE</span>
+        <span class="value highlight">+{{ upgradeStore.totalBuildingBonus }} ✨ / voiture</span>
+      </div>
+      
+      <div class="production-cycle" v-if="activeTab === 'WORKER' && upgradeStore.getLevel('WORKER') > 0">
         <div class="progress-container">
           <div class="progress-bar" :style="{ width: upgradeStore.cycleProgress + '%' }"></div>
         </div>
@@ -16,39 +23,52 @@
       </div>
     </div>
 
+    <div class="tabs-container" v-if="categories.length > 1">
+      <button 
+        v-for="cat in categories" 
+        :key="cat"
+        class="tab-button"
+        :class="{ active: activeTab === cat }"
+        @click="activeTab = cat"
+      >
+        {{ cat }}
+      </button>
+    </div>
+
     <div class="upgrade-list" v-if="upgradeStore.config">
-      <div class="upgrade-section">
-        <h4 class="section-title">Ouvriers Automatiques</h4>
-        <div class="upgrade-card primary" @click="buy('WORKER', 'main')" :class="{ disabled: !canAfford('WORKER', 'main') }">
-          <div class="upgrade-icon">👷</div>
-          <div class="upgrade-info">
-            <span class="name">Embaucher un Ouvrier</span>
-            <span class="desc">Augmente la production de base</span>
-            <span class="cost">✨ {{ getPrice('WORKER', 'main') }}</span>
+      <div v-for="upgrade in currentUpgrades" :key="upgrade.id" class="upgrade-entry">
+        <div class="upgrade-section">
+          <h4 class="section-title">{{ formatName(upgrade.id!) }}</h4>
+          
+          <!-- Carte principale -->
+          <div class="upgrade-card primary" @click="buy(upgrade.id!, 'main')" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
+            <div class="upgrade-icon">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
+            <div class="upgrade-info">
+              <span class="name">{{ upgrade.category === 'WORKER' ? 'Embaucher' : 'Acheter' }}</span>
+              <span class="desc">{{ getUpgradeDesc(upgrade.id!, 'main') }}</span>
+              <span class="cost">✨ {{ getPrice(upgrade.id!, 'main') }}</span>
+            </div>
+            <div class="level-badge">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
           </div>
-          <div class="level-badge">Lvl {{ upgradeStore.levels.workerCount }}</div>
         </div>
-      </div>
 
-      <div class="upgrade-section">
-        <h4 class="section-title">Spécialisations</h4>
-        <div class="sub-upgrades-grid">
-          <div class="upgrade-card sub" @click="buy('WORKER', 'efficiency')" :class="{ disabled: !canAfford('WORKER', 'efficiency') }">
-            <div class="upgrade-info">
-              <span class="name">Efficacité</span>
-              <span class="desc">Réduit le temps de cycle</span>
-              <span class="cost">{{ isMaxLevel('WORKER', 'efficiency') ? 'NIVEAU MAX' : '✨ ' + getPrice('WORKER', 'efficiency') }}</span>
+        <!-- Sous-améliorations (Spécialisations) -->
+        <div class="upgrade-section" v-if="Object.keys(upgrade.upgrades).length > 0">
+          <div class="sub-upgrades-grid">
+            <div 
+              v-for="(subCfg, subId) in upgrade.upgrades" 
+              :key="subId"
+              class="upgrade-card sub" 
+              @click="buy(upgrade.id!, subId.toString())" 
+              :class="{ disabled: !canAfford(upgrade.id!, subId.toString()) }"
+            >
+              <div class="upgrade-info">
+                <span class="name">{{ formatName(subId.toString()) }}</span>
+                <span class="desc">{{ getUpgradeDesc(upgrade.id!, subId.toString()) }}</span>
+                <span class="cost">{{ isMaxLevel(upgrade.id!, subId.toString()) ? 'MAX' : '✨ ' + getPrice(upgrade.id!, subId.toString()) }}</span>
+              </div>
+              <div class="level-badge">Lvl {{ upgradeStore.getLevel(upgrade.id!, subId.toString()) }}</div>
             </div>
-            <div class="level-badge">Lvl {{ upgradeStore.levels.efficiencyLevel }}</div>
-          </div>
-
-          <div class="upgrade-card sub" @click="buy('WORKER', 'production')" :class="{ disabled: !canAfford('WORKER', 'production') }">
-            <div class="upgrade-info">
-              <span class="name">Productivité</span>
-              <span class="desc">Plus de voitures par cycle</span>
-              <span class="cost">✨ {{ getPrice('WORKER', 'production') }}</span>
-            </div>
-            <div class="level-badge">Lvl {{ upgradeStore.levels.productionLevel }}</div>
           </div>
         </div>
       </div>
@@ -65,11 +85,17 @@ import { useUpgradePanel } from '../../scripts/clicker/upgradePanel';
 
 const { 
     upgradeStore, 
+    activeTab,
+    categories,
+    currentUpgrades,
     getPrice, 
     canAfford, 
     isMaxLevel,
     buy, 
-    productionSummary 
+    productionSummary,
+    formatName,
+    getIcon,
+    getUpgradeDesc
 } = useUpgradePanel();
 </script>
 

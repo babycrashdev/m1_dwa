@@ -1,16 +1,20 @@
 .upgrade-panel {
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 15, 25, 0.8);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  color: white;
-  overflow-y: auto;
+    background: rgba(15, 15, 25, 0.7);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    height: 100%;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    gap: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .resource-header {
@@ -38,10 +42,55 @@
 .value { font-family: 'Inter', sans-serif; font-weight: 700; }
 .value.highlight { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
 
+.tabs-container {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.tab-button:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-button.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .upgrade-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+}
+
+.upgrade-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.upgrade-entry:last-child {
+  border-bottom: none;
 }
 
 .section-title {
