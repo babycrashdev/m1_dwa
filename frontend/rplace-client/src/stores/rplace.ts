@@ -21,7 +21,8 @@ export const useRPlaceStore = defineStore('rplace', {
     cooldownSeconds: 0,
     stompClient: null as Client | null,
     isInitialLoaded: false,
-    initialPrice: 10
+    initialPrice: 10,
+    isBrushActive: false
   }),
   actions: {
     async fetchConfig() {

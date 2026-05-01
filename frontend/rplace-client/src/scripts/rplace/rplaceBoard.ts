@@ -122,11 +122,38 @@ export function useRPlaceBoard() {
       if (hoveredPixel.value.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
         ctx.fillStyle = store.selectedColor;
         ctx.globalAlpha = 0.5;
-        ctx.fillRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+
+        if (store.isBrushActive) {
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const nx = hoveredPixel.value.x + dx;
+              const ny = hoveredPixel.value.y + dy;
+              if (nx >= 0 && nx < store.gridSize && ny >= 0 && ny < store.gridSize) {
+                ctx.fillRect(nx, ny, 1, 1);
+              }
+            }
+          }
+        } else {
+          ctx.fillRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+        }
+
         ctx.globalAlpha = 1.0;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 0.1;
-        ctx.strokeRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+
+        if (store.isBrushActive) {
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const nx = hoveredPixel.value.x + dx;
+              const ny = hoveredPixel.value.y + dy;
+              if (nx >= 0 && nx < store.gridSize && ny >= 0 && ny < store.gridSize) {
+                ctx.strokeRect(nx, ny, 1, 1);
+              }
+            }
+          }
+        } else {
+          ctx.strokeRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+        }
       }
     }
 
@@ -171,14 +198,14 @@ export function useRPlaceBoard() {
     if (camera.isDragging) {
       const dx = e.clientX - camera.lastMouseX;
       const dy = e.clientY - camera.lastMouseY;
-      
+
       if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
         camera.dragMoved = true;
       }
 
       camera.x += dx;
       camera.y += dy;
-      
+
       camera.lastMouseX = e.clientX;
       camera.lastMouseY = e.clientY;
     }
@@ -221,10 +248,10 @@ export function useRPlaceBoard() {
 
   const screenToGrid = (screenX: number, screenY: number) => {
     if (!canvasRef.value) return { x: -1, y: -1 };
-    
+
     const dpr = window.devicePixelRatio || 1;
     const rect = canvasRef.value.getBoundingClientRect();
-    
+
     const x = (screenX - rect.left - rect.width / 2) * dpr;
     const y = (screenY - rect.top - rect.height / 2) * dpr;
 
@@ -240,14 +267,14 @@ export function useRPlaceBoard() {
   onMounted(async () => {
     if (canvasRef.value) {
       await store.fetchConfig();
-      
+
       setupBuffer();
 
       ctx = canvasRef.value.getContext('2d', { alpha: false });
       if (ctx) {
         ctx.imageSmoothingEnabled = false;
       }
-      
+
       handleResize();
       window.addEventListener('resize', handleResize);
       canvasRef.value.addEventListener('mousedown', handleMouseDown);
@@ -256,9 +283,9 @@ export function useRPlaceBoard() {
       canvasRef.value.addEventListener('wheel', handleWheel, { passive: false });
 
       await store.fetchInitialBoard();
-      
+
       store.connectWebSocket();
-      
+
       //store.generateTestGrid();
       updateBuffer();
 
