@@ -61,7 +61,7 @@ export const useRPlaceStore = defineStore('rplace', {
                 x: pixel.x,
                 y: pixel.y,
                 color: pixel.color,
-                price: pixel.price,
+                price: pixel.price > 0 ? pixel.price : this.initialPrice,
                 ownerName: pixel.ownerName,
                 lastModifiedAt: pixel.lastModifiedAt
               };
@@ -146,6 +146,53 @@ export const useRPlaceStore = defineStore('rplace', {
       this.stompClient.publish({
         destination: '/app/place',
         body: JSON.stringify(payload)
+      });
+
+      this.startCooldown(5);
+    },
+
+    placeBrushPixels(cx: number, cy: number) {
+      const gameStore = useGameStore();
+      
+      if (this.cooldownSeconds > 0) {
+        throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
+      }
+
+      if (!this.stompClient || !this.stompClient.connected) {
+        throw new Error("WebSocket non connecté");
+      }
+
+      let totalCost = 0;
+      const pixelsToPlace = [];
+
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = cx + dx;
+          const ny = cy + dy;
+          if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize) {
+            const index = ny * this.gridSize + nx;
+            const pixel = this.pixels[index];
+            totalCost += pixel ? pixel.price : this.initialPrice;
+            pixelsToPlace.push({ x: nx, y: ny });
+          }
+        }
+      }
+
+      if (gameStore.money < totalCost) {
+        throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
+      }
+
+      // Envoi groupé au serveur pour éviter le blocage par le cooldown individuel
+      this.stompClient?.publish({
+        destination: '/app/place-brush',
+        body: JSON.stringify(pixelsToPlace.map(p => ({ x: p.x, y: p.y, color: this.selectedColor })))
+      });
+
+      const authStore = useAuthStore();
+      const newOwner = authStore.user?.username || 'Inconnu';
+
+      pixelsToPlace.forEach(p => {
+        console.log(`[Brush] Placement pixel: (${p.x}, ${p.y}) color: ${this.selectedColor} (Nouveau proprio: ${newOwner})`);
       });
 
       this.startCooldown(5);

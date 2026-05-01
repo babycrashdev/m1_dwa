@@ -1,4 +1,4 @@
-import { onUnmounted, watch } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { storeToRefs } from 'pinia';
 
@@ -6,6 +6,10 @@ export function useBrushToggle() {
   const store = useRPlaceStore();
   const { isBrushActive: isActive } = storeToRefs(store);
   let intervalId: number | null = null;
+
+  onMounted(() => {
+    isActive.value = false;
+  });
 
   const toggle = () => {
     isActive.value = !isActive.value;

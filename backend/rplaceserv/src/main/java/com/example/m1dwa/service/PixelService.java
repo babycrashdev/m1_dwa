@@ -36,54 +36,66 @@ public class PixelService {
 
     @Transactional
     public PixelDTO placePixel(PlacePixelRequest request, String username) {
+        return placePixels(java.util.List.of(request), username).stream().findFirst().orElse(null);
+    }
+
+    @Transactional
+    public java.util.List<PixelDTO> placePixels(java.util.List<PlacePixelRequest> requests, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + username));
-
-        if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
-            log.error("Coordonnées invalides pour {}: {}, {}", username, request.x(), request.y());
-            return null;
-        }
 
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {
             log.warn("Cooldown actif pour l'utilisateur {}", username);
-            return null;
+            return java.util.Collections.emptyList();
         }
-
-        Pixel pixel = pixelRepository.findByXAndY(request.x(), request.y())
-                .orElseGet(() -> new Pixel(request.x(), request.y(), "#FFFFFF"));
-
-        long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
 
         Wallet wallet = walletRepository.findByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Wallet non trouvé pour l'utilisateur " + username));
 
-        if (wallet.getMoneys() < currentPrice) {
-            log.warn("Solde insuffisant pour {}: {} < {}", username, wallet.getMoneys(), currentPrice);
-            return null;
+        java.util.List<PixelDTO> placedPixels = new java.util.ArrayList<>();
+
+        for (PlacePixelRequest request : requests) {
+            if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
+                log.error("Coordonnées invalides pour {}: {}, {}", username, request.x(), request.y());
+                continue;
+            }
+
+            Pixel pixel = pixelRepository.findByXAndY(request.x(), request.y())
+                    .orElseGet(() -> new Pixel(request.x(), request.y(), "#FFFFFF"));
+
+            long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
+
+            if (wallet.getMoneys() < currentPrice) {
+                log.warn("Solde insuffisant pour {} au pixel ({}, {}): {} < {}", username, request.x(), request.y(),
+                        wallet.getMoneys(), currentPrice);
+                break;
+            }
+
+            wallet.setMoneys(wallet.getMoneys() - currentPrice);
+
+            pixel.setColor(request.color());
+            pixel.setLastModifiedBy(user);
+            pixel.setLastModifiedAt(now);
+            pixel.setPrice(currentPrice + priceIncrement);
+            pixelRepository.save(pixel);
+
+            placedPixels.add(new PixelDTO(
+                    pixel.getX(),
+                    pixel.getY(),
+                    pixel.getColor(),
+                    pixel.getPrice(),
+                    user.getUsername(),
+                    pixel.getLastModifiedAt()));
         }
 
-        wallet.setMoneys(wallet.getMoneys() - currentPrice);
-        walletRepository.save(wallet);
+        if (!placedPixels.isEmpty()) {
+            walletRepository.save(wallet);
+            user.setLastPixelPlacedAt(now);
+            userRepository.save(user);
+            log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, requests.size());
+        }
 
-        pixel.setColor(request.color());
-        pixel.setLastModifiedBy(user);
-        pixel.setLastModifiedAt(now);
-        pixel.setPrice(currentPrice + priceIncrement);
-        pixelRepository.save(pixel);
-
-        user.setLastPixelPlacedAt(now);
-        userRepository.save(user);
-
-        log.info("Pixel ({}, {}) acheté {} par {} (nouveau prix: {})", pixel.getX(), pixel.getY(), currentPrice, username, pixel.getPrice());
-
-        return new PixelDTO(
-                pixel.getX(), 
-                pixel.getY(), 
-                pixel.getColor(), 
-                pixel.getPrice(), 
-                user.getUsername(), 
-                pixel.getLastModifiedAt()
-        );
+        return placedPixels;
     }
 }

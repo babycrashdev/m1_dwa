@@ -223,7 +223,13 @@ export function useRPlaceBoard() {
       } else {
         const { x, y } = screenToGrid(e.clientX, e.clientY);
         try {
-          store.placePixel(x, y);
+          if (store.isBrushActive) {
+            const cx = Math.max(1, Math.min(x, store.gridSize - 2));
+            const cy = Math.max(1, Math.min(y, store.gridSize - 2));
+            store.placeBrushPixels(cx, cy);
+          } else {
+            store.placePixel(x, y);
+          }
         } catch (error: any) {
           console.warn(error.message);
         }

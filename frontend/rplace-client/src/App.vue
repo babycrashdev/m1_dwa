@@ -34,7 +34,7 @@
       </div>
     </main>
 
-    <BrushToggle v-if="!showAuth" />
+    <BrushToggle v-if="!showAuth && authStore.isAuthenticated" />
 
     <footer class="footer">
     </footer>
