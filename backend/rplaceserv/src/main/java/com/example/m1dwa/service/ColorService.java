@@ -15,7 +15,7 @@ public class ColorService {
 
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
-    private final PastelOwnershipRepository pastelRepository;
+    private final ColorRepository colorRepository;
 
     private static final long COLOR_PRICE = 500;
 
@@ -32,7 +32,7 @@ public class ColorService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        if (pastelRepository.existsByUserAndColorCode(user, hex)) {
+        if (colorRepository.existsByUserAndColorCode(user, hex)) {
             return "Vous possédez déjà cette couleur !";
         }
 
@@ -46,14 +46,14 @@ public class ColorService {
         wallet.setMoneys(wallet.getMoneys() - COLOR_PRICE);
         walletRepository.save(wallet);
 
-        pastelRepository.save(new PastelOwnership(user, hex));
+        colorRepository.save(new Color(user, hex));
 
         return "Achat réussi !";
     }
 
     public List<String> getOwnedColors(String username) {
-        return pastelRepository.findByUserUsername(username).stream()
-                .map(PastelOwnership::getColorCode)
+        return colorRepository.findByUserUsername(username).stream()
+                .map(Color::getColorCode)
                 .collect(Collectors.toList());
     }
 }

@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Entity
-@Table(name = "color")
+@Table(name = "colors")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PastelOwnership {
+public class Color {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class PastelOwnership {
     @Column(nullable = false, length = 7)
     private String colorCode;
 
-    public PastelOwnership(User user, String colorCode) {
+    public Color(User user, String colorCode) {
         this.user = user;
         this.colorCode = colorCode.toUpperCase();
     }
