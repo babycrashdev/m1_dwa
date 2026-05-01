@@ -8,7 +8,8 @@ export function useColorPalette() {
   
   const colors = [
     '#FF4500', '#FFA800', '#FFD635', '#00A368', 
-    '#3690EA', '#FFFFFF', '#811E9F', '#000000'
+    '#3690EA', '#FFFFFF', '#811E9F', '#000000',
+    '#FFB7CE', '#AEC6CF', '#B2F2BB'
   ];
 
   const selectColor = (color: string) => {
