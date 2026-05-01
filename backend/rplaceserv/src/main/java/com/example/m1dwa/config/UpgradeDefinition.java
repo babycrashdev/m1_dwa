@@ -10,7 +10,16 @@ public class UpgradeDefinition {
     private double priceMultiplier;
     private long baseIntervalMs;
     private long baseProduction;
+    private long bonusValueBonus;
+    private BoostDefinition boosts;
     private Map<String, SubUpgradeDefinition> upgrades;
+
+    @Data
+    public static class BoostDefinition {
+        private long durationMs;
+        private long cooldownMs;
+        private long increaseDurationMs;
+    }
 
     @Data
     public static class SubUpgradeDefinition {

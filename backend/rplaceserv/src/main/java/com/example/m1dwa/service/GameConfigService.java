@@ -1,3 +1,5 @@
+/* Fonctionement repris des plugin minecraft mais aider par l'IA pour l'adapter au projet */
+
 package com.example.m1dwa.service;
 
 
@@ -85,6 +87,16 @@ public class GameConfigService {
         def.setPriceMultiplier(parseSafeDouble(map.get("priceMultiplier"), 1.0));
         def.setBaseIntervalMs(parseSafeLong(map.get("baseIntervalMs"), 0L));
         def.setBaseProduction(parseSafeLong(map.get("baseProduction"), 0L));
+        def.setBonusValueBonus(parseSafeLong(map.get("bonusValueBonus"), 0L));
+
+        if (map.containsKey("boosts")) {
+            Map<String, Object> rawBoosts = (Map<String, Object>) map.get("boosts");
+            UpgradeDefinition.BoostDefinition boostDef = new UpgradeDefinition.BoostDefinition();
+            boostDef.setDurationMs(parseSafeLong(rawBoosts.get("durationMs"), 0L));
+            boostDef.setCooldownMs(parseSafeLong(rawBoosts.get("cooldownMs"), 0L));
+            boostDef.setIncreaseDurationMs(parseSafeLong(rawBoosts.get("increaseDurationMs"), 0L));
+            def.setBoosts(boostDef);
+        }
         
         Map<String, Map<String, Object>> rawUpgrades = (Map<String, Map<String, Object>>) map.get("upgrades");
         Map<String, UpgradeDefinition.SubUpgradeDefinition> subUpgrades = new HashMap<>();

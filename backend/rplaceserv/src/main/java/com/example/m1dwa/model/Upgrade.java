@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "upgrades", uniqueConstraints = {
@@ -33,4 +34,10 @@ public class Upgrade {
 
     @Column(nullable = false)
     private int productionLevel = 0;
+
+    @Column(nullable = true)
+    private LocalDateTime lastBoostAt;
+
+    @Column(nullable = true)
+    private LocalDateTime lastAutoBonusAt;
 }
