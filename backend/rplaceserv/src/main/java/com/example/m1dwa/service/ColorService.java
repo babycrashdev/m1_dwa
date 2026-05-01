@@ -6,22 +6,35 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ColorService {
 
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
-    private final RosePastelRepository roseRepository;
-    private final BleuPastelRepository bleuRepository;
-    private final VertPastelRepository vertRepository;
+    private final PastelOwnershipRepository pastelRepository;
 
     private static final long COLOR_PRICE = 500;
 
+    private static final List<String> ALLOWED_PASTELS = List.of("#FFB7CE", "#AEC6CF", "#B2F2BB");
+
     @Transactional
     public String buyColor(String username, String colorHex) {
+        String hex = colorHex.toUpperCase();
+
+        if (!ALLOWED_PASTELS.contains(hex)) {
+            return "Couleur non disponible à l'achat";
+        }
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        if (pastelRepository.existsByUserAndColorCode(user, hex)) {
+            return "Vous possédez déjà cette couleur !";
+        }
 
         Wallet wallet = walletRepository.findByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
@@ -30,52 +43,17 @@ public class ColorService {
             return "Solde insuffisant !";
         }
 
-        boolean alreadyOwned = false;
-
-        switch (colorHex.toUpperCase()) {
-            case "#FFB7CE":
-                if (roseRepository.existsByUser(user))
-                    alreadyOwned = true;
-                else
-                    roseRepository.save(new RosePastel(user));
-                break;
-            case "#AEC6CF":
-                if (bleuRepository.existsByUser(user))
-                    alreadyOwned = true;
-                else
-                    bleuRepository.save(new BleuPastel(user));
-                break;
-            case "#B2F2BB":
-                if (vertRepository.existsByUser(user))
-                    alreadyOwned = true;
-                else
-                    vertRepository.save(new VertPastel(user));
-                break;
-            default:
-                return "Couleur non disponible à l'achat";
-        }
-
-        if (alreadyOwned) {
-            return "Vous possédez déjà cette couleur !";
-        }
-
         wallet.setMoneys(wallet.getMoneys() - COLOR_PRICE);
         walletRepository.save(wallet);
+
+        pastelRepository.save(new PastelOwnership(user, hex));
 
         return "Achat réussi !";
     }
 
-    public java.util.List<String> getOwnedColors(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-
-        java.util.List<String> owned = new java.util.ArrayList<>();
-        if (roseRepository.existsByUser(user))
-            owned.add("#FFB7CE");
-        if (bleuRepository.existsByUser(user))
-            owned.add("#AEC6CF");
-        if (vertRepository.existsByUser(user))
-            owned.add("#B2F2BB");
-        return owned;
+    public List<String> getOwnedColors(String username) {
+        return pastelRepository.findByUserUsername(username).stream()
+                .map(PastelOwnership::getColorCode)
+                .collect(Collectors.toList());
     }
 }

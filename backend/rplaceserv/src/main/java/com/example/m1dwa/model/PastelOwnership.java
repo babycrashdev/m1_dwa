@@ -6,24 +6,25 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Entity
-@Table(name = "vert_pastel")
+@Table(name = "pastel_ownerships")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VertPastel {
+public class PastelOwnership {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 7)
-    private String color = "#B2F2BB";
-
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public VertPastel(User user) {
+    @Column(nullable = false, length = 7)
+    private String colorCode;
+
+    public PastelOwnership(User user, String colorCode) {
         this.user = user;
+        this.colorCode = colorCode.toUpperCase();
     }
 }
