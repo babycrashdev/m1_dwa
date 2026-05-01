@@ -124,13 +124,15 @@ export function useRPlaceBoard() {
         ctx.globalAlpha = 0.5;
 
         if (store.isBrushActive) {
+          // Non réalisé par l'IA les 2 lignes en dessous 
+          const cx = Math.max(1, Math.min(hoveredPixel.value.x, store.gridSize - 2));
+          const cy = Math.max(1, Math.min(hoveredPixel.value.y, store.gridSize - 2));
+
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
-              const nx = hoveredPixel.value.x + dx;
-              const ny = hoveredPixel.value.y + dy;
-              if (nx >= 0 && nx < store.gridSize && ny >= 0 && ny < store.gridSize) {
-                ctx.fillRect(nx, ny, 1, 1);
-              }
+              const nx = cx + dx;
+              const ny = cy + dy;
+              ctx.fillRect(nx, ny, 1, 1);
             }
           }
         } else {
@@ -142,13 +144,15 @@ export function useRPlaceBoard() {
         ctx.lineWidth = 0.1;
 
         if (store.isBrushActive) {
+          // Non réalisé par l'IA les 2 lignes en dessous 
+          const cx = Math.max(1, Math.min(hoveredPixel.value.x, store.gridSize - 2));
+          const cy = Math.max(1, Math.min(hoveredPixel.value.y, store.gridSize - 2));
+
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
-              const nx = hoveredPixel.value.x + dx;
-              const ny = hoveredPixel.value.y + dy;
-              if (nx >= 0 && nx < store.gridSize && ny >= 0 && ny < store.gridSize) {
-                ctx.strokeRect(nx, ny, 1, 1);
-              }
+              const nx = cx + dx;
+              const ny = cy + dy;
+              ctx.strokeRect(nx, ny, 1, 1);
             }
           }
         } else {
