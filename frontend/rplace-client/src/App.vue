@@ -34,6 +34,8 @@
       </div>
     </main>
 
+    <BrushToggle v-if="!showAuth" />
+
     <footer class="footer">
     </footer>
   </div>
@@ -44,6 +46,7 @@
   import RPlace from './components/RPlace.vue';
   import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue';
+  import BrushToggle from './components/rplace/BrushToggle.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 
