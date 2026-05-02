@@ -30,8 +30,8 @@ export function useUpgradePanel() {
     const isMaxLevel = (type: string, subType: string): boolean => {
         const upperType = type.toUpperCase();
         
-        if (upperType === 'WORKER' && subType === 'efficiency') {
-            return upgradeStore.currentIntervalMs <= 1000;
+        if (subType === 'efficiency') {
+            return upgradeStore.getWorkerInterval(upperType) <= 500;
         }
 
         if (subType === 'time') {
@@ -56,7 +56,6 @@ export function useUpgradePanel() {
 
     const categories = computed(() => Object.keys(upgradeStore.groupedUpgrades));
 
-    // Si l'onglet actif n'existe plus dans les catégories, on prend la première
     watch(categories, (newCats) => {
         if (newCats.length > 0 && !newCats.includes(activeTab.value)) {
             const firstCat = newCats[0];
@@ -69,11 +68,21 @@ export function useUpgradePanel() {
     });
 
     const productionSummary = computed(() => {
-        const workerCount = upgradeStore.getLevel('WORKER');
-        if (workerCount === 0) return "Aucun ouvrier";
-        const total = workerCount * upgradeStore.productionPerWorker;
-        const seconds = (upgradeStore.currentIntervalMs / 1000).toFixed(1);
-        return `+${total} voitures/${seconds}s`;
+        if (!upgradeStore.config) return "Chargement...";
+        
+        let totalPerSec = 0;
+        Object.entries(upgradeStore.config.upgrades).forEach(([id, upg]) => {
+            if (upg.category !== 'WORKER') return;
+            const count = upgradeStore.getLevel(id);
+            if (count <= 0) return;
+            
+            const prod = upgradeStore.getWorkerProduction(id) * count;
+            const interval = upgradeStore.getWorkerInterval(id) / 1000;
+            totalPerSec += (prod / interval);
+        });
+
+        if (totalPerSec === 0) return "Aucun ouvrier";
+        return `+${totalPerSec.toFixed(1)} voitures /s`;
     });
 
     const formatName = (name: string): string => {

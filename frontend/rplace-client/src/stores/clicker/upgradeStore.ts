@@ -50,12 +50,32 @@ export const useUpgradeStore = defineStore('upgrade', () => {
     const levels = ref<Record<string, UpgradeStatus>>({});
     const currentTime = ref(Date.now());
 
-    const cycleProgress = ref(0);
+    const cycleProgress = ref<Record<string, number>>({});
     const autoBonusProgress = ref<Record<string, number>>({});
     const hasAutoBonusCharge = ref<Record<string, boolean>>({});
 
     let tickerInterval: number | null = null;
-    const TICK_RATE_MS = 100;
+    const TICK_RATE_MS = 50;
+
+    function getWorkerInterval(id: string): number {
+        const upperId = id.toUpperCase();
+        const workerCfg = config.value?.upgrades[upperId];
+        if (!workerCfg) return 10000;
+        
+        const effLevel = getLevel(upperId, 'efficiency');
+        const reduction = effLevel * (workerCfg.upgrades.efficiency?.reductionPerLevelMs || 0);
+        return Math.max(500, (workerCfg.baseIntervalMs || 10000) - reduction);
+    }
+
+    function getWorkerProduction(id: string): number {
+        const upperId = id.toUpperCase();
+        const workerCfg = config.value?.upgrades[upperId];
+        if (!workerCfg) return 0;
+        
+        const prodLevel = getLevel(upperId, 'production');
+        const bonus = prodLevel * (workerCfg.upgrades.production?.increasePerLevel || 0);
+        return (workerCfg.baseProduction || 1) + bonus;
+    }
 
     function getLevel(id: string, subType: string = 'main'): number {
         if (!id) return 0;
@@ -140,26 +160,6 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         return groups;
     });
 
-    const productionPerWorker = computed(() => {
-        if (!config.value || !config.value.upgrades) return 0;
-        const workerCfg = config.value.upgrades.WORKER || config.value.upgrades.worker;
-        if (!workerCfg) return 0;
-        
-        const prodLevel = getLevel('WORKER', 'production');
-        const bonus = prodLevel * (workerCfg.upgrades.production?.increasePerLevel || 0);
-        return (workerCfg.baseProduction || 1) + bonus;
-    });
-
-    const currentIntervalMs = computed(() => {
-        if (!config.value || !config.value.upgrades) return 10000;
-        const workerCfg = config.value.upgrades.WORKER || config.value.upgrades.worker;
-        if (!workerCfg) return 10000;
-        
-        const effLevel = getLevel('WORKER', 'efficiency');
-        const reduction = effLevel * (workerCfg.upgrades.efficiency?.reductionPerLevelMs || 0);
-        return Math.max(1000, (workerCfg.baseIntervalMs || 10000) - reduction);
-    });
-
     const totalBuildingBonus = computed(() => {
         if (!config.value || !config.value.upgrades) return 0;
         let total = 0;
@@ -227,40 +227,48 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         
         tickerInterval = window.setInterval(() => {
             currentTime.value = Date.now();
-            const workerCount = getLevel('WORKER');
-            if (authStore.isAuthenticated && workerCount > 0) {
-                const increment = (TICK_RATE_MS / currentIntervalMs.value) * 100;
-                cycleProgress.value += increment;
+            
+            if (!authStore.isAuthenticated || !config.value) return;
 
-                if (cycleProgress.value >= 100) {
-                    cycleProgress.value = 0;
-                    const totalProduction = workerCount * productionPerWorker.value;
+            Object.entries(config.value.upgrades).forEach(([id, upg]) => {
+                if (upg.category !== 'WORKER') return;
+
+                const upperId = id.toUpperCase();
+                const workerCount = getLevel(upperId);
+                if (workerCount <= 0) return;
+
+                const interval = getWorkerInterval(upperId);
+                const increment = (TICK_RATE_MS / interval) * 100;
+                
+                const currentProg = cycleProgress.value[upperId] || 0;
+                cycleProgress.value[upperId] = currentProg + increment;
+
+                if (cycleProgress.value[upperId] >= 100) {
+                    const prodPerUnit = getWorkerProduction(upperId);
+                    const totalProduction = workerCount * prodPerUnit;
                     gameStore.addWeight(totalProduction);
-                }
-            } else {
-                cycleProgress.value = 0;
-            }
-
-            if (config.value) {
-                Object.entries(config.value.upgrades).forEach(([id, upg]) => {
-                    const upperId = id.toUpperCase();
-                    if (upg.category !== 'BUILDING' || getLevel(upperId) <= 0) return;
-
-                    if (isBoostActive(upperId)) return;
-
-                    if (hasAutoBonusCharge.value[upperId]) return;
-
-                    const interval = getBuildingInterval(upperId);
-                    const increment = (TICK_RATE_MS / interval) * 100;
                     
-                    const current = autoBonusProgress.value[upperId] || 0;
-                    autoBonusProgress.value[upperId] = Math.min(100, current + increment);
+                    cycleProgress.value[upperId] = Math.max(0, cycleProgress.value[upperId] - 100);
+                }
+            });
 
-                    if (autoBonusProgress.value[upperId] >= 100) {
-                        hasAutoBonusCharge.value[upperId] = true;
-                    }
-                });
-            }
+            Object.entries(config.value.upgrades).forEach(([id, upg]) => {
+                const upperId = id.toUpperCase();
+                if (upg.category !== 'BUILDING' || getLevel(upperId) <= 0) return;
+
+                if (isBoostActive(upperId)) return;
+                if (hasAutoBonusCharge.value[upperId]) return;
+
+                const interval = getBuildingInterval(upperId);
+                const increment = (TICK_RATE_MS / interval) * 100;
+                
+                const current = autoBonusProgress.value[upperId] || 0;
+                autoBonusProgress.value[upperId] = Math.min(100, current + increment);
+
+                if (autoBonusProgress.value[upperId] >= 100) {
+                    hasAutoBonusCharge.value[upperId] = true;
+                }
+            });
         }, TICK_RATE_MS);
     }
 
@@ -278,11 +286,11 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         cycleProgress,
         autoBonusProgress,
         hasAutoBonusCharge,
-        productionPerWorker,
-        currentIntervalMs,
         groupedUpgrades,
         totalBuildingBonus,
         getLevel,
+        getWorkerInterval,
+        getWorkerProduction,
         isBoostActive,
         getBoostDuration,
         getBuildingInterval,
