@@ -48,6 +48,7 @@ export const useUpgradeStore = defineStore('upgrade', () => {
 
     const config = ref<ClickerConfig | null>(null);
     const levels = ref<Record<string, UpgradeStatus>>({});
+    const currentTime = ref(Date.now());
 
     const cycleProgress = ref(0);
     const autoBonusProgress = ref<Record<string, number>>({});
@@ -68,14 +69,26 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         return 0;
     }
 
-    function isBoostActive(id: string): boolean {
+    function getBoostDuration(id: string): number {
         const upperId = id.toUpperCase();
         const status = levels.value[upperId];
         const upg = config.value?.upgrades[upperId];
-        if (!status?.lastBoostAt || !upg?.boosts) return false;
+        if (!status || !upg?.boosts) return 0;
+
+        const baseDuration = upg.boosts.durationMs;
+        const levelBonus = (status.level - 1) * upg.boosts.increaseDurationMs;
+        return baseDuration + levelBonus;
+    }
+
+
+    function isBoostActive(id: string): boolean {
+        const upperId = id.toUpperCase();
+        const status = levels.value[upperId];
+        if (!status?.lastBoostAt) return false;
         
-        const now = Date.now();
-        const endTime = status.lastBoostAt + upg.boosts.durationMs;
+        const now = currentTime.value;
+        const duration = getBoostDuration(upperId);
+        const endTime = status.lastBoostAt + duration;
         return now < endTime;
     }
 
@@ -147,7 +160,6 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         return Math.max(1000, (workerCfg.baseIntervalMs || 10000) - reduction);
     });
 
-    // Calcul du bonus de base
     const totalBuildingBonus = computed(() => {
         if (!config.value || !config.value.upgrades) return 0;
         let total = 0;
@@ -214,6 +226,7 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         if (tickerInterval) return;
         
         tickerInterval = window.setInterval(() => {
+            currentTime.value = Date.now();
             const workerCount = getLevel('WORKER');
             if (authStore.isAuthenticated && workerCount > 0) {
                 const increment = (TICK_RATE_MS / currentIntervalMs.value) * 100;
@@ -261,6 +274,7 @@ export const useUpgradeStore = defineStore('upgrade', () => {
     return {
         config,
         levels,
+        currentTime,
         cycleProgress,
         autoBonusProgress,
         hasAutoBonusCharge,
@@ -270,6 +284,7 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         totalBuildingBonus,
         getLevel,
         isBoostActive,
+        getBoostDuration,
         getBuildingInterval,
         consumeAndGetTotalBonus,
         fetchConfig,

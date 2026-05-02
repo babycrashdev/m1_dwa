@@ -78,9 +78,9 @@ public class ClickerService {
             UpgradeDefinition.SubUpgradeDefinition subConfig = config.getUpgrades().get(subType);
             if (subConfig == null) throw new RuntimeException("Sous-type d'upgrade inconnu: " + subType);
             
-            if ("efficiency".equals(subType)) {
+            if ("efficiency".equals(subType) || "time".equals(subType) || subConfig.getReductionPerLevelMs() != null) {
                 currentLevel = upgrade.getEfficiencyLevel();
-            } else if ("production".equals(subType)) {
+            } else if ("production".equals(subType) || subConfig.getIncreasePerLevel() != null) {
                 currentLevel = upgrade.getProductionLevel();
             }
             price = (long) (subConfig.getBasePrice() * Math.pow(subConfig.getPriceMultiplier(), currentLevel));
@@ -96,10 +96,13 @@ public class ClickerService {
 
         if ("main".equals(subType)) {
             upgrade.setLevel(currentLevel + 1);
-        } else if ("efficiency".equals(subType)) {
-            upgrade.setEfficiencyLevel(currentLevel + 1);
-        } else if ("production".equals(subType)) {
-            upgrade.setProductionLevel(currentLevel + 1);
+        } else {
+            UpgradeDefinition.SubUpgradeDefinition subConfig = config.getUpgrades().get(subType);
+            if ("efficiency".equals(subType) || "time".equals(subType) || (subConfig != null && subConfig.getReductionPerLevelMs() != null)) {
+                upgrade.setEfficiencyLevel(currentLevel + 1);
+            } else if ("production".equals(subType) || (subConfig != null && subConfig.getIncreasePerLevel() != null)) {
+                upgrade.setProductionLevel(currentLevel + 1);
+            }
         }
         upgradeRepository.save(upgrade);
 
@@ -155,7 +158,7 @@ public class ClickerService {
                 passiveIncomePerSec += (u.getLevel() * prod) / intervalSec;
             } 
             else if ("BUILDING".equals(def.getCategory())) {
-                maxCarValue += def.getBonusValueBonus();
+                maxCarValue += (long) u.getLevel() * def.getBonusValueBonus();
             }
         }
 
@@ -178,10 +181,25 @@ public class ClickerService {
         Upgrade upgrade = getOrCreateUpgrade(user, upgradeType.toUpperCase());
         
         if (upgrade.getLastBoostAt() != null) {
-            long cooldownMs = config.getBoosts().getCooldownMs();
-            LocalDateTime nextAvailable = upgrade.getLastBoostAt().plusNanos(cooldownMs * 1_000_000L);
+            long baseCooldownMs = config.getBoosts().getCooldownMs();
+            long reductionMs = 0;
+
+            for (Map.Entry<String, UpgradeDefinition.SubUpgradeDefinition> entry : config.getUpgrades().entrySet()) {
+                if (entry.getValue().getReductionPerLevelMs() != null) {
+                    reductionMs += (long) upgrade.getEfficiencyLevel() * entry.getValue().getReductionPerLevelMs();
+                }
+            }
+            
+            long finalCooldownMs = Math.max(1000, baseCooldownMs - reductionMs);
+            
+            long currentDurationMs = config.getBoosts().getDurationMs() + (upgrade.getLevel() - 1) * config.getBoosts().getIncreaseDurationMs();
+            
+            long totalWaitMs = currentDurationMs + finalCooldownMs;
+            
+            LocalDateTime nextAvailable = upgrade.getLastBoostAt().plusNanos(totalWaitMs * 1_000_000L);
+            
             if (LocalDateTime.now().isBefore(nextAvailable)) {
-                throw new RuntimeException("Le boost est encore en recharge");
+                throw new RuntimeException("Le boost est encore en recharge. Prochain disponible à : " + nextAvailable);
             }
         }
 

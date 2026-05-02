@@ -28,9 +28,16 @@ export function useUpgradePanel() {
     };
 
     const isMaxLevel = (type: string, subType: string): boolean => {
-        if (type.toUpperCase() === 'WORKER' && subType === 'efficiency') {
+        const upperType = type.toUpperCase();
+        
+        if (upperType === 'WORKER' && subType === 'efficiency') {
             return upgradeStore.currentIntervalMs <= 1000;
         }
+
+        if (subType === 'time') {
+            return upgradeStore.getBuildingInterval(upperType) <= 4000;
+        }
+
         return false;
     };
 
@@ -107,12 +114,14 @@ export function useUpgradePanel() {
     };
 
     const getBoostCooldownRemaining = (id: string): number => {
-        const status = upgradeStore.levels[id.toUpperCase()];
-        const upg = upgradeStore.config?.upgrades[id.toUpperCase()];
+        const upperId = id.toUpperCase();
+        const status = upgradeStore.levels[upperId];
+        const upg = upgradeStore.config?.upgrades[upperId];
         if (!status?.lastBoostAt || !upg?.boosts) return 0;
         
-        const now = Date.now();
-        const nextAvailable = status.lastBoostAt + upg.boosts.cooldownMs;
+        const now = upgradeStore.currentTime;
+        const duration = upgradeStore.getBoostDuration(upperId);
+        const nextAvailable = status.lastBoostAt + duration + upg.boosts.cooldownMs;
         return Math.max(0, nextAvailable - now);
     };
 
