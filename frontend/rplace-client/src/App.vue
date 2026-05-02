@@ -66,6 +66,21 @@
         </div>
         <ColorPalette />
       </div>
+
+      <!-- Pannel Brush à DROITE -->
+      <Transition name="fade-right">
+        <div v-if="rplaceStore.isBrushActive" class="brush-settings">
+          <div class="brush-header">
+            <span class="brush-title">Options Pinceau</span>
+          </div>
+          <div class="brush-options">
+            <button class="brush-opt-btn" title="3x3">3x3</button>
+            <button class="brush-opt-btn" title="5x5">5x5</button>
+            <button class="brush-opt-btn" title="7x7">7x7</button>
+            <button class="brush-opt-btn" title="9x9">9x9</button>
+          </div>
+        </div>
+      </Transition>
     </div>
 
     <footer class="footer">
