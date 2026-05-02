@@ -23,8 +23,16 @@ export const useRPlaceStore = defineStore('rplace', {
     stompClient: null as Client | null,
     isInitialLoaded: false,
     initialPrice: 10,
-    isBrushActive: false
+    isBrushActive: false,
+    hoveredPixel: { x: -1, y: -1 }
   }),
+  getters: {
+    hoveredPixelData: (state) => {
+      if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
+      const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
+      return state.pixels[index] || null;
+    }
+  },
   actions: {
     async fetchConfig() {
       try {
@@ -154,7 +162,7 @@ export const useRPlaceStore = defineStore('rplace', {
 
     placeBrushPixels(cx: number, cy: number) {
       const gameStore = useGameStore();
-      
+
       if (this.cooldownSeconds > 0) {
         throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
       }

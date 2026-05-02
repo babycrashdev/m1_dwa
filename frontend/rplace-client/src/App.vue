@@ -1,5 +1,7 @@
 <template>
   <div class="app-container">
+
+
     <Profile />
 
     <div v-if="!showAuth" class="nav-container">
@@ -35,12 +37,35 @@
     </main>
 
     <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
-      <div class="tools-row">
-        <button class="tool-btn-placeholder" title="Futur outil"></button>
-        <button class="tool-btn-placeholder" title="Futur outil"></button>
-        <BrushToggle />
+      <!-- Infos Pixel à GAUCHE -->
+      <Transition name="fade">
+        <div v-if="rplaceStore.hoveredPixelData" class="pixel-info-box">
+          <div class="tooltip-header">
+            <div class="color-preview" :style="{ backgroundColor: rplaceStore.hoveredPixelData.color }"></div>
+            <span class="coordinates">({{ rplaceStore.hoveredPixelData.x }}, {{ rplaceStore.hoveredPixelData.y }})</span>
+          </div>
+          
+          <div class="tooltip-body">
+            <div class="info-row">
+              <span class="label">Propriétaire</span>
+              <span class="value">{{ rplaceStore.hoveredPixelData.ownerName || 'Personne' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Prix</span>
+              <span class="value highlight">✨ {{ rplaceStore.hoveredPixelData.price }}</span>
+            </div>
+          </div>
+        </div>
+      </Transition>
+
+      <div class="main-actions">
+        <div class="tools-row">
+          <button class="tool-btn-placeholder" title="Futur outil"></button>
+          <button class="tool-btn-placeholder" title="Futur outil"></button>
+          <BrushToggle />
+        </div>
+        <ColorPalette />
       </div>
-      <ColorPalette />
     </div>
 
     <footer class="footer">
@@ -57,9 +82,22 @@
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
+  import { useRPlaceStore } from './stores/rplace';
 
   const { showAuth, currentView, switchView} = useApp();
   const authStore = useAuthStore();
+  const rplaceStore = useRPlaceStore();
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit'
+    });
+  };
 </script>
 
 <style src="./styles/main.css"></style>

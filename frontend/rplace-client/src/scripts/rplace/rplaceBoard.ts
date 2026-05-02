@@ -80,14 +80,10 @@ export function useRPlaceBoard() {
   let isImageLoaded = false;
   overviewImage.onload = () => { isImageLoaded = true; };
 
-  const hoveredPixel = ref({ x: -1, y: -1 });
+
   const mousePos = ref({ x: 0, y: 0 });
 
-  const hoveredPixelData = computed(() => {
-    if (hoveredPixel.value.x === -1) return null;
-    const index = hoveredPixel.value.y * store.gridSize + hoveredPixel.value.x;
-    return store.pixels[index] || null;
-  });
+
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -119,14 +115,14 @@ export function useRPlaceBoard() {
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(offscreenCanvas, 0, 0);
 
-      if (hoveredPixel.value.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
+      if (store.hoveredPixel.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
         ctx.fillStyle = store.selectedColor;
         ctx.globalAlpha = 0.5;
 
         if (store.isBrushActive) {
           // Non réalisé par l'IA les 2 lignes en dessous 
-          const cx = Math.max(1, Math.min(hoveredPixel.value.x, store.gridSize - 2));
-          const cy = Math.max(1, Math.min(hoveredPixel.value.y, store.gridSize - 2));
+          const cx = Math.max(1, Math.min(store.hoveredPixel.x, store.gridSize - 2));
+          const cy = Math.max(1, Math.min(store.hoveredPixel.y, store.gridSize - 2));
 
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
@@ -136,7 +132,7 @@ export function useRPlaceBoard() {
             }
           }
         } else {
-          ctx.fillRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+          ctx.fillRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
         }
 
         ctx.globalAlpha = 1.0;
@@ -145,8 +141,8 @@ export function useRPlaceBoard() {
 
         if (store.isBrushActive) {
           // Non réalisé par l'IA les 2 lignes en dessous 
-          const cx = Math.max(1, Math.min(hoveredPixel.value.x, store.gridSize - 2));
-          const cy = Math.max(1, Math.min(hoveredPixel.value.y, store.gridSize - 2));
+          const cx = Math.max(1, Math.min(store.hoveredPixel.x, store.gridSize - 2));
+          const cy = Math.max(1, Math.min(store.hoveredPixel.y, store.gridSize - 2));
 
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
@@ -156,7 +152,7 @@ export function useRPlaceBoard() {
             }
           }
         } else {
-          ctx.strokeRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+          ctx.strokeRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
         }
       }
     }
@@ -194,9 +190,9 @@ export function useRPlaceBoard() {
     mousePos.value = { x: e.clientX, y: e.clientY };
     const { x, y } = screenToGrid(e.clientX, e.clientY);
     if (x >= 0 && x < store.gridSize && y >= 0 && y < store.gridSize) {
-      hoveredPixel.value = { x, y };
+      store.hoveredPixel = { x, y };
     } else {
-      hoveredPixel.value = { x: -1, y: -1 };
+      store.hoveredPixel = { x: -1, y: -1 };
     }
 
     if (camera.isDragging) {
@@ -296,7 +292,7 @@ export function useRPlaceBoard() {
 
       store.connectWebSocket();
 
-      //store.generateTestGrid();
+      store.generateTestGrid();
       updateBuffer();
 
       draw();
@@ -313,9 +309,9 @@ export function useRPlaceBoard() {
 
   return {
     canvasRef,
-    hoveredPixel,
+    hoveredPixel: computed(() => store.hoveredPixel),
     mousePos,
-    hoveredPixelData,
+    hoveredPixelData: computed(() => store.hoveredPixelData),
     formatDate
   };
 }
