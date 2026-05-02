@@ -214,7 +214,7 @@ body {
 }
 
 .view-toggle-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(25, 25, 35, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   width: 50px;
@@ -225,13 +225,14 @@ body {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .view-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.1);
+  background: rgba(25, 25, 35, 0.6);
+  transform: scale(1.05);
   border-color: rgba(255, 255, 255, 0.2);
 }
 

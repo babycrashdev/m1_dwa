@@ -293,7 +293,7 @@ export function useRPlaceBoard() {
 
       store.connectWebSocket();
 
-      //store.generateTestGrid();
+      store.generateTestGrid();
       updateBuffer();
 
       draw();
