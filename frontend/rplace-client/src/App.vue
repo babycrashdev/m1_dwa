@@ -35,7 +35,11 @@
     </main>
 
     <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
-      <BrushToggle />
+      <div class="tools-row">
+        <button class="tool-btn-placeholder" title="Futur outil"></button>
+        <button class="tool-btn-placeholder" title="Futur outil"></button>
+        <BrushToggle />
+      </div>
       <ColorPalette />
     </div>
 

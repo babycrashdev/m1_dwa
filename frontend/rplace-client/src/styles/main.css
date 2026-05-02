@@ -21,10 +21,51 @@ body {
   bottom: 2rem;
   right: 2rem;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 15px;
+  flex-direction: column; /* Vertical */
+  align-items: center;
+  gap: 12px;
   z-index: 1000;
+  background: rgba(20, 20, 30, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tools-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tool-btn-placeholder {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tool-btn-placeholder:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(50px) opacity(0); }
+  to { transform: translateX(0) opacity(1); }
 }
 
 .nav-container {
