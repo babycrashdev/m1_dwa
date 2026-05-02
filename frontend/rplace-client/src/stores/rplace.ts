@@ -16,6 +16,7 @@ export interface PixelData {
 export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
     pixels: [] as PixelData[],
+    ownedColors: [] as string[],
     gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
@@ -50,7 +51,7 @@ export const useRPlaceStore = defineStore('rplace', {
 
     async fetchInitialBoard() {
       if (this.gridSize === 0) await this.fetchConfig();
-      
+
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/pixels`);
         if (Array.isArray(response.data)) {
@@ -113,7 +114,7 @@ export const useRPlaceStore = defineStore('rplace', {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
       const index = pixelData.y * this.gridSize + pixelData.x;
-      
+
       if (pixelData.ownerName === authStore.user?.username) {
         const oldPixel = this.pixels[index];
         const pricePaid = oldPixel ? oldPixel.price : 10;
@@ -133,7 +134,7 @@ export const useRPlaceStore = defineStore('rplace', {
       if (this.cooldownSeconds > 0) {
         throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
       }
-      
+
       if (pixel && gameStore.money < pixel.price) {
         throw new Error("Solde insuffisant !");
       }
@@ -221,6 +222,35 @@ export const useRPlaceStore = defineStore('rplace', {
           color: `#${r}${g}${b}`,
           price: 10
         };
+      }
+    },
+
+    async fetchOwnedColors() {
+      const authStore = useAuthStore();
+      if (!authStore.isAuthenticated) return;
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/colors/owned`, {
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        });
+        this.ownedColors = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des couleurs possédées', error);
+      }
+    },
+
+    async buyColor(color: string) {
+      const authStore = useAuthStore();
+      const gameStore = useGameStore();
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/colors/buy`,
+          { color },
+          { headers: { Authorization: `Bearer ${authStore.token}` } }
+        );
+        this.ownedColors.push(color);
+        gameStore.money -= 500;
+        return true;
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
       }
     }
   }

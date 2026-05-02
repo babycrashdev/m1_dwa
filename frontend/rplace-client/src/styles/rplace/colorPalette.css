@@ -1,3 +1,5 @@
+/*Généré par IA*/
+
 .palette-container {
   display: flex;
   gap: 8px;
@@ -6,6 +8,7 @@
   padding: 10px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
 }
 
 .color-swatch {
@@ -15,6 +18,10 @@
   cursor: pointer;
   border: 2px solid transparent;
   transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
 }
 
 .color-swatch:hover {
@@ -25,4 +32,131 @@
   border-color: white;
   transform: scale(1.1);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.color-swatch.locked {
+  filter: grayscale(0.5) brightness(0.7);
+  cursor: pointer;
+}
+
+.lock-emoji {
+  pointer-events: none;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2.5rem;
+  border-radius: 24px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  min-width: 320px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.modal-content p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 18px;
+}
+
+.color-preview {
+  width: 80px;
+  height: 80px;
+  margin: 1.5rem auto;
+  border-radius: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.buy-btn {
+  background: white;
+  color: #333;
+}
+
+.buy-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.02);
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-msg {
+  color: #ff4d4d;
+  font-size: 14px;
+  margin-top: 15px;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 77, 77, 0.3);
 }
