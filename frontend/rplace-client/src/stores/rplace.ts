@@ -24,6 +24,7 @@ export const useRPlaceStore = defineStore('rplace', {
     isInitialLoaded: false,
     initialPrice: 10,
     isBrushActive: false,
+    brushSize: 3,
     hoveredPixel: { x: -1, y: -1 }
   }),
   getters: {
@@ -31,6 +32,24 @@ export const useRPlaceStore = defineStore('rplace', {
       if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
       const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
       return state.pixels[index] || null;
+    },
+    brushTotalPrice: (state) => {
+      if (!state.isBrushActive || state.hoveredPixel.x === -1 || state.gridSize === 0) return 0;
+      
+      let total = 0;
+      const offset = Math.floor(state.brushSize / 2);
+      const cx = Math.max(offset, Math.min(state.hoveredPixel.x, state.gridSize - 1 - offset));
+      const cy = Math.max(offset, Math.min(state.hoveredPixel.y, state.gridSize - 1 - offset));
+
+      for (let dy = -offset; dy <= offset; dy++) {
+        for (let dx = -offset; dx <= offset; dx++) {
+          const nx = cx + dx;
+          const ny = cy + dy;
+          const index = ny * state.gridSize + nx;
+          total += state.pixels[index]?.price || state.initialPrice;
+        }
+      }
+      return total;
     }
   },
   actions: {
@@ -173,9 +192,10 @@ export const useRPlaceStore = defineStore('rplace', {
 
       let totalCost = 0;
       const pixelsToPlace = [];
+      const offset = Math.floor(this.brushSize / 2);
 
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -offset; dy <= offset; dy++) {
+        for (let dx = -offset; dx <= offset; dx++) {
           const nx = cx + dx;
           const ny = cy + dy;
           if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize) {
@@ -191,19 +211,12 @@ export const useRPlaceStore = defineStore('rplace', {
         throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
       }
 
-      // Envoi groupé au serveur pour éviter le blocage par le cooldown individuel
       this.stompClient?.publish({
         destination: '/app/place-brush',
         body: JSON.stringify(pixelsToPlace.map(p => ({ x: p.x, y: p.y, color: this.selectedColor })))
       });
 
-      const authStore = useAuthStore();
-      const newOwner = authStore.user?.username || 'Inconnu';
-
-      pixelsToPlace.forEach(p => {
-        console.log(`[Brush] Placement pixel: (${p.x}, ${p.y}) color: ${this.selectedColor} (Nouveau proprio: ${newOwner})`);
-      });
-
+      console.log(`[Brush ${this.brushSize}x${this.brushSize}] Placement de ${pixelsToPlace.length} pixels.`);
       this.startCooldown(5);
     },
 

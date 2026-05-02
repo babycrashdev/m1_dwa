@@ -120,12 +120,12 @@ export function useRPlaceBoard() {
         ctx.globalAlpha = 0.5;
 
         if (store.isBrushActive) {
-          // Non réalisé par l'IA les 2 lignes en dessous 
-          const cx = Math.max(1, Math.min(store.hoveredPixel.x, store.gridSize - 2));
-          const cy = Math.max(1, Math.min(store.hoveredPixel.y, store.gridSize - 2));
+          const offset = Math.floor(store.brushSize / 2);
+          const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
+          const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -offset; dy <= offset; dy++) {
+            for (let dx = -offset; dx <= offset; dx++) {
               const nx = cx + dx;
               const ny = cy + dy;
               ctx.fillRect(nx, ny, 1, 1);
@@ -140,12 +140,12 @@ export function useRPlaceBoard() {
         ctx.lineWidth = 0.1;
 
         if (store.isBrushActive) {
-          // Non réalisé par l'IA les 2 lignes en dessous 
-          const cx = Math.max(1, Math.min(store.hoveredPixel.x, store.gridSize - 2));
-          const cy = Math.max(1, Math.min(store.hoveredPixel.y, store.gridSize - 2));
+          const offset = Math.floor(store.brushSize / 2);
+          const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
+          const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -offset; dy <= offset; dy++) {
+            for (let dx = -offset; dx <= offset; dx++) {
               const nx = cx + dx;
               const ny = cy + dy;
               ctx.strokeRect(nx, ny, 1, 1);
@@ -220,8 +220,9 @@ export function useRPlaceBoard() {
         const { x, y } = screenToGrid(e.clientX, e.clientY);
         try {
           if (store.isBrushActive) {
-            const cx = Math.max(1, Math.min(x, store.gridSize - 2));
-            const cy = Math.max(1, Math.min(y, store.gridSize - 2));
+            const offset = Math.floor(store.brushSize / 2);
+            const cx = Math.max(offset, Math.min(x, store.gridSize - 1 - offset));
+            const cy = Math.max(offset, Math.min(y, store.gridSize - 1 - offset));
             store.placeBrushPixels(cx, cy);
           } else {
             store.placePixel(x, y);
@@ -292,7 +293,7 @@ export function useRPlaceBoard() {
 
       store.connectWebSocket();
 
-      store.generateTestGrid();
+      //store.generateTestGrid();
       updateBuffer();
 
       draw();

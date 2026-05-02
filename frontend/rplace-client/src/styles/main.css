@@ -42,6 +42,7 @@ body {
     transform: translate(-50%, 50px);
     opacity: 0;
   }
+
   to {
     transform: translate(-50%, 0);
     opacity: 1;
@@ -52,7 +53,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 180px; /* Utiliser width fixe pour l'animation */
+  width: 180px;
+  /* Utiliser width fixe pour l'animation */
   flex-shrink: 0;
   overflow: hidden;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -145,7 +147,7 @@ body {
 }
 
 .fade-enter-active {
-  transition: 
+  transition:
     opacity 0.3s ease-out,
     transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
     width 0.3s ease-out,
@@ -155,7 +157,7 @@ body {
 }
 
 .fade-leave-active {
-  transition: 
+  transition:
     opacity 0.2s ease-in,
     transform 0.2s ease-in,
     width 0.2s ease-in,
@@ -263,7 +265,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 140px;
+  width: 160px;
   flex-shrink: 0;
   overflow: hidden;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -277,11 +279,10 @@ body {
 }
 
 .brush-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffd700;
+  white-space: nowrap;
 }
 
 .brush-options {
@@ -320,7 +321,7 @@ body {
 
 /* Animation latérale DROITE */
 .fade-right-enter-active {
-  transition: 
+  transition:
     opacity 0.3s ease-out,
     transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
     width 0.3s ease-out,
@@ -329,7 +330,7 @@ body {
 }
 
 .fade-right-leave-active {
-  transition: 
+  transition:
     opacity 0.2s ease-in,
     transform 0.2s ease-in,
     width 0.2s ease-in,
@@ -351,7 +352,7 @@ body {
 .fade-right-leave-from {
   opacity: 1;
   transform: translateX(0) scale(1);
-  width: 140px;
+  width: 160px;
   margin-left: 20px;
   padding-left: 20px;
 }
