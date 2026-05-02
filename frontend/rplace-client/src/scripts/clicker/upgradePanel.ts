@@ -138,6 +138,10 @@ export function useUpgradePanel() {
         upgradeStore.activateBoost(id);
     };
 
+    const activateAllBoosts = () => {
+        upgradeStore.activateAllBoosts();
+    };
+
     return {
         upgradeStore,
         activeTab,
@@ -154,6 +158,8 @@ export function useUpgradePanel() {
         getAutoBonusProgress,
         isBoostActive,
         getBoostCooldownRemaining,
-        activateBoost
+        activateBoost,
+        activateAllBoosts,
+        readyBoostsCount: computed(() => upgradeStore.readyBoostsCount)
     };
 }

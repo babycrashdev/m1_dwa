@@ -222,6 +222,36 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         }
     }
 
+    async function activateAllBoosts() {
+        if (!config.value) return;
+        const readyUpgrades = Object.keys(config.value.upgrades).filter(id => {
+            const upperId = id.toUpperCase();
+            const upg = config.value?.upgrades[id];
+            if (!upg) return false;
+            
+            return upg.category === 'BUILDING' && 
+                   getLevel(upperId) > 0 && 
+                   !isBoostActive(upperId) &&
+                   getBoostCooldownRemaining(upperId) === 0;
+        });
+
+        for (const id of readyUpgrades) {
+            await activateBoost(id);
+        }
+    }
+
+    function getBoostCooldownRemaining(id: string): number {
+        const upperId = id.toUpperCase();
+        const status = levels.value[upperId];
+        const upg = config.value?.upgrades[upperId];
+        if (!status?.lastBoostAt || !upg?.boosts) return 0;
+        
+        const now = currentTime.value;
+        const duration = getBoostDuration(upperId);
+        const nextAvailable = status.lastBoostAt + duration + upg.boosts.cooldownMs;
+        return Math.max(0, nextAvailable - now);
+    }
+
     function startProductionLoop() {
         if (tickerInterval) return;
         
@@ -279,6 +309,20 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         }
     }
 
+    const readyBoostsCount = computed(() => {
+        if (!config.value) return 0;
+        return Object.keys(config.value.upgrades).filter(id => {
+            const upperId = id.toUpperCase();
+            const upg = config.value?.upgrades[id];
+            if (!upg) return false;
+            
+            return upg.category === 'BUILDING' && 
+                   getLevel(upperId) > 0 && 
+                   !isBoostActive(upperId) &&
+                   getBoostCooldownRemaining(upperId) === 0;
+        }).length;
+    });
+
     return {
         config,
         levels,
@@ -288,17 +332,20 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         hasAutoBonusCharge,
         groupedUpgrades,
         totalBuildingBonus,
+        readyBoostsCount,
         getLevel,
         getWorkerInterval,
         getWorkerProduction,
         isBoostActive,
         getBoostDuration,
         getBuildingInterval,
+        getBoostCooldownRemaining,
         consumeAndGetTotalBonus,
         fetchConfig,
         fetchState,
         buyUpgrade,
         activateBoost,
+        activateAllBoosts,
         startProductionLoop,
         stopProductionLoop
     };

@@ -23,13 +23,22 @@
                 <rect 
                   x="2" y="2" 
                   rx="18" ry="18" 
-                  width="calc(100% - 4px)" height="calc(100% - 4px)"
+                  fill="none" 
+                  stroke="rgba(255, 255, 255, 0.05)" 
+                  stroke-width="3"
+                  :style="{ width: 'calc(100% - 4px)', height: 'calc(100% - 4px)' }"
+                />
+                <rect 
+                  x="2" y="2" 
+                  rx="18" ry="18" 
                   fill="none" 
                   stroke="url(#worker-grad)" 
                   stroke-width="3"
                   pathLength="100"
                   :class="{ 'no-transition': (upgradeStore.cycleProgress[upgrade.id!] || 0) < 2 }"
                   :style="{ 
+                    width: 'calc(100% - 4px)',
+                    height: 'calc(100% - 4px)',
                     strokeDasharray: '100', 
                     strokeDashoffset: 100 - Math.min(100, (upgradeStore.cycleProgress[upgrade.id!] || 0) * 1.05) 
                   }"
@@ -103,64 +112,69 @@
           </div>
         </template>
 
-        <div class="upgrade-section" v-else>
-          <h4 class="section-title">{{ formatName(upgrade.id!) }}</h4>
-          
-          <div class="upgrade-card primary" @click="buy(upgrade.id!, 'main')" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
-            <div class="upgrade-icon">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
-            <div class="upgrade-info">
-              <span class="name">Acheter</span>
-              <span class="desc">{{ getUpgradeDesc(upgrade.id!, 'main') }}</span>
-              <span class="cost">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
-            </div>
-            <div class="level-badge">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
-          </div>
-
-          <div class="building-actions" v-if="upgrade.category === 'BUILDING' && upgradeStore.getLevel(upgrade.id!) > 0">
-            <div class="auto-bonus-area">
-              <div class="bonus-label">
-                <span>Auto-bonus (+{{ upgrade.bonusValueBonus }} ✨)</span>
-                <span class="status" v-if="upgradeStore.hasAutoBonusCharge[upgrade.id!]">PRÊT !</span>
-              </div>
-              <div class="progress-mini">
-                <div class="progress-fill" :style="{ width: getAutoBonusProgress(upgrade.id!) + '%' }" :class="{ charged: upgradeStore.hasAutoBonusCharge[upgrade.id!] }"></div>
-              </div>
-            </div>
-
+        <div class="building-section" v-else>
+          <div v-if="upgrade.id === currentUpgrades[0]?.id" class="global-action-container">
             <button 
-              class="boost-button" 
-              :class="{ 
-                active: isBoostActive(upgrade.id!), 
-                cooldown: getBoostCooldownRemaining(upgrade.id!) > 0 && !isBoostActive(upgrade.id!) 
-              }"
-              @click.stop="activateBoost(upgrade.id!)"
-              :disabled="getBoostCooldownRemaining(upgrade.id!) > 0"
+              class="global-boost-btn" 
+              @click="activateAllBoosts"
+              :class="{ disabled: readyBoostsCount === 0 }"
             >
-              <span v-if="isBoostActive(upgrade.id!)">🔥 BOOST ACTIF !</span>
-              <span v-else-if="getBoostCooldownRemaining(upgrade.id!) > 0">
-                ⌛ {{ (getBoostCooldownRemaining(upgrade.id!) / 1000).toFixed(0) }}s
-              </span>
-              <span v-else>🚀 ACTIVER BOOST</span>
+              <div class="boost-content">
+                <span class="boost-icon">⚡</span>
+                <span class="boost-label">ACTIVER TOUS LES BOOSTS</span>
+                <span v-if="readyBoostsCount > 0" class="boost-badge">{{ readyBoostsCount }}</span>
+              </div>
             </button>
           </div>
 
-          <div class="upgrade-section-subs" v-if="Object.keys(upgrade.upgrades).length > 0">
-            <div class="sub-upgrades-grid">
-              <div 
-                v-for="(subCfg, subId) in upgrade.upgrades" 
-                :key="subId"
-                class="upgrade-card sub" 
-                @click="buy(upgrade.id!, subId.toString())" 
-                :class="{ disabled: !canAfford(upgrade.id!, subId.toString()) }"
-              >
-                <div class="upgrade-info">
-                  <span class="name">{{ formatName(subId.toString()) }}</span>
-                  <span class="desc">{{ getUpgradeDesc(upgrade.id!, subId.toString()) }}</span>
-                  <span class="cost">{{ isMaxLevel(upgrade.id!, subId.toString()) ? 'MAX' : '✨ ' + formatNumber(getPrice(upgrade.id!, subId.toString())) }}</span>
+          <div class="building-card" :class="{ locked: upgradeStore.getLevel(upgrade.id!) === 0 }">
+             <div class="worker-card-inner">
+                <div v-if="upgradeStore.getLevel(upgrade.id!) === 0" class="unlock-area" @click="buy(upgrade.id!, 'main')">
+                  <div class="unlock-btn" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
+                    <span class="icon">{{ getIcon(upgrade.category, upgrade.id!) }}</span>
+                    <div class="unlock-text">
+                      <span class="label">DÉBLOQUER {{ formatName(upgrade.id!) }}</span>
+                      <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="level-badge">Lvl {{ upgradeStore.getLevel(upgrade.id!, subId.toString()) }}</div>
-              </div>
-            </div>
+
+                <div v-else class="building-dashboard">
+                   <button class="b-btn main-level" @click="buy(upgrade.id!, 'main')" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
+                      <div class="b-brand">
+                        <div class="b-icon-circle">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
+                        <div class="b-meta">
+                          <span class="b-name">{{ formatName(upgrade.id!) }}</span>
+                          <span class="b-price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
+                        </div>
+                      </div>
+                      <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
+                   </button>
+
+                   <button class="b-btn speed-up" @click="buy(upgrade.id!, 'time')" :class="{ disabled: !canAfford(upgrade.id!, 'time') || isMaxLevel(upgrade.id!, 'time') }">
+                      <div class="b-label">VITESSE</div>
+                      <div class="b-price" v-if="!isMaxLevel(upgrade.id!, 'time')">✨ {{ formatNumber(getPrice(upgrade.id!, 'time')) }}</div>
+                      <div class="b-price" v-else>MAX</div>
+                      <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'time') }}</div>
+                   </button>
+
+                   <button 
+                    class="b-btn boost-action" 
+                    @click="activateBoost(upgrade.id!)" 
+                    :class="{ 
+                      active: isBoostActive(upgrade.id!), 
+                      cooldown: getBoostCooldownRemaining(upgrade.id!) > 0,
+                      disabled: isBoostActive(upgrade.id!) || getBoostCooldownRemaining(upgrade.id!) > 0 
+                    }"
+                   >
+                      <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay">
+                        <span class="timer">{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
+                      </div>
+                      <div class="b-label">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</div>
+                      <div class="boost-icon-small">⚡</div>
+                   </button>
+                </div>
+             </div>
           </div>
         </div>
 
@@ -188,10 +202,10 @@ import { useUpgradePanel } from '../../scripts/clicker/upgradePanel';
     if (totalSeconds < 60) return `${totalSeconds.toFixed(0)}s`;
     
     const totalMinutes = totalSeconds / 60;
-    if (totalMinutes < 60) return `${totalMinutes.toFixed(1)}m`;
+    if (totalMinutes < 60) return `${totalMinutes.toFixed(0)}m`;
     
     const totalHours = totalMinutes / 60;
-    return `${totalHours.toFixed(1)}h`;
+    return `${totalHours.toFixed(0)}h`;
   };
 
 const { 
@@ -210,7 +224,9 @@ const {
     getAutoBonusProgress,
     isBoostActive,
     getBoostCooldownRemaining,
-    activateBoost
+    activateBoost,
+    activateAllBoosts,
+    readyBoostsCount
 } = useUpgradePanel();
 </script>
 
