@@ -17,6 +17,8 @@ canvas {
 
 .pixel-tooltip {
   position: fixed;
+  bottom: 20px;
+  left: 20px;
   z-index: 1000;
   pointer-events: none;
   background: rgba(25, 25, 35, 0.85);

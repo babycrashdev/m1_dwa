@@ -6,7 +6,6 @@
       <div 
         v-if="hoveredPixelData" 
         class="pixel-tooltip"
-        :style="{ left: mousePos.x + 15 + 'px', top: mousePos.y + 15 + 'px' }"
       >
         <div class="tooltip-header">
           <div class="color-preview" :style="{ backgroundColor: hoveredPixelData.color }"></div>
