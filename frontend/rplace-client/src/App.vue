@@ -34,7 +34,10 @@
       </div>
     </main>
 
-    <BrushToggle v-if="!showAuth && authStore.isAuthenticated" />
+    <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
+      <BrushToggle />
+      <ColorPalette />
+    </div>
 
     <footer class="footer">
     </footer>
@@ -47,6 +50,7 @@
   import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
+  import ColorPalette from './components/rplace/ColorPalette.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
 
