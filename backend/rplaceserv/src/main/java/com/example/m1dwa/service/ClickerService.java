@@ -5,6 +5,8 @@ import com.example.m1dwa.dto.ClickerStateDTO;
 import com.example.m1dwa.model.Upgrade;
 import com.example.m1dwa.model.User;
 import com.example.m1dwa.model.Wallet;
+import com.example.m1dwa.model.Slot;
+import com.example.m1dwa.repository.SlotRepository;
 import com.example.m1dwa.repository.UpgradeRepository;
 import com.example.m1dwa.repository.UserRepository;
 import com.example.m1dwa.repository.WalletRepository;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class ClickerService {
     private final UpgradeRepository upgradeRepository;
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
+    private final SlotRepository slotRepository;
     private final GameConfigService gameConfigService;
 
     public ClickerStateDTO getClickerState(String username) {
@@ -40,13 +42,6 @@ public class ClickerService {
             details.put("level", u.getLevel());
             details.put("efficiency", u.getEfficiencyLevel());
             details.put("production", u.getProductionLevel());
-            
-            if (u.getLastBoostAt() != null) {
-                details.put("lastBoostAt", u.getLastBoostAt().toInstant(ZoneOffset.UTC).toEpochMilli());
-            }
-            if (u.getLastAutoBonusAt() != null) {
-                details.put("lastAutoBonusAt", u.getLastAutoBonusAt().toInstant(ZoneOffset.UTC).toEpochMilli());
-            }
             
             levelsMap.put(u.getType(), details);
         }
@@ -143,71 +138,42 @@ public class ClickerService {
     private long calculateMaxPossibleGain(User user, long seconds) {
         Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         
         double passiveIncomePerSec = 0;
         long maxCarValue = gameConfigService.getClickerConfig().getBaseCarValue();
         
         for (Upgrade u : upgrades) {
             UpgradeDefinition def = configMap.get(u.getType());
-            if (def == null) continue;
+            if (def == null || !"WORKER".equals(def.getCategory())) continue;
 
-            if ("WORKER".equals(def.getCategory())) {
-                double prod = def.getBaseProduction() + (u.getProductionLevel() * (def.getUpgrades().containsKey("production") ? def.getUpgrades().get("production").getIncreasePerLevel() : 0));
-                double intervalSec = (def.getBaseIntervalMs() - (u.getEfficiencyLevel() * (def.getUpgrades().containsKey("efficiency") ? def.getUpgrades().get("efficiency").getReductionPerLevelMs() : 0))) / 1000.0;
-                if (intervalSec < 0.1) intervalSec = 0.1;
-                passiveIncomePerSec += (u.getLevel() * prod) / intervalSec;
-            } 
-            else if ("BUILDING".equals(def.getCategory())) {
-                maxCarValue += (long) u.getLevel() * def.getBonusValueBonus();
+            double prod = def.getBaseProduction() + (u.getProductionLevel() * (def.getUpgrades().containsKey("production") ? def.getUpgrades().get("production").getIncreasePerLevel() : 0));
+            double intervalSec = (def.getBaseIntervalMs() - (u.getEfficiencyLevel() * (def.getUpgrades().containsKey("efficiency") ? def.getUpgrades().get("efficiency").getReductionPerLevelMs() : 0))) / 1000.0;
+            if (intervalSec < 0.1) intervalSec = 0.1;
+            passiveIncomePerSec += (u.getLevel() * prod) / intervalSec;
+        }
+
+        for (Slot slot : slots) {
+            if (!slot.isUnlocked() || slot.getBuildingType() == null) continue;
+
+            String type = slot.getBuildingType();
+            UpgradeDefinition def = configMap.get(type);
+            if (def == null || !"BUILDING".equals(def.getCategory())) continue;
+
+            final String finalType = type;
+            Upgrade upgrade = upgrades.stream()
+                    .filter(u -> u.getType().equals(finalType))
+                    .findFirst()
+                    .orElse(null);
+
+            if (upgrade != null && upgrade.getLevel() > 0) {
+                maxCarValue += (long) upgrade.getLevel() * def.getBonusValueBonus();
             }
         }
 
         long maxActiveIncomePerSec = 15 * maxCarValue;
         
         return (long) ((passiveIncomePerSec + maxActiveIncomePerSec) * seconds);
-    }
-
-    /* Fait avec l'IA */
-    @Transactional
-    public ClickerStateDTO activateBoost(String username, String upgradeType) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        
-        UpgradeDefinition config = gameConfigService.getUpgrades().get(upgradeType.toUpperCase());
-        if (config == null || config.getBoosts() == null) {
-            throw new RuntimeException("Ce type d'upgrade ne supporte pas de boost: " + upgradeType);
-        }
-
-        Upgrade upgrade = getOrCreateUpgrade(user, upgradeType.toUpperCase());
-        
-        if (upgrade.getLastBoostAt() != null) {
-            long baseCooldownMs = config.getBoosts().getCooldownMs();
-            long reductionMs = 0;
-
-            for (Map.Entry<String, UpgradeDefinition.SubUpgradeDefinition> entry : config.getUpgrades().entrySet()) {
-                if (entry.getValue().getReductionPerLevelMs() != null) {
-                    reductionMs += (long) upgrade.getEfficiencyLevel() * entry.getValue().getReductionPerLevelMs();
-                }
-            }
-            
-            long finalCooldownMs = Math.max(1000, baseCooldownMs - reductionMs);
-            
-            long currentDurationMs = config.getBoosts().getDurationMs() + (upgrade.getLevel() - 1) * config.getBoosts().getIncreaseDurationMs();
-            
-            long totalWaitMs = currentDurationMs + finalCooldownMs;
-            
-            LocalDateTime nextAvailable = upgrade.getLastBoostAt().plusNanos(totalWaitMs * 1_000_000L);
-            
-            if (LocalDateTime.now().isBefore(nextAvailable)) {
-                throw new RuntimeException("Le boost est encore en recharge. Prochain disponible à : " + nextAvailable);
-            }
-        }
-
-        upgrade.setLastBoostAt(LocalDateTime.now());
-        upgradeRepository.save(upgrade);
-        
-        log.info("Utilisateur {} a activé le boost pour {}", username, upgradeType);
-        return getClickerState(username);
     }
 
     private Upgrade getOrCreateUpgrade(User user, String type) {

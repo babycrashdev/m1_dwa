@@ -6,4 +6,9 @@ import lombok.Data;
 public class ClickerConfig {
     private long syncIntervalMs;
     private long baseCarValue;
+
+    private int maxSlots;
+    private boolean firstSlotFree;
+    private long slotBasePrice;
+    private double slotPriceMultiplier;
 }

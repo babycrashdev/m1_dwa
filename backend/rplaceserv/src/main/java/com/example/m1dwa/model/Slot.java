@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "upgrades", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "type"})
-})
+@Table(name = "slots")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Upgrade {
+public class Slot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,15 +21,18 @@ public class Upgrade {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 50)
-    private String type;
+    @Column(nullable = false)
+    private int slotIndex;
 
     @Column(nullable = false)
-    private int level = 0;
+    private boolean unlocked = false;
 
-    @Column(nullable = false)
-    private int efficiencyLevel = 0;
+    @Column(nullable = true)
+    private String buildingType;
 
-    @Column(nullable = false)
-    private int productionLevel = 0;
+    @Column(nullable = true)
+    private LocalDateTime lastBoostAt;
+
+    @Column(nullable = true)
+    private LocalDateTime lastAutoBonusAt;
 }

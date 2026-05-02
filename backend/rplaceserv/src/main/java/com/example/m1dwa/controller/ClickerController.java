@@ -54,13 +54,4 @@ public class ClickerController {
         }
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/user/clicker/boost")
-    public ResponseEntity<ClickerStateDTO> activateBoost(
-            @RequestBody Map<String, String> request,
-            Authentication authentication) {
-        
-        String type = request.get("type");
-        return ResponseEntity.ok(clickerService.activateBoost(authentication.getName(), type));
-    }
 }

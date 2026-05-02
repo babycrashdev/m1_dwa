@@ -48,8 +48,12 @@ public class GameConfigService {
                 clickerConfig = new ClickerConfig();
                 clickerConfig.setSyncIntervalMs(Long.valueOf(clicker.get("syncIntervalMs").toString()));
                 clickerConfig.setBaseCarValue(Long.valueOf(clicker.get("baseCarValue").toString()));
-                
-                log.info("Configuration générale chargée : gridSize={}", rplaceConfig.getGridSize());
+                clickerConfig.setMaxSlots((Integer) clicker.get("maxSlots"));
+                clickerConfig.setFirstSlotFree((Boolean) clicker.get("firstSlotFree"));
+                clickerConfig.setSlotBasePrice(Long.valueOf(clicker.get("slotBasePrice").toString()));
+                clickerConfig.setSlotPriceMultiplier(Double.valueOf(clicker.get("slotPriceMultiplier").toString()));
+
+                log.info("Configuration générale chargée : gridSize={}, maxSlots={}", rplaceConfig.getGridSize(), clickerConfig.getMaxSlots());
             }
         } catch (Exception e) {
             log.error("Erreur lors du chargement de config.yml", e);
