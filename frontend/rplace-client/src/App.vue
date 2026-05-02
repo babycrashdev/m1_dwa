@@ -74,10 +74,30 @@
             <span class="brush-title">Options Pinceau</span>
           </div>
           <div class="brush-options">
-            <button class="brush-opt-btn" title="3x3">3x3</button>
-            <button class="brush-opt-btn" title="5x5">5x5</button>
-            <button class="brush-opt-btn" title="7x7">7x7</button>
-            <button class="brush-opt-btn" title="9x9">9x9</button>
+            <button 
+              class="brush-opt-btn" 
+              :class="{ active: rplaceStore.brushSize === 3 }"
+              @click="rplaceStore.brushSize = 3"
+              title="3x3"
+            >3x3</button>
+            <button 
+              class="brush-opt-btn" 
+              :class="{ active: rplaceStore.brushSize === 5 }"
+              @click="rplaceStore.brushSize = 5"
+              title="5x5"
+            >5x5</button>
+            <button 
+              class="brush-opt-btn" 
+              :class="{ active: rplaceStore.brushSize === 7 }"
+              @click="rplaceStore.brushSize = 7"
+              title="7x7"
+            >7x7</button>
+            <button 
+              class="brush-opt-btn" 
+              :class="{ active: rplaceStore.brushSize === 9 }"
+              @click="rplaceStore.brushSize = 9"
+              title="9x9"
+            >9x9</button>
           </div>
         </div>
       </Transition>
