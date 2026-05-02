@@ -32,6 +32,24 @@ export const useRPlaceStore = defineStore('rplace', {
       if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
       const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
       return state.pixels[index] || null;
+    },
+    brushTotalPrice: (state) => {
+      if (!state.isBrushActive || state.hoveredPixel.x === -1 || state.gridSize === 0) return 0;
+      
+      let total = 0;
+      const offset = Math.floor(state.brushSize / 2);
+      const cx = Math.max(offset, Math.min(state.hoveredPixel.x, state.gridSize - 1 - offset));
+      const cy = Math.max(offset, Math.min(state.hoveredPixel.y, state.gridSize - 1 - offset));
+
+      for (let dy = -offset; dy <= offset; dy++) {
+        for (let dx = -offset; dx <= offset; dx++) {
+          const nx = cx + dx;
+          const ny = cy + dy;
+          const index = ny * state.gridSize + nx;
+          total += state.pixels[index]?.price || state.initialPrice;
+        }
+      }
+      return total;
     }
   },
   actions: {

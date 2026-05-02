@@ -67,40 +67,7 @@
         <ColorPalette />
       </div>
 
-      <!-- Pannel Brush à DROITE -->
-      <Transition name="fade-right">
-        <div v-if="rplaceStore.isBrushActive" class="brush-settings">
-          <div class="brush-header">
-            <span class="brush-title">Options Pinceau</span>
-          </div>
-          <div class="brush-options">
-            <button 
-              class="brush-opt-btn" 
-              :class="{ active: rplaceStore.brushSize === 3 }"
-              @click="rplaceStore.brushSize = 3"
-              title="3x3"
-            >3x3</button>
-            <button 
-              class="brush-opt-btn" 
-              :class="{ active: rplaceStore.brushSize === 5 }"
-              @click="rplaceStore.brushSize = 5"
-              title="5x5"
-            >5x5</button>
-            <button 
-              class="brush-opt-btn" 
-              :class="{ active: rplaceStore.brushSize === 7 }"
-              @click="rplaceStore.brushSize = 7"
-              title="7x7"
-            >7x7</button>
-            <button 
-              class="brush-opt-btn" 
-              :class="{ active: rplaceStore.brushSize === 9 }"
-              @click="rplaceStore.brushSize = 9"
-              title="9x9"
-            >9x9</button>
-          </div>
-        </div>
-      </Transition>
+      <BrushPanel />
     </div>
 
     <footer class="footer">
@@ -115,6 +82,7 @@
   import Clicker from './components/Clicker.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
   import ColorPalette from './components/rplace/ColorPalette.vue';
+  import BrushPanel from './components/rplace/BrushPanel.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
