@@ -1,5 +1,6 @@
 carrossier:
   category: BUILDING
+  sprite: "carrossier.png"
   basePrice: 10000000
   priceMultiplier: 2.0
   bonusValueBonus: 500
