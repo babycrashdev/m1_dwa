@@ -17,6 +17,7 @@ export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
     pixels: [] as PixelData[],
     ownedColors: [] as string[],
+    ownedBrushes: [] as string[],
     gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
@@ -269,6 +270,43 @@ export const useRPlaceStore = defineStore('rplace', {
         );
         this.ownedColors.push(color);
         gameStore.money -= 500;
+        return true;
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
+      }
+    },
+
+    async fetchOwnedBrushes() {
+      const authStore = useAuthStore();
+      if (!authStore.isAuthenticated) return;
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/brushes/owned`, {
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        });
+        this.ownedBrushes = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des pinceaux possédés', error);
+      }
+    },
+
+    async buyBrush(upgrade: string) {
+      const authStore = useAuthStore();
+      const gameStore = useGameStore();
+      
+      const prices: Record<string, number> = {
+        "3x3": 500,
+        "5x5": 1000,
+        "7x7": 2500,
+        "9x9": 5000
+      };
+
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/brushes/buy`,
+          { upgrade },
+          { headers: { Authorization: `Bearer ${authStore.token}` } }
+        );
+        this.ownedBrushes.push(upgrade);
+        gameStore.money -= prices[upgrade] || 0;
         return true;
       } catch (error: any) {
         throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
