@@ -52,7 +52,7 @@
               </div>
             </div>
 
-            <button @click="handleUpdate" class="submit-btn confirm-btn" :disabled="loading">
+            <button @click="handleUpdate(() => $emit('close'))" class="submit-btn confirm-btn" :disabled="loading">
               <span v-if="loading" class="spinner"></span>
               Confirmer les changements
             </button>
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Déconnecté -->
-        <form v-else @submit.prevent="handleSubmit">
+        <form v-else @submit.prevent="handleSubmit(() => $emit('close'))">
           <div class="form-group">
             <div class="input-wrapper">
               <input 

@@ -23,7 +23,7 @@ export function useAuth() {
     message.value = '';
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (onSuccess?: () => void) => {
     loading.value = true;
     message.value = '';
 
@@ -59,6 +59,10 @@ export function useAuth() {
 
         message.value = "Connexion réussie !";
         messageType.value = 'success';
+
+        if (onSuccess) {
+          setTimeout(() => onSuccess(), 1000);
+        }
       } else {
         message.value = response.data;
         messageType.value = 'success';
@@ -94,7 +98,7 @@ export function useAuth() {
     }
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (onSuccess?: () => void) => {
     loading.value = true;
     message.value = '';
     try {
@@ -108,6 +112,10 @@ export function useAuth() {
       message.value = "Profil mis à jour !";
       messageType.value = 'success';
       await fetchProfile();
+      
+      if (onSuccess) {
+        setTimeout(() => onSuccess(), 1000);
+      }
     } catch (error: any) {
       message.value = error.response?.data || "Erreur de mise à jour";
       messageType.value = 'error';
