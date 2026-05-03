@@ -28,7 +28,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { CITY_SVG_PATH } from '../../scripts/clicker/mapConfig';
+import { CITY_SVG_PATH, SLOT_PATH_PROGRESS } from '../../scripts/clicker/mapConfig';
+import { useMapStore } from '../../stores/clicker/mapStore';
+import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
+import { useGameStore } from '../../stores/clicker/game';
+import { useDeliveryStore } from '../../stores/clicker/deliveryStore';
 import droneImg from '../../assets/drone.png';
 
 const props = defineProps<{
@@ -39,14 +43,37 @@ const props = defineProps<{
   }
 }>();
 
+const mapStore = useMapStore();
+const upgradeStore = useUpgradeStore();
+const gameStore = useGameStore();
+const deliveryStore = useDeliveryStore();
+
 const DURATION_MS = 10000;
 const offsetDistance = ref('0%');
+const collectedSlots = new Set<number>();
 
 onMounted(() => {
   const animate = () => {
     const elapsed = Date.now() - props.delivery.startTime;
     const progress = Math.min((elapsed / DURATION_MS) * 100, 100);
     offsetDistance.value = `${progress}%`;
+
+    mapStore.slots.forEach(slot => {
+        if (slot.parcelPresent && !collectedSlots.has(slot.slotIndex)) {
+            const slotPos = SLOT_PATH_PROGRESS[slot.slotIndex];
+            if (slotPos !== undefined && progress >= slotPos && progress <= slotPos + 2) {
+                collectedSlots.add(slot.slotIndex);
+                mapStore.collectParcel(slot.slotIndex);
+                
+                if (slot.buildingType) {
+                    const upg = upgradeStore.config?.upgrades[slot.buildingType];
+                    if (upg) {
+                        deliveryStore.addParcelToDelivery(props.delivery.id, upg.bonusValueBonus || 0);
+                    }
+                }
+            }
+        }
+    });
 
     if (progress < 100) {
       requestAnimationFrame(animate);

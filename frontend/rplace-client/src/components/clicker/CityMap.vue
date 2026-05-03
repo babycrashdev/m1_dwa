@@ -19,6 +19,25 @@
     <svg class="animation-layer" viewBox="0 0 700 400" preserveAspectRatio="xMinYMid meet">
       <path id="delivery-path" :d="CITY_SVG_PATH" fill="none" />
       
+      <g 
+        v-for="slot in mapStore.slots.filter(s => s.parcelPresent)"
+        :key="'parcel-' + slot.slotIndex"
+        :style="{ 
+          offsetPath: `path('${CITY_SVG_PATH}')`, 
+          offsetDistance: `${SLOT_PATH_PROGRESS[slot.slotIndex]}%`,
+          offsetRotate: '0deg',
+          position: 'absolute'
+        }"
+      >
+        <image 
+          :href="colisImg"
+          width="40"
+          height="40"
+          x="-20"
+          y="-20"
+        />
+      </g>
+
       <CarSprite 
         v-for="delivery in deliveryStore.activeDeliveries" 
         :key="delivery.id"
@@ -29,13 +48,16 @@
 </template>
 
 <script setup lang="ts">
-import { CITY_TILES, CITY_SVG_PATH } from '../../scripts/clicker/mapConfig';
+import { CITY_TILES, CITY_SVG_PATH, SLOT_PATH_PROGRESS } from '../../scripts/clicker/mapConfig';
 import { useCityMapLogic } from '../../scripts/clicker/cityMapLogic';
 import { useDeliveryStore } from '../../stores/clicker/deliveryStore';
+import { useMapStore } from '../../stores/clicker/mapStore';
+import colisImg from '../../assets/colis.png';
 import CarSprite from './CarSprite.vue';
 import MapSlot from './MapSlot.vue';
 
 const deliveryStore = useDeliveryStore();
+const mapStore = useMapStore();
 const { handleActionClick } = useCityMapLogic();
 </script>
 

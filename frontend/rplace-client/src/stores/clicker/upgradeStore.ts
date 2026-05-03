@@ -22,6 +22,7 @@ export interface BoostConfig {
 export interface UpgradeConfig {
     id: string; 
     category: string;
+    sprite?: string;
     basePrice: number;
     priceMultiplier: number;
     baseIntervalMs?: number;
@@ -285,8 +286,14 @@ export const useUpgradeStore = defineStore('upgrade', () => {
                 if (!slot.buildingType || getLevel(slot.buildingType) <= 0) return;
 
                 const slotKey = `slot_${slot.slotIndex}`;
-                if (isSlotBoostActive(slot)) return;
-                if (hasSlotAutoBonusCharge(slot)) return;
+
+                if (slot.parcelPresent) return;
+                
+                if (isSlotBoostActive(slot)) {
+                    mapStore.spawnParcel(slot.slotIndex);
+                    autoBonusProgress.value[slotKey] = 0;
+                    return;
+                }
 
                 const interval = getBuildingInterval(slot.buildingType);
                 const increment = (TICK_RATE_MS / interval) * 100;
@@ -295,7 +302,8 @@ export const useUpgradeStore = defineStore('upgrade', () => {
                 autoBonusProgress.value[slotKey] = Math.min(100, current + increment);
 
                 if (autoBonusProgress.value[slotKey] >= 100) {
-                    hasAutoBonusCharge.value[slotKey] = true;
+                    mapStore.spawnParcel(slot.slotIndex);
+                    autoBonusProgress.value[slotKey] = 0;
                 }
             });
         }, TICK_RATE_MS);

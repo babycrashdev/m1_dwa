@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../auth';
 import { useUpgradeStore } from './upgradeStore';
+import { useGameStore } from './game';
 
 export interface SlotDTO {
     slotIndex: number;
@@ -10,6 +11,7 @@ export interface SlotDTO {
     buildingType: string | null;
     lastBoostAt: number | null;
     lastAutoBonusAt: number | null;
+    parcelPresent: boolean;
 }
 
 export const useMapStore = defineStore('map', () => {
@@ -128,6 +130,30 @@ export const useMapStore = defineStore('map', () => {
         }
     }
 
+    async function spawnParcel(slotIndex: number) {
+        if (!authStore.token) return;
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/map/parcel-spawned`, { slotIndex }, {
+                headers: { Authorization: `Bearer ${authStore.token}` }
+            });
+            slots.value = response.data;
+        } catch (error) {
+            console.error("Erreur spawn parcel", error);
+        }
+    }
+
+    async function collectParcel(slotIndex: number) {
+        if (!authStore.token) return;
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/map/parcel-collected`, { slotIndex }, {
+                headers: { Authorization: `Bearer ${authStore.token}` }
+            });
+            slots.value = response.data;
+        } catch (error) {
+            console.error("Erreur collect parcel", error);
+        }
+    }
+
     return {
         slots,
         loading,
@@ -139,6 +165,8 @@ export const useMapStore = defineStore('map', () => {
         activateSlotBoost,
         activateAllBoosts,
         activateBoostsByType,
-        destroyBuilding
+        destroyBuilding,
+        spawnParcel,
+        collectParcel
     };
 });

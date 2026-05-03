@@ -24,7 +24,7 @@
 
     <div v-else class="slot-content building-content">
       <div class="building-sprite">
-        {{ getIcon(slotData.buildingType) }}
+        <img :src="getSpriteUrl(slotData.buildingType)" :alt="slotData.buildingType" />
       </div>
 
       <div class="slot-progress-container">
@@ -48,7 +48,9 @@
             class="picker-item"
             @click="placeBuilding(b.id)"
           >
-            <span class="p-icon">{{ getIcon(b.id) }}</span>
+            <span class="p-icon">
+              <img :src="getSpriteUrl(b.id)" :alt="b.id" />
+            </span>
             <span class="p-name">{{ b.id }}</span>
           </div>
         </div>
@@ -94,7 +96,8 @@ const {
   destroy,
   formatNumber,
   formatTime,
-  getIcon
+  getIcon,
+  getSpriteUrl
 } = useMapSlot(props.slotIndex);
 </script>
 
