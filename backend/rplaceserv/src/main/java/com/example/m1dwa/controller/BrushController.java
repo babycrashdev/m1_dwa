@@ -1,6 +1,6 @@
 package com.example.m1dwa.controller;
 
-import com.example.m1dwa.service.ColorService;
+import com.example.m1dwa.service.BrushService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/user/rplace/colors")
+@RequestMapping("/api/user/rplace/brushes")
 @RequiredArgsConstructor
-public class ColorController {
+public class BrushController {
 
-    private final ColorService colorService;
+    private final BrushService brushService;
 
     @PostMapping("/buy")
-    public ResponseEntity<?> buyColor(@RequestBody Map<String, String> payload, Authentication authentication) {
-        String colorHex = payload.get("color");
+    public ResponseEntity<?> buyBrush(@RequestBody Map<String, String> payload, Authentication authentication) {
+        String upgrade = payload.get("upgrade");
         String username = authentication.getName();
 
-        String result = colorService.buyColor(username, colorHex);
+        String result = brushService.buyUpgrade(username, upgrade);
 
         if (result.equals("Achat réussi !")) {
             return ResponseEntity.ok(Map.of("message", result));
@@ -30,8 +30,8 @@ public class ColorController {
     }
 
     @GetMapping("/owned")
-    public ResponseEntity<?> getOwnedColors(Authentication authentication) {
+    public ResponseEntity<?> getOwnedBrushes(Authentication authentication) {
         String username = authentication.getName();
-        return ResponseEntity.ok(colorService.getOwnedColors(username));
+        return ResponseEntity.ok(brushService.getOwnedUpgrades(username));
     }
 }

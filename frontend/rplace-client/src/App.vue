@@ -1,5 +1,7 @@
 <template>
   <div class="app-container">
+
+
     <Profile />
 
     <div v-if="!showAuth" class="nav-container">
@@ -32,9 +34,25 @@
       <div v-if="currentView === 'clicker'" class="game-section">
         <Clicker />
       </div>
-    </main>
+  </main>
 
-    <BrushToggle v-if="!showAuth && authStore.isAuthenticated" />
+
+
+    <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
+      <!-- Infos Pixel à GAUCHE -->
+      <InfoPixel />
+
+      <div class="main-actions">
+        <div class="tools-row">
+          <button class="tool-btn-placeholder" title="Futur outil"></button>
+          <button class="tool-btn-placeholder" title="Futur outil"></button>
+          <BrushToggle />
+        </div>
+        <ColorPalette />
+      </div>
+
+      <BrushPanel />
+    </div>
 
     <footer class="footer">
     </footer>
@@ -47,11 +65,29 @@
   import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
+  import ColorPalette from './components/rplace/ColorPalette.vue';
+  import BrushPanel from './components/rplace/BrushPanel.vue';
+  import InfoPixel from './components/rplace/InfoPixel.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
+  import { useRPlaceStore } from './stores/rplace';
 
   const { showAuth, currentView, switchView} = useApp();
   const authStore = useAuthStore();
+  const rplaceStore = useRPlaceStore();
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit'
+    });
+  };
 </script>
 
 <style src="./styles/main.css"></style>
+<style src="./styles/rplace/colorPanel.css" scoped></style>
+

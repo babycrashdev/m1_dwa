@@ -1,10 +1,12 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
+import { useBrushPanelStore } from '../../stores/brushPanel';
 
 export function useRPlaceBoard() {
   const store = useRPlaceStore();
   const authStore = useAuthStore();
+  const brushStore = useBrushPanelStore();
   const canvasRef = ref<HTMLCanvasElement | null>(null);
   let ctx: CanvasRenderingContext2D | null = null;
   let animationFrame: number;
@@ -59,8 +61,12 @@ export function useRPlaceBoard() {
       });
     } else if (name === 'updatePixelFromWS') {
       after(() => {
-        const [pixelData] = args as [any];
-        updatePixelOnBuffer(pixelData.x, pixelData.y, pixelData.color);
+        const [data] = args as [any];
+        if (Array.isArray(data)) {
+          data.forEach((p: any) => updatePixelOnBuffer(p.x, p.y, p.color));
+        } else {
+          updatePixelOnBuffer(data.x, data.y, data.color);
+        }
       });
     }
   });
@@ -80,14 +86,10 @@ export function useRPlaceBoard() {
   let isImageLoaded = false;
   overviewImage.onload = () => { isImageLoaded = true; };
 
-  const hoveredPixel = ref({ x: -1, y: -1 });
+
   const mousePos = ref({ x: 0, y: 0 });
 
-  const hoveredPixelData = computed(() => {
-    if (hoveredPixel.value.x === -1) return null;
-    const index = hoveredPixel.value.y * store.gridSize + hoveredPixel.value.x;
-    return store.pixels[index] || null;
-  });
+
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -119,44 +121,44 @@ export function useRPlaceBoard() {
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(offscreenCanvas, 0, 0);
 
-      if (hoveredPixel.value.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
+      if (store.hoveredPixel.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
         ctx.fillStyle = store.selectedColor;
         ctx.globalAlpha = 0.5;
 
-        if (store.isBrushActive) {
-          // Non réalisé par l'IA les 2 lignes en dessous 
-          const cx = Math.max(1, Math.min(hoveredPixel.value.x, store.gridSize - 2));
-          const cy = Math.max(1, Math.min(hoveredPixel.value.y, store.gridSize - 2));
+        if (brushStore.isBrushActive) {
+          const offset = Math.floor(brushStore.brushSize / 2);
+          const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
+          const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -offset; dy <= offset; dy++) {
+            for (let dx = -offset; dx <= offset; dx++) {
               const nx = cx + dx;
               const ny = cy + dy;
               ctx.fillRect(nx, ny, 1, 1);
             }
           }
         } else {
-          ctx.fillRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+          ctx.fillRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
         }
 
         ctx.globalAlpha = 1.0;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 0.1;
 
-        if (store.isBrushActive) {
-          // Non réalisé par l'IA les 2 lignes en dessous 
-          const cx = Math.max(1, Math.min(hoveredPixel.value.x, store.gridSize - 2));
-          const cy = Math.max(1, Math.min(hoveredPixel.value.y, store.gridSize - 2));
+        if (brushStore.isBrushActive) {
+          const offset = Math.floor(brushStore.brushSize / 2);
+          const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
+          const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
-          for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -offset; dy <= offset; dy++) {
+            for (let dx = -offset; dx <= offset; dx++) {
               const nx = cx + dx;
               const ny = cy + dy;
               ctx.strokeRect(nx, ny, 1, 1);
             }
           }
         } else {
-          ctx.strokeRect(hoveredPixel.value.x, hoveredPixel.value.y, 1, 1);
+          ctx.strokeRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
         }
       }
     }
@@ -194,9 +196,9 @@ export function useRPlaceBoard() {
     mousePos.value = { x: e.clientX, y: e.clientY };
     const { x, y } = screenToGrid(e.clientX, e.clientY);
     if (x >= 0 && x < store.gridSize && y >= 0 && y < store.gridSize) {
-      hoveredPixel.value = { x, y };
+      store.hoveredPixel = { x, y };
     } else {
-      hoveredPixel.value = { x: -1, y: -1 };
+      store.hoveredPixel = { x: -1, y: -1 };
     }
 
     if (camera.isDragging) {
@@ -223,10 +225,11 @@ export function useRPlaceBoard() {
       } else {
         const { x, y } = screenToGrid(e.clientX, e.clientY);
         try {
-          if (store.isBrushActive) {
-            const cx = Math.max(1, Math.min(x, store.gridSize - 2));
-            const cy = Math.max(1, Math.min(y, store.gridSize - 2));
-            store.placeBrushPixels(cx, cy);
+          if (brushStore.isBrushActive) {
+            const offset = Math.floor(brushStore.brushSize / 2);
+            const cx = Math.max(offset, Math.min(x, store.gridSize - 1 - offset));
+            const cy = Math.max(offset, Math.min(y, store.gridSize - 1 - offset));
+            brushStore.placeBrushPixels(cx, cy);
           } else {
             store.placePixel(x, y);
           }
@@ -313,9 +316,9 @@ export function useRPlaceBoard() {
 
   return {
     canvasRef,
-    hoveredPixel,
+    hoveredPixel: computed(() => store.hoveredPixel),
     mousePos,
-    hoveredPixelData,
+    hoveredPixelData: computed(() => store.hoveredPixelData),
     formatDate
   };
 }

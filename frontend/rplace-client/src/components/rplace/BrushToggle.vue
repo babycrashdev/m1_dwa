@@ -7,7 +7,6 @@
       title="Placer 9 pixels"
     >
       <div class="brush-content">
-        <span class="brush-text">Placer 9 pixels</span>
         <div class="pixel-grid-icon">
           <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>
           <div class="pixel"></div><div class="pixel"></div><div class="pixel"></div>

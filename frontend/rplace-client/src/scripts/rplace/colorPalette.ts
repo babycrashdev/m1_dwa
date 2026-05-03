@@ -5,9 +5,9 @@ import { useAuthStore } from '../../stores/auth';
 export function useColorPalette() {
   const store = useRPlaceStore();
   const authStore = useAuthStore();
-  
+
   const colors = [
-    '#FF4500', '#FFA800', '#FFD635', '#00A368', 
+    '#FF4500', '#FFA800', '#FFD635', '#00A368',
     '#3690EA', '#FFFFFF', '#811E9F', '#000000',
     '#FFB7CE', '#AEC6CF', '#B2F2BB'
   ];
@@ -52,6 +52,25 @@ export function useColorPalette() {
     }
   };
 
+  const scrollContainer = ref<HTMLElement | null>(null);
+  const scrollProgress = ref(0);
+  const thumbWidth = ref(20);
+
+  const handleScroll = (e: Event) => {
+    const el = e.target as HTMLElement;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+
+    if (maxScroll <= 0) {
+      scrollProgress.value = 0;
+    } else {
+      scrollProgress.value = el.scrollLeft / maxScroll;
+    }
+
+    if (el.scrollWidth > 0) {
+      thumbWidth.value = (el.clientWidth / el.scrollWidth) * 100;
+    }
+  };
+
   onMounted(() => {
     if (authStore.isAuthenticated) {
       store.fetchOwnedColors();
@@ -70,6 +89,10 @@ export function useColorPalette() {
     showBuyModal,
     colorToBuy,
     isBuying,
-    errorMessage
+    errorMessage,
+    scrollContainer,
+    scrollProgress,
+    thumbWidth,
+    handleScroll
   };
 }

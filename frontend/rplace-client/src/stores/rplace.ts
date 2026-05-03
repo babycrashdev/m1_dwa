@@ -23,8 +23,15 @@ export const useRPlaceStore = defineStore('rplace', {
     stompClient: null as Client | null,
     isInitialLoaded: false,
     initialPrice: 10,
-    isBrushActive: false
+    hoveredPixel: { x: -1, y: -1 }
   }),
+  getters: {
+    hoveredPixelData: (state) => {
+      if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
+      const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
+      return state.pixels[index] || null;
+    }
+  },
   actions: {
     async fetchConfig() {
       try {
@@ -110,19 +117,28 @@ export const useRPlaceStore = defineStore('rplace', {
       }
     },
 
-    updatePixelFromWS(pixelData: PixelData) {
+    updatePixelFromWS(data: PixelData | PixelData[]) {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
-      const index = pixelData.y * this.gridSize + pixelData.x;
 
-      if (pixelData.ownerName === authStore.user?.username) {
-        const oldPixel = this.pixels[index];
-        const pricePaid = oldPixel ? oldPixel.price : 10;
-        gameStore.money -= pricePaid;
-        console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+      const processSinglePixel = (pixelData: PixelData) => {
+        const index = pixelData.y * this.gridSize + pixelData.x;
+
+        if (pixelData.ownerName === authStore.user?.username) {
+          const oldPixel = this.pixels[index];
+          const pricePaid = oldPixel ? oldPixel.price : 10;
+          gameStore.money -= pricePaid;
+          console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+        }
+
+        this.pixels[index] = pixelData;
+      };
+
+      if (Array.isArray(data)) {
+        data.forEach(processSinglePixel);
+      } else {
+        processSinglePixel(data);
       }
-
-      this.pixels[index] = pixelData;
     },
 
     placePixel(x: number, y: number) {
@@ -147,53 +163,6 @@ export const useRPlaceStore = defineStore('rplace', {
       this.stompClient.publish({
         destination: '/app/place',
         body: JSON.stringify(payload)
-      });
-
-      this.startCooldown(5);
-    },
-
-    placeBrushPixels(cx: number, cy: number) {
-      const gameStore = useGameStore();
-      
-      if (this.cooldownSeconds > 0) {
-        throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
-      }
-
-      if (!this.stompClient || !this.stompClient.connected) {
-        throw new Error("WebSocket non connecté");
-      }
-
-      let totalCost = 0;
-      const pixelsToPlace = [];
-
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          const nx = cx + dx;
-          const ny = cy + dy;
-          if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize) {
-            const index = ny * this.gridSize + nx;
-            const pixel = this.pixels[index];
-            totalCost += pixel ? pixel.price : this.initialPrice;
-            pixelsToPlace.push({ x: nx, y: ny });
-          }
-        }
-      }
-
-      if (gameStore.money < totalCost) {
-        throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
-      }
-
-      // Envoi groupé au serveur pour éviter le blocage par le cooldown individuel
-      this.stompClient?.publish({
-        destination: '/app/place-brush',
-        body: JSON.stringify(pixelsToPlace.map(p => ({ x: p.x, y: p.y, color: this.selectedColor })))
-      });
-
-      const authStore = useAuthStore();
-      const newOwner = authStore.user?.username || 'Inconnu';
-
-      pixelsToPlace.forEach(p => {
-        console.log(`[Brush] Placement pixel: (${p.x}, ${p.y}) color: ${this.selectedColor} (Nouveau proprio: ${newOwner})`);
       });
 
       this.startCooldown(5);
@@ -229,7 +198,7 @@ export const useRPlaceStore = defineStore('rplace', {
       const authStore = useAuthStore();
       if (!authStore.isAuthenticated) return;
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/colors/owned`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/owned`, {
           headers: { Authorization: `Bearer ${authStore.token}` }
         });
         this.ownedColors = response.data;
@@ -242,7 +211,7 @@ export const useRPlaceStore = defineStore('rplace', {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
       try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/colors/buy`,
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/buy`,
           { color },
           { headers: { Authorization: `Bearer ${authStore.token}` } }
         );

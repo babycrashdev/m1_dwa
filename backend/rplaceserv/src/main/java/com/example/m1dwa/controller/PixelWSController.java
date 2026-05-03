@@ -40,8 +40,8 @@ public class PixelWSController {
         String username = authentication.getName();
         java.util.List<PixelDTO> results = pixelService.placePixels(requests, username);
         
-        for (PixelDTO dto : results) {
-            messagingTemplate.convertAndSend("/topic/board", dto);
+        if (!results.isEmpty()) {
+            messagingTemplate.convertAndSend("/topic/board", results);
         }
     }
 }

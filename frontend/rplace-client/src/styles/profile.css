@@ -1,10 +1,10 @@
-
 .user-profile-card {
   position: fixed;
   top: 1.5rem;
   left: 2rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(15px);
+  background: rgba(25, 25, 35, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 8px 16px;
   border-radius: 40px;
@@ -18,7 +18,7 @@
 }
 
 .user-profile-card:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(25, 25, 35, 0.6);
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.2);
 }
@@ -64,102 +64,109 @@
 }
 
 .profile-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
 }
 
 .profile-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 3rem;
-    border-radius: 24px;
-    width: 90%;
-    max-width: 450px;
-    text-align: center;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    animation: slideUp 0.4s ease-out;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3rem;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.4s ease-out;
 }
 
 .profile-header {
-    margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .avatar-large {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    border-radius: 50%;
-    margin: 0 auto 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-    font-weight: bold;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  font-weight: bold;
 }
 
 .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
 }
 
 .info-item {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 1rem;
-    border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 12px;
 }
 
 .info-label {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 .info-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
 }
 
 .logout-btn {
-    width: 100%;
-    padding: 1rem;
-    background: #ff4757;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  width: 100%;
+  padding: 1rem;
+  background: #ff4757;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .logout-btn:hover {
-    background: #ff6b81;
-    transform: scale(1.02);
+  background: #ff6b81;
+  transform: scale(1.02);
 }
 
 .close-profile {
-    margin-top: 1rem;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer;
+  margin-top: 1rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
