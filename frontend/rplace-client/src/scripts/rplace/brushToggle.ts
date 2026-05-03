@@ -23,6 +23,7 @@ export function useBrushToggle() {
       }, 1000);
     } else {
       console.log("Pinceau désactivé");
+      store.brushSize = 0;
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;

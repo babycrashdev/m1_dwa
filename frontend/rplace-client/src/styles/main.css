@@ -1,3 +1,5 @@
+/* Généré par IA */
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -296,7 +298,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.6);
-  height: 36px;
+  height: 40px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -305,19 +307,42 @@ body {
   font-size: 0.8rem;
   font-weight: 700;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.brush-opt-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  transform: translateY(-2px);
+.brush-opt-btn.locked {
+  background: rgba(0, 0, 0, 0.2);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.brush-opt-btn.locked .lock-icon {
+  position: absolute;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.brush-opt-btn.locked .btn-text {
+  transition: all 0.2s ease;
+}
+
+.brush-opt-btn.locked:hover .btn-text {
+  opacity: 0.2;
+  transform: scale(0.8);
+}
+
+.brush-opt-btn.locked:hover .lock-icon {
+  opacity: 1;
+  transform: scale(1.2);
 }
 
 .brush-opt-btn.active {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: white;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffd700;
+  color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
 }
 
 /* Animation latérale DROITE */

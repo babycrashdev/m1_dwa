@@ -24,7 +24,7 @@ export const useRPlaceStore = defineStore('rplace', {
     isInitialLoaded: false,
     initialPrice: 10,
     isBrushActive: false,
-    brushSize: 3,
+    brushSize: 0,
     hoveredPixel: { x: -1, y: -1 }
   }),
   getters: {
