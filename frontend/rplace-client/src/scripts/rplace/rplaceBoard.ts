@@ -1,10 +1,12 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
+import { useBrushPanelStore } from '../../stores/brushPanel';
 
 export function useRPlaceBoard() {
   const store = useRPlaceStore();
   const authStore = useAuthStore();
+  const brushStore = useBrushPanelStore();
   const canvasRef = ref<HTMLCanvasElement | null>(null);
   let ctx: CanvasRenderingContext2D | null = null;
   let animationFrame: number;
@@ -119,8 +121,8 @@ export function useRPlaceBoard() {
         ctx.fillStyle = store.selectedColor;
         ctx.globalAlpha = 0.5;
 
-        if (store.isBrushActive) {
-          const offset = Math.floor(store.brushSize / 2);
+        if (brushStore.isBrushActive) {
+          const offset = Math.floor(brushStore.brushSize / 2);
           const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
           const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
@@ -139,8 +141,8 @@ export function useRPlaceBoard() {
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 0.1;
 
-        if (store.isBrushActive) {
-          const offset = Math.floor(store.brushSize / 2);
+        if (brushStore.isBrushActive) {
+          const offset = Math.floor(brushStore.brushSize / 2);
           const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
           const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
@@ -219,11 +221,11 @@ export function useRPlaceBoard() {
       } else {
         const { x, y } = screenToGrid(e.clientX, e.clientY);
         try {
-          if (store.isBrushActive) {
-            const offset = Math.floor(store.brushSize / 2);
+          if (brushStore.isBrushActive) {
+            const offset = Math.floor(brushStore.brushSize / 2);
             const cx = Math.max(offset, Math.min(x, store.gridSize - 1 - offset));
             const cy = Math.max(offset, Math.min(y, store.gridSize - 1 - offset));
-            store.placeBrushPixels(cx, cy);
+            brushStore.placeBrushPixels(cx, cy);
           } else {
             store.placePixel(x, y);
           }
@@ -293,7 +295,7 @@ export function useRPlaceBoard() {
 
       store.connectWebSocket();
 
-      store.generateTestGrid();
+      //store.generateTestGrid();
       updateBuffer();
 
       draw();
