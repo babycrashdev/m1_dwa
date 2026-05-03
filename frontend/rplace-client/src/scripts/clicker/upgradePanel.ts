@@ -150,6 +150,16 @@ export function useUpgradePanel() {
         ).length;
     };
 
+    const getProductionInfo = (id: string): string => {
+        const upperId = id.toUpperCase();
+        const upg = upgradeStore.config?.upgrades[upperId];
+        if (!upg) return "";
+        
+        const bonus = upg.bonusValueBonus || 0;
+        const interval = upgradeStore.getBuildingInterval(upperId) / 1000;
+        return `+${bonus}✨/${interval.toFixed(0)}s`;
+    };
+
     return {
         upgradeStore,
         activeTab,
@@ -170,6 +180,7 @@ export function useUpgradePanel() {
         activateAllBoosts,
         readyBoostsCount: computed(() => upgradeStore.readyBoostsCount()),
         getPlacedCount,
-        getReadyCountByType
+        getReadyCountByType,
+        getProductionInfo
     };
 }

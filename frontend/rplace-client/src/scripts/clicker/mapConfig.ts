@@ -1,6 +1,5 @@
 /* Generer par IA*/
 
-
 export const CITY_MAP_WIDTH = 7;
 export const CITY_MAP_HEIGHT = 4;
 

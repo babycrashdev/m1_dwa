@@ -121,66 +121,97 @@
             >
               <div class="boost-content">
                 <span class="boost-icon">⚡</span>
-                <span class="boost-label">ACTIVER TOUS LES BOOSTS</span>
+                <span class="boost-label">BOOST TOUT</span>
                 <span v-if="readyBoostsCount > 0" class="boost-badge">{{ readyBoostsCount }}</span>
               </div>
             </button>
           </div>
 
           <div class="building-card" :class="{ locked: upgradeStore.getLevel(upgrade.id!) === 0 }">
-             <div class="worker-card-inner">
-                <div v-if="upgradeStore.getLevel(upgrade.id!) === 0" class="unlock-area" @click="buy(upgrade.id!, 'main')">
-                  <div class="unlock-btn" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
-                    <span class="icon">{{ getIcon(upgrade.category, upgrade.id!) }}</span>
-                    <div class="unlock-text">
-                      <span class="label">DÉBLOQUER {{ formatName(upgrade.id!) }}</span>
-                      <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
-                    </div>
+             <div v-if="upgradeStore.getLevel(upgrade.id!) === 0" class="unlock-area" @click="buy(upgrade.id!, 'main')">
+                <div class="unlock-btn" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
+                  <span class="icon">{{ getIcon(upgrade.category, upgrade.id!) }}</span>
+                  <div class="unlock-text">
+                    <span class="label">DÉBLOQUER {{ formatName(upgrade.id!) }}</span>
+                    <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
                   </div>
                 </div>
-
-                <div v-else class="building-dashboard">
-                   <button class="b-btn main-level" @click="buy(upgrade.id!, 'main')" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
-                      <div class="b-brand">
-                        <div class="b-icon-circle">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
-                         <div class="b-meta">
-                           <span class="b-name">{{ formatName(upgrade.id!) }}</span>
-                           <span class="b-price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
-                           <div class="on-map-badge" :class="{ 'none': getPlacedCount(upgrade.id!) === 0 }">
-                              📍 Sur Map : {{ getPlacedCount(upgrade.id!) }}
-                           </div>
-                         </div>
-                       </div>
-                       <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
-                   </button>
-
-                   <button class="b-btn speed-up" @click="buy(upgrade.id!, 'time')" :class="{ disabled: !canAfford(upgrade.id!, 'time') || isMaxLevel(upgrade.id!, 'time') }">
-                      <div class="b-label">VITESSE</div>
-                      <div class="b-price" v-if="!isMaxLevel(upgrade.id!, 'time')">✨ {{ formatNumber(getPrice(upgrade.id!, 'time')) }}</div>
-                      <div class="b-price" v-else>MAX</div>
-                      <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'time') }}</div>
-                   </button>
-
-                   <button 
-                    class="b-btn boost-action" 
-                    @click="activateBoost(upgrade.id!)" 
-                    :class="{ 
-                      active: isBoostActive(upgrade.id!), 
-                      cooldown: getBoostCooldownRemaining(upgrade.id!) > 0,
-                      disabled: isBoostActive(upgrade.id!) || getBoostCooldownRemaining(upgrade.id!) > 0 
-                    }"
-                   >
-                       <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay">
-                         <span class="timer">{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
-                       </div>
-                       <div class="b-label">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</div>
-                       <div class="boost-icon-small">
-                         ⚡
-                         <span v-if="getReadyCountByType(upgrade.id!) > 0" class="ready-mini-badge">{{ getReadyCountByType(upgrade.id!) }}</span>
-                       </div>
-                    </button>
-                </div>
              </div>
+
+             <template v-else>
+                <div class="b2-content">
+                   <!-- Left Info Area -->
+                   <div class="b2-info-area">
+                      <div class="b2-level-circle">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
+                      
+                      <div class="b2-header">
+                         <div class="b2-icon">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
+                         <div class="b2-title">
+                            <span class="name">{{ formatName(upgrade.id!) }}</span>
+                            <div class="b2-map-pill" :class="{ 'none': getPlacedCount(upgrade.id!) === 0 }">
+                               Sur Map : {{ getPlacedCount(upgrade.id!) }}
+                            </div>
+                         </div>
+                      </div>
+
+                      <div class="b2-footer">
+                         <div class="b2-stats">
+                            <span class="prod">{{ getProductionInfo(upgrade.id!) }}</span>
+                            <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
+                         </div>
+                         <button 
+                            class="b2-up-btn" 
+                            @click="buy(upgrade.id!, 'main')"
+                            :class="{ disabled: !canAfford(upgrade.id!, 'main') }"
+                         >
+                            <svg class="up-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 17L12 10M12 10L15 13M12 10L9 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M16 7H12H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <path  d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                         </button>
+                      </div>
+                   </div>
+
+                   <!-- Right Sub Area -->
+                   <div class="b2-sub-area">
+                      <button 
+                        class="b2-sub-btn" 
+                        @click="buy(upgrade.id!, 'time')"
+                        :class="{ disabled: !canAfford(upgrade.id!, 'time') || isMaxLevel(upgrade.id!, 'time') }"
+                      >
+                         <div class="b2-level-circle mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'time') }}</div>
+                         <span class="b2-sub-label">Vitesse</span>
+                         <span class="b2-sub-price" v-if="!isMaxLevel(upgrade.id!, 'time')">✨ {{ formatNumber(getPrice(upgrade.id!, 'time')) }}</span>
+                         <span class="b2-sub-price" v-else>MAX</span>
+                      </button>
+
+                      <button 
+                        class="b2-individual-boost-btn" 
+                        @click="activateBoost(upgrade.id!)"
+                        :class="{ 
+                          active: isBoostActive(upgrade.id!), 
+                          cooldown: getBoostCooldownRemaining(upgrade.id!) > 0,
+                          disabled: isBoostActive(upgrade.id!) || getBoostCooldownRemaining(upgrade.id!) > 0 
+                        }"
+                      >
+                         <!-- Integrated Progress background -->
+                         <div class="b2-progress-fill" :style="{ width: getAutoBonusProgress(upgrade.id!) + '%', opacity: 0.3 }"></div>
+                         
+                         <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay-pill">
+                           <span>{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
+                         </div>
+                         
+                         <span class="b2-sub-label" style="color: white; z-index: 2;">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</span>
+                         
+                         <!-- Red Notification Dot -->
+                         <div v-if="getReadyCountByType(upgrade.id!) > 0" class="red-dot-badge">
+                            {{ getReadyCountByType(upgrade.id!) }}
+                         </div>
+                      </button>
+                   </div>
+                </div>
+             </template>
           </div>
         </div>
 
@@ -234,7 +265,8 @@ const {
     activateAllBoosts,
     readyBoostsCount,
     getPlacedCount,
-    getReadyCountByType
+    getReadyCountByType,
+    getProductionInfo
 } = useUpgradePanel();
 </script>
 

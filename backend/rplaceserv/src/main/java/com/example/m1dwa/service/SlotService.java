@@ -113,7 +113,7 @@ public class SlotService {
         var config = gameConfigService.getUpgrades().get(buildingType.toUpperCase());
         if (config != null && config.getBoosts() != null) {
             long durationMs = config.getBoosts().getDurationMs();
-            slot.setLastBoostAt(now.minus(java.time.Duration.ofMillis(durationMs)));
+            slot.setLastBoostAt(now.minus(java.time.Duration.ofMillis(durationMs + 1000)));
         } else {
             slot.setLastBoostAt(now);
         }
