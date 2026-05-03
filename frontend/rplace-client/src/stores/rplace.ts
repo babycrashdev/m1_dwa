@@ -16,13 +16,22 @@ export interface PixelData {
 export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
     pixels: [] as PixelData[],
+    ownedColors: [] as string[],
     gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
     stompClient: null as Client | null,
     isInitialLoaded: false,
-    initialPrice: 10
+    initialPrice: 10,
+    hoveredPixel: { x: -1, y: -1 }
   }),
+  getters: {
+    hoveredPixelData: (state) => {
+      if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
+      const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
+      return state.pixels[index] || null;
+    }
+  },
   actions: {
     async fetchConfig() {
       try {
@@ -49,7 +58,7 @@ export const useRPlaceStore = defineStore('rplace', {
 
     async fetchInitialBoard() {
       if (this.gridSize === 0) await this.fetchConfig();
-      
+
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/pixels`);
         if (Array.isArray(response.data)) {
@@ -60,7 +69,7 @@ export const useRPlaceStore = defineStore('rplace', {
                 x: pixel.x,
                 y: pixel.y,
                 color: pixel.color,
-                price: pixel.price,
+                price: pixel.price > 0 ? pixel.price : this.initialPrice,
                 ownerName: pixel.ownerName,
                 lastModifiedAt: pixel.lastModifiedAt
               };
@@ -108,19 +117,28 @@ export const useRPlaceStore = defineStore('rplace', {
       }
     },
 
-    updatePixelFromWS(pixelData: PixelData) {
+    updatePixelFromWS(data: PixelData | PixelData[]) {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
-      const index = pixelData.y * this.gridSize + pixelData.x;
-      
-      if (pixelData.ownerName === authStore.user?.username) {
-        const oldPixel = this.pixels[index];
-        const pricePaid = oldPixel ? oldPixel.price : 10;
-        gameStore.money -= pricePaid;
-        console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
-      }
 
-      this.pixels[index] = pixelData;
+      const processSinglePixel = (pixelData: PixelData) => {
+        const index = pixelData.y * this.gridSize + pixelData.x;
+
+        if (pixelData.ownerName === authStore.user?.username) {
+          const oldPixel = this.pixels[index];
+          const pricePaid = oldPixel ? oldPixel.price : 10;
+          gameStore.money -= pricePaid;
+          console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+        }
+
+        this.pixels[index] = pixelData;
+      };
+
+      if (Array.isArray(data)) {
+        data.forEach(processSinglePixel);
+      } else {
+        processSinglePixel(data);
+      }
     },
 
     placePixel(x: number, y: number) {
@@ -132,7 +150,7 @@ export const useRPlaceStore = defineStore('rplace', {
       if (this.cooldownSeconds > 0) {
         throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
       }
-      
+
       if (pixel && gameStore.money < pixel.price) {
         throw new Error("Solde insuffisant !");
       }
@@ -173,6 +191,35 @@ export const useRPlaceStore = defineStore('rplace', {
           color: `#${r}${g}${b}`,
           price: 10
         };
+      }
+    },
+
+    async fetchOwnedColors() {
+      const authStore = useAuthStore();
+      if (!authStore.isAuthenticated) return;
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/owned`, {
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        });
+        this.ownedColors = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des couleurs possédées', error);
+      }
+    },
+
+    async buyColor(color: string) {
+      const authStore = useAuthStore();
+      const gameStore = useGameStore();
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/buy`,
+          { color },
+          { headers: { Authorization: `Bearer ${authStore.token}` } }
+        );
+        this.ownedColors.push(color);
+        gameStore.money -= 500;
+        return true;
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
       }
     }
   }
