@@ -68,7 +68,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     try {
       await buyBrush(brushToBuy.value);
       showBuyModal.value = false;
-      brushSize.value = parseInt(brushToBuy.value.split('x')[0]);
+      brushSize.value = parseInt(brushToBuy.value.split('x')[0] || '0');
     } catch (err: any) {
       errorMessage.value = err.message;
     } finally {

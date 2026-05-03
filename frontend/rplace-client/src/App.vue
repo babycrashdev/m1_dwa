@@ -34,29 +34,13 @@
       <div v-if="currentView === 'clicker'" class="game-section">
         <Clicker />
       </div>
-    </main>
+  </main>
+
+
 
     <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
       <!-- Infos Pixel à GAUCHE -->
-      <Transition name="fade">
-        <div v-if="rplaceStore.hoveredPixelData" class="pixel-info-box">
-          <div class="tooltip-header">
-            <div class="color-preview" :style="{ backgroundColor: rplaceStore.hoveredPixelData.color }"></div>
-            <span class="coordinates">({{ rplaceStore.hoveredPixelData.x }}, {{ rplaceStore.hoveredPixelData.y }})</span>
-          </div>
-          
-          <div class="tooltip-body">
-            <div class="info-row">
-              <span class="label">Propriétaire</span>
-              <span class="value">{{ rplaceStore.hoveredPixelData.ownerName || 'Personne' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Prix</span>
-              <span class="value highlight">✨ {{ rplaceStore.hoveredPixelData.price }}</span>
-            </div>
-          </div>
-        </div>
-      </Transition>
+      <InfoPixel />
 
       <div class="main-actions">
         <div class="tools-row">
@@ -83,6 +67,7 @@
   import BrushToggle from './components/rplace/BrushToggle.vue';
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import BrushPanel from './components/rplace/BrushPanel.vue';
+  import InfoPixel from './components/rplace/InfoPixel.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
@@ -104,3 +89,5 @@
 </script>
 
 <style src="./styles/main.css"></style>
+<style src="./styles/rplace/colorPanel.css" scoped></style>
+

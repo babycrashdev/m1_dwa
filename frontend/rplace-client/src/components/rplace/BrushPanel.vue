@@ -26,6 +26,8 @@ onMounted(() => {
 });
 </script>
 
+<!-- Généré par IA -->
+ 
 <template>
   <Transition name="fade-right">
     <div v-if="isBrushActive" class="brush-settings">
@@ -48,7 +50,7 @@ onMounted(() => {
           <span v-if="isLocked(`${size}x${size}`)" class="lock-icon">🔒</span>
         </button>
       </div>
-      <!-- Généré par IA -->
+      
       <Teleport to="body">
         <div v-if="showBuyModal" class="modal-overlay" @click.self="showBuyModal = false">
           <div class="modal-content">
@@ -77,3 +79,5 @@ onMounted(() => {
     </div>
   </Transition>
 </template>
+
+<style src="../../styles/rplace/brushPanel.css" scoped></style>

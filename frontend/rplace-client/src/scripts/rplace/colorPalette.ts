@@ -5,9 +5,9 @@ import { useAuthStore } from '../../stores/auth';
 export function useColorPalette() {
   const store = useRPlaceStore();
   const authStore = useAuthStore();
-  
+
   const colors = [
-    '#FF4500', '#FFA800', '#FFD635', '#00A368', 
+    '#FF4500', '#FFA800', '#FFD635', '#00A368',
     '#3690EA', '#FFFFFF', '#811E9F', '#000000',
     '#FFB7CE', '#AEC6CF', '#B2F2BB'
   ];
@@ -59,15 +59,13 @@ export function useColorPalette() {
   const handleScroll = (e: Event) => {
     const el = e.target as HTMLElement;
     const maxScroll = el.scrollWidth - el.clientWidth;
-    
-    // Calcul de la position
+
     if (maxScroll <= 0) {
       scrollProgress.value = 0;
     } else {
       scrollProgress.value = el.scrollLeft / maxScroll;
     }
 
-    // Calcul de la largeur du curseur (ratio visible)
     if (el.scrollWidth > 0) {
       thumbWidth.value = (el.clientWidth / el.scrollWidth) * 100;
     }

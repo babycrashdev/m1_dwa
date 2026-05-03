@@ -64,4 +64,4 @@ const {
 } = useColorPalette();
 </script>
 
-<style src="../../styles/rplace/colorPalette.css" scoped></style>
+<style src="../../styles/rplace/colorPanel.css" scoped></style>
