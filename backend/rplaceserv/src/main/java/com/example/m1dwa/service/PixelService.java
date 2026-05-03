@@ -30,15 +30,7 @@ public class PixelService {
     private final PixelRepository pixelRepository;
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
-
-    @Value("${rplace.grid.size}")
-    private int gridSize;
-
-    @Value("${rplace.pixel.initial-price}")
-    private long initialPrice;
-
-    @Value("${rplace.pixel.price-increment}")
-    private long priceIncrement;
+    private final GameConfigService gameConfigService;
 
     @Transactional
     public PixelDTO placePixel(PlacePixelRequest request, String username) {
@@ -49,6 +41,15 @@ public class PixelService {
     public List<PixelDTO> placePixels(List<PlacePixelRequest> requests, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + username));
+
+        int gridSize = gameConfigService.getRplaceConfig().getGridSize();
+        long initialPrice = gameConfigService.getRplaceConfig().getInitialPrice();
+        long priceIncrement = gameConfigService.getRplaceConfig().getPixelPriceIncrement();
+
+        if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
+            log.error("Coordonnées invalides pour {}: {}, {}", username, request.x(), request.y());
+            return null;
+        }
 
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {

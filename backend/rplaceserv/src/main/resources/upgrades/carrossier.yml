@@ -1,0 +1,16 @@
+carrossier:
+  category: BUILDING
+  sprite: "carrossier.png"
+  basePrice: 10000000
+  priceMultiplier: 2.0
+  bonusValueBonus: 500
+  baseIntervalMs: 10000
+  upgrades:
+    time:
+      basePrice: 250000000
+      priceMultiplier: 1.8
+      reductionPerLevelMs: 1000
+  boosts:
+    durationMs : 100000000
+    cooldownMs: 60000000
+    increaseDurationMs : 1000

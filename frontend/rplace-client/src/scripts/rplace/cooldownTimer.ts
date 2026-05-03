@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { useRPlaceStore } from '../../stores/rplace';
+import { useRPlaceStore } from '../../stores/rplace/rplace';
 
 export function useCooldownTimer() {
   const store = useRPlaceStore();

@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '../stores/auth';
 import { useApp } from '../scripts/app';
-import { useGameStore } from '../stores/game';
+import { useGameStore } from '../stores/clicker/game';
 import Register from './Register.vue';
 
 const authStore = useAuthStore();

@@ -1,7 +1,9 @@
 import { watch, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useAppStore } from '../stores/app';
-import { useGameStore } from '../stores/game';
+import { useGameStore } from '../stores/clicker/game';
+import { useUpgradeStore } from '../stores/clicker/upgradeStore';
+import { useMapStore } from '../stores/clicker/mapStore';
 import { storeToRefs } from 'pinia';
 import axios from 'axios';
 
@@ -12,24 +14,44 @@ export function useApp() {
   
   const { showAuth, currentView } = storeToRefs(appStore);
 
+  const upgradeStore = useUpgradeStore();
+
   onMounted(async () => {
+    await upgradeStore.fetchConfig();
+
     if (authStore.isAuthenticated && authStore.token) {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/me`, {
                 headers: { Authorization: `Bearer ${authStore.token}` }
             });
             authStore.setUser(response.data);
-            gameStore.money = response.data.moneys || 0;
-            console.log("Profil restauré depuis le backend:", response.data.moneys);
+            
+            await upgradeStore.fetchState();
+            const mapStore = useMapStore();
+            await mapStore.fetchMapState();
+            
+            gameStore.startSpawnerTimer();
+            upgradeStore.startProductionLoop();
         } catch (error) {
             console.error("Impossible de restaurer le profil:", error);
         }
     }
   });
 
-  watch(() => authStore.isAuthenticated, (isAuth) => {
-    if (!isAuth && currentView.value === 'clicker') {
-      currentView.value = 'grid';
+  watch(() => authStore.isAuthenticated, async (isAuth) => {
+    if (isAuth) {
+      await upgradeStore.fetchState();
+      const mapStore = useMapStore();
+      await mapStore.fetchMapState();
+
+      gameStore.startSpawnerTimer();
+      upgradeStore.startProductionLoop();
+    } else {
+      gameStore.stopSpawnerTimer();
+      upgradeStore.stopProductionLoop();
+      if (currentView.value === 'clicker') {
+        currentView.value = 'grid';
+      }
     }
   });
 

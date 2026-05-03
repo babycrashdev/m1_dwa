@@ -1,19 +1,23 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios';
+import { useUpgradeStore } from './upgradeStore';
+import { useDeliveryStore } from './deliveryStore';
 
 export const useGameStore = defineStore('game', () => {
     const money = ref(0);
-    const cars = ref<{ id: number; pathIndex: number; weight: number; value: number }[]>([]);
-
+    const pendingSync = ref(0);
     const currentWeight = ref(0);
     const spawnProgress = ref(0);
-    const pendingSync = ref(0);
+    
     const SPAWN_INTERVAL_MS = 4000;
     const TICK_INTERVAL_MS = 50;
+    
+    const upgradeStore = useUpgradeStore();
+    const deliveryStore = useDeliveryStore();
 
-    function addWeight() {
-        currentWeight.value++;
+    function addWeight(amount: number = 1) {
+        currentWeight.value += amount;
     }
 
     async function syncToBackend() {
@@ -25,56 +29,29 @@ export const useGameStore = defineStore('game', () => {
         const amountToSync = pendingSync.value;
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/sync`,
-                { increment: amountToSync },
+                { amount: amountToSync },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             pendingSync.value -= amountToSync;
-            if (response.data.moneys !== undefined) {
-                money.value = response.data.moneys;
-            }
-            console.log("Synchronisation réussie:", response.data.moneys);
+            console.log("[Game] Synchronisation réussie");
         } catch (error) {
-            console.error("Échec de la synchronisation:", error);
+            console.error("[Game] Échec de la synchronisation:", error);
         }
     }
 
     function spawnGroupedCar() {
         if (currentWeight.value > 0) {
-            const newCar = {
-                id: Date.now(),
-                pathIndex: 0,
-                weight: currentWeight.value,
-                value: currentWeight.value * 10 // TODO: 10 prix de vente de base
-            };
-            cars.value.push(newCar);
+            deliveryStore.startDelivery(currentWeight.value);
             currentWeight.value = 0;
-            console.log(newCar.weight, "voitures expediees");
-
-            // TODO: Animation + mouvement
-            sellCar(newCar.id);
-            syncToBackend();
-        }
-    }
-
-    function sellCar(carId: number) {
-        const index = cars.value.findIndex(c => c.id === carId);
-        if (index !== -1) {
-            const car = cars.value[index];
-            if (car) {
-                money.value += car.value;
-                pendingSync.value += car.value;
-                cars.value.splice(index, 1);
-                console.log("Voiture vendue ! Gain :", car.value, "Total :", money.value);
-            }
         }
     }
 
     let progressInterval: number | null = null;
-
     function startSpawnerTimer() {
         if (progressInterval) return;
         
+        console.log("[Game] Démarrage du timer (4s)");
         progressInterval = window.setInterval(() => {
             spawnProgress.value += (TICK_INTERVAL_MS / SPAWN_INTERVAL_MS) * 100;
 
@@ -85,12 +62,21 @@ export const useGameStore = defineStore('game', () => {
         }, TICK_INTERVAL_MS);
     }
 
+    function stopSpawnerTimer() {
+        if (progressInterval) {
+            window.clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    }
+
     return {
         money,
-        cars,
         currentWeight,
         spawnProgress,
+        pendingSync,
         addWeight,
-        startSpawnerTimer
+        startSpawnerTimer,
+        stopSpawnerTimer,
+        syncToBackend
     };
 });

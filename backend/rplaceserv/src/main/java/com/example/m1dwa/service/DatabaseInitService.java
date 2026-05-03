@@ -20,12 +20,11 @@ import java.util.stream.Collectors;
 public class DatabaseInitService {
 
     private final PixelRepository pixelRepository;
-
-    @Value("${rplace.grid.size}")
-    private int gridSize;
+    private final GameConfigService gameConfigService;
 
     @PostConstruct
     public void init() {
+        int gridSize = gameConfigService.getRplaceConfig().getGridSize();
         log.info("Vérification de la grille (taille cible: {}x{})", gridSize, gridSize);
 
         List<PixelDTO> existing = pixelRepository.findAllSimplified(gridSize);

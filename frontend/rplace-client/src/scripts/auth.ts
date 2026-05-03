@@ -2,7 +2,7 @@
 import { ref, reactive, watch } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
-import { useGameStore } from '../stores/game';
+import { useGameStore } from '../stores/clicker/game';
 
 export function useAuth() {
   const authStore = useAuthStore();
