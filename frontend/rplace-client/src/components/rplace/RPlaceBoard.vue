@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRPlaceBoard } from '../../scripts/rplace/rplaceBoard';
+import { useRPlaceBoard } from '../../scripts/rplace/rplaceBoard.ts';
 
 const { 
   canvasRef, 

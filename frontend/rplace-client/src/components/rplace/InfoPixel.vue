@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRPlaceStore } from '../../stores/rplace';
+import { useRPlaceStore } from '../../stores/rplace.ts';
 
 const rplaceStore = useRPlaceStore();
 </script>

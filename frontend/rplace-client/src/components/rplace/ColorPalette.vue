@@ -13,7 +13,6 @@
       </div>
     </div>
 
-    <!-- Indicateur de progression (en dehors du scroll) -->
     <div class="palette-scroll-track">
       <div 
         class="palette-scroll-thumb" 
@@ -44,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { useColorPalette } from '../../scripts/rplace/colorPalette';
+import { useColorPalette } from '../../scripts/rplace/colorPalette.ts';
 
 const { 
   colors, 

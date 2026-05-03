@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { useCooldownTimer } from '../../scripts/rplace/cooldownTimer';
+import { useCooldownTimer } from '../../scripts/rplace/cooldownTimer.ts';
 
 const { timeLeft } = useCooldownTimer();
 </script>

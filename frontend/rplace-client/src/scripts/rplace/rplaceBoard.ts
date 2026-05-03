@@ -1,7 +1,7 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
-import { useBrushPanelStore } from '../../stores/brushPanel';
+import { useBrushPanelStore } from '../../stores/rplace/brushPanel';
 
 export function useRPlaceBoard() {
   const store = useRPlaceStore();

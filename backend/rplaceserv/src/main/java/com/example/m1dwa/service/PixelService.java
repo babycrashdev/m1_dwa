@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 @Service
 @RequiredArgsConstructor
@@ -36,18 +42,18 @@ public class PixelService {
 
     @Transactional
     public PixelDTO placePixel(PlacePixelRequest request, String username) {
-        return placePixels(java.util.List.of(request), username).stream().findFirst().orElse(null);
+        return placePixels(List.of(request), username).stream().findFirst().orElse(null);
     }
 
     @Transactional
-    public java.util.List<PixelDTO> placePixels(java.util.List<PlacePixelRequest> requests, String username) {
+    public List<PixelDTO> placePixels(List<PlacePixelRequest> requests, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + username));
 
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {
             log.warn("Cooldown actif pour l'utilisateur {}", username);
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
 
         Wallet wallet = walletRepository.findByUserUsername(username)
@@ -62,14 +68,14 @@ public class PixelService {
             maxY = Math.max(maxY, r.y());
         }
 
-        java.util.List<Pixel> existingPixels = pixelRepository.findAllInArea(minX, maxX, minY, maxY);
-        java.util.Map<String, Pixel> pixelMap = new java.util.HashMap<>();
+        List<Pixel> existingPixels = pixelRepository.findAllInArea(minX, maxX, minY, maxY);
+        Map<String, Pixel> pixelMap = new HashMap<>();
         for (Pixel p : existingPixels) {
             pixelMap.put(p.getX() + "," + p.getY(), p);
         }
 
-        java.util.List<PixelDTO> placedPixels = new java.util.ArrayList<>();
-        java.util.List<Pixel> pixelsToSave = new java.util.ArrayList<>();
+        List<PixelDTO> placedPixels = new ArrayList<>();
+        List<Pixel> pixelsToSave = new ArrayList<>();
 
         for (PlacePixelRequest request : requests) {
             if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {

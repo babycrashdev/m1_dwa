@@ -1,9 +1,9 @@
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
-import { useRPlaceStore } from './rplace';
-import { useAuthStore } from './auth';
-import { useGameStore } from './game';
+import { useRPlaceStore } from '../rplace';
+import { useAuthStore } from '../auth';
+import { useGameStore } from '../game';
 
 export const useBrushPanelStore = defineStore('brushPanel', () => {
   const rplaceStore = useRPlaceStore();

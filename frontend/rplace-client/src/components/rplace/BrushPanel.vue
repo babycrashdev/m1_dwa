@@ -1,31 +1,3 @@
-<script setup lang="ts">
-import { onMounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import { useBrushPanelStore } from '@/stores/brushPanel';
-import { storeToRefs } from 'pinia';
-
-const authStore = useAuthStore();
-const brushStore = useBrushPanelStore();
-const { 
-  isBrushActive, 
-  brushTotalPrice, 
-  brushSize, 
-  ownedBrushes,
-  showBuyModal,
-  brushToBuy,
-  isBuying,
-  errorMessage
-} = storeToRefs(brushStore);
-
-const { handleBrushClick, confirmPurchase, isLocked, prices } = brushStore;
-
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    brushStore.fetchOwnedBrushes();
-  }
-});
-</script>
-
 <!-- Généré par IA -->
  
 <template>
@@ -79,5 +51,33 @@ onMounted(() => {
     </div>
   </Transition>
 </template>
+
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useBrushPanelStore } from '@/stores/rplace/brushPanel';
+import { storeToRefs } from 'pinia';
+
+const authStore = useAuthStore();
+const brushStore = useBrushPanelStore();
+const { 
+  isBrushActive, 
+  brushTotalPrice, 
+  brushSize, 
+  ownedBrushes,
+  showBuyModal,
+  brushToBuy,
+  isBuying,
+  errorMessage
+} = storeToRefs(brushStore);
+
+const { handleBrushClick, confirmPurchase, isLocked, prices } = brushStore;
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    brushStore.fetchOwnedBrushes();
+  }
+});
+</script>
 
 <style src="../../styles/rplace/brushPanel.css" scoped></style>

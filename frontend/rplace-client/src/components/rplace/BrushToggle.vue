@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { useBrushToggle } from '../../scripts/rplace/brushToggle';
+import { useBrushToggle } from '../../scripts/rplace/brushToggle.ts';
 
 const { isActive, toggle } = useBrushToggle();
 </script>

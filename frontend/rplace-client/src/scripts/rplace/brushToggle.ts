@@ -1,5 +1,5 @@
 import { onMounted, onUnmounted, watch } from 'vue';
-import { useBrushPanelStore } from '../../stores/brushPanel';
+import { useBrushPanelStore } from '../../stores/rplace/brushPanel.ts';
 import { storeToRefs } from 'pinia';
 
 export function useBrushToggle() {
