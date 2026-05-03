@@ -65,6 +65,22 @@ public class MapController {
         return ResponseEntity.ok(convertToDTO(slotService.destroyBuilding(authentication.getName(), slotIndex)));
     }
 
+    @PostMapping("/parcel-spawned")
+    public ResponseEntity<List<SlotDTO>> parcelSpawned(
+            @RequestBody Map<String, Integer> request,
+            Authentication authentication) {
+        int slotIndex = request.get("slotIndex");
+        return ResponseEntity.ok(convertToDTO(slotService.setParcelState(authentication.getName(), slotIndex, true)));
+    }
+
+    @PostMapping("/parcel-collected")
+    public ResponseEntity<List<SlotDTO>> parcelCollected(
+            @RequestBody Map<String, Integer> request,
+            Authentication authentication) {
+        int slotIndex = request.get("slotIndex");
+        return ResponseEntity.ok(convertToDTO(slotService.setParcelState(authentication.getName(), slotIndex, false)));
+    }
+
     private List<SlotDTO> convertToDTO(List<Slot> slots) {
         return slots.stream().map(s -> {
             SlotDTO dto = new SlotDTO();
@@ -77,6 +93,7 @@ public class MapController {
             if (s.getLastAutoBonusAt() != null) {
                 dto.setLastAutoBonusAt(s.getLastAutoBonusAt().toInstant(ZoneOffset.UTC).toEpochMilli());
             }
+            dto.setParcelPresent(s.isParcelPresent());
             return dto;
         }).collect(Collectors.toList());
     }

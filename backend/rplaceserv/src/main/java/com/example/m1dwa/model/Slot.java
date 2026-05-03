@@ -37,4 +37,7 @@ public class Slot {
 
     @Column(nullable = true)
     private LocalDateTime lastAutoBonusAt;
+
+    @Column(nullable = false)
+    private boolean parcelPresent = false;
 }
