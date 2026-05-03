@@ -19,5 +19,8 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
            "WHERE p.x < :size AND p.y < :size")
     List<PixelDTO> findAllSimplified(int size);
 
+    @Query("SELECT p FROM Pixel p WHERE p.x >= :minX AND p.x <= :maxX AND p.y >= :minY AND p.y <= :maxY")
+    List<Pixel> findAllInArea(int minX, int maxX, int minY, int maxY);
+
     boolean existsByXAndY(int x, int y);
 }

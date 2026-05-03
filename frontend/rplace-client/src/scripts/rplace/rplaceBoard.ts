@@ -61,8 +61,12 @@ export function useRPlaceBoard() {
       });
     } else if (name === 'updatePixelFromWS') {
       after(() => {
-        const [pixelData] = args as [any];
-        updatePixelOnBuffer(pixelData.x, pixelData.y, pixelData.color);
+        const [data] = args as [any];
+        if (Array.isArray(data)) {
+          data.forEach((p: any) => updatePixelOnBuffer(p.x, p.y, p.color));
+        } else {
+          updatePixelOnBuffer(data.x, data.y, data.color);
+        }
       });
     }
   });

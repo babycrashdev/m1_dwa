@@ -117,19 +117,28 @@ export const useRPlaceStore = defineStore('rplace', {
       }
     },
 
-    updatePixelFromWS(pixelData: PixelData) {
+    updatePixelFromWS(data: PixelData | PixelData[]) {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
-      const index = pixelData.y * this.gridSize + pixelData.x;
 
-      if (pixelData.ownerName === authStore.user?.username) {
-        const oldPixel = this.pixels[index];
-        const pricePaid = oldPixel ? oldPixel.price : 10;
-        gameStore.money -= pricePaid;
-        console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+      const processSinglePixel = (pixelData: PixelData) => {
+        const index = pixelData.y * this.gridSize + pixelData.x;
+
+        if (pixelData.ownerName === authStore.user?.username) {
+          const oldPixel = this.pixels[index];
+          const pricePaid = oldPixel ? oldPixel.price : 10;
+          gameStore.money -= pricePaid;
+          console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+        }
+
+        this.pixels[index] = pixelData;
+      };
+
+      if (Array.isArray(data)) {
+        data.forEach(processSinglePixel);
+      } else {
+        processSinglePixel(data);
       }
-
-      this.pixels[index] = pixelData;
     },
 
     placePixel(x: number, y: number) {
