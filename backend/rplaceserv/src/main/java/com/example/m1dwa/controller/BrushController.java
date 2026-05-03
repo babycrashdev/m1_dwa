@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/brushes")
+@RequestMapping("/api/user/rplace/brushes")
 @RequiredArgsConstructor
 public class BrushController {
 
@@ -19,9 +19,9 @@ public class BrushController {
     public ResponseEntity<?> buyBrush(@RequestBody Map<String, String> payload, Authentication authentication) {
         String upgrade = payload.get("upgrade");
         String username = authentication.getName();
-        
+
         String result = brushService.buyUpgrade(username, upgrade);
-        
+
         if (result.equals("Achat réussi !")) {
             return ResponseEntity.ok(Map.of("message", result));
         } else {

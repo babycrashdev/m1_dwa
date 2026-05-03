@@ -1,10 +1,10 @@
 import { onMounted, onUnmounted, watch } from 'vue';
-import { useRPlaceStore } from '../../stores/rplace';
+import { useBrushPanelStore } from '../../stores/brushPanel';
 import { storeToRefs } from 'pinia';
 
 export function useBrushToggle() {
-  const store = useRPlaceStore();
-  const { isBrushActive: isActive } = storeToRefs(store);
+  const brushStore = useBrushPanelStore();
+  const { isBrushActive: isActive } = storeToRefs(brushStore);
   let intervalId: number | null = null;
 
   onMounted(() => {
@@ -23,7 +23,7 @@ export function useBrushToggle() {
       }, 1000);
     } else {
       console.log("Pinceau désactivé");
-      store.brushSize = 0;
+      brushStore.brushSize = 0;
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;

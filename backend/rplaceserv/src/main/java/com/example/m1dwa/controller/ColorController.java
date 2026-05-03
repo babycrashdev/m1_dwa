@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/colors")
+@RequestMapping("/api/user/rplace/colors")
 @RequiredArgsConstructor
 public class ColorController {
 
@@ -19,9 +19,9 @@ public class ColorController {
     public ResponseEntity<?> buyColor(@RequestBody Map<String, String> payload, Authentication authentication) {
         String colorHex = payload.get("color");
         String username = authentication.getName();
-        
+
         String result = colorService.buyColor(username, colorHex);
-        
+
         if (result.equals("Achat réussi !")) {
             return ResponseEntity.ok(Map.of("message", result));
         } else {

@@ -1,57 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRPlaceStore } from '@/stores/rplace';
+import { onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useBrushPanelStore } from '@/stores/brushPanel';
 import { storeToRefs } from 'pinia';
 
-const store = useRPlaceStore();
 const authStore = useAuthStore();
-const { isBrushActive, brushTotalPrice, brushSize, ownedBrushes } = storeToRefs(store);
+const brushStore = useBrushPanelStore();
+const { 
+  isBrushActive, 
+  brushTotalPrice, 
+  brushSize, 
+  ownedBrushes,
+  showBuyModal,
+  brushToBuy,
+  isBuying,
+  errorMessage
+} = storeToRefs(brushStore);
 
-const showBuyModal = ref(false);
-const brushToBuy = ref('');
-const isBuying = ref(false);
-const errorMessage = ref('');
-
-const prices: Record<string, number> = {
-  "3x3": 500,
-  "5x5": 1000,
-  "7x7": 2500,
-  "9x9": 5000
-};
-
-const isLocked = (size: string) => {
-  return !ownedBrushes.value.includes(size);
-};
-
-const handleBrushClick = (size: number) => {
-  const sizeStr = `${size}x${size}`;
-  if (isLocked(sizeStr)) {
-    brushToBuy.value = sizeStr;
-    showBuyModal.value = true;
-    errorMessage.value = '';
-  } else {
-    store.brushSize = size;
-  }
-};
-
-const confirmPurchase = async () => {
-  isBuying.value = true;
-  errorMessage.value = '';
-  try {
-    await store.buyBrush(brushToBuy.value);
-    showBuyModal.value = false;
-    store.brushSize = parseInt(brushToBuy.value.split('x')[0]);
-  } catch (err: any) {
-    errorMessage.value = err.message;
-  } finally {
-    isBuying.value = false;
-  }
-};
+const { handleBrushClick, confirmPurchase, isLocked, prices } = brushStore;
 
 onMounted(() => {
   if (authStore.isAuthenticated) {
-    store.fetchOwnedBrushes();
+    brushStore.fetchOwnedBrushes();
   }
 });
 </script>

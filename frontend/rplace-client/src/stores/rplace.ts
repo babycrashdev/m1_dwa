@@ -17,15 +17,12 @@ export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
     pixels: [] as PixelData[],
     ownedColors: [] as string[],
-    ownedBrushes: [] as string[],
     gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
     stompClient: null as Client | null,
     isInitialLoaded: false,
     initialPrice: 10,
-    isBrushActive: false,
-    brushSize: 0,
     hoveredPixel: { x: -1, y: -1 }
   }),
   getters: {
@@ -33,24 +30,6 @@ export const useRPlaceStore = defineStore('rplace', {
       if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
       const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
       return state.pixels[index] || null;
-    },
-    brushTotalPrice: (state) => {
-      if (!state.isBrushActive || state.hoveredPixel.x === -1 || state.gridSize === 0) return 0;
-      
-      let total = 0;
-      const offset = Math.floor(state.brushSize / 2);
-      const cx = Math.max(offset, Math.min(state.hoveredPixel.x, state.gridSize - 1 - offset));
-      const cy = Math.max(offset, Math.min(state.hoveredPixel.y, state.gridSize - 1 - offset));
-
-      for (let dy = -offset; dy <= offset; dy++) {
-        for (let dx = -offset; dx <= offset; dx++) {
-          const nx = cx + dx;
-          const ny = cy + dy;
-          const index = ny * state.gridSize + nx;
-          total += state.pixels[index]?.price || state.initialPrice;
-        }
-      }
-      return total;
     }
   },
   actions: {
@@ -180,47 +159,6 @@ export const useRPlaceStore = defineStore('rplace', {
       this.startCooldown(5);
     },
 
-    placeBrushPixels(cx: number, cy: number) {
-      const gameStore = useGameStore();
-
-      if (this.cooldownSeconds > 0) {
-        throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
-      }
-
-      if (!this.stompClient || !this.stompClient.connected) {
-        throw new Error("WebSocket non connecté");
-      }
-
-      let totalCost = 0;
-      const pixelsToPlace = [];
-      const offset = Math.floor(this.brushSize / 2);
-
-      for (let dy = -offset; dy <= offset; dy++) {
-        for (let dx = -offset; dx <= offset; dx++) {
-          const nx = cx + dx;
-          const ny = cy + dy;
-          if (nx >= 0 && nx < this.gridSize && ny >= 0 && ny < this.gridSize) {
-            const index = ny * this.gridSize + nx;
-            const pixel = this.pixels[index];
-            totalCost += pixel ? pixel.price : this.initialPrice;
-            pixelsToPlace.push({ x: nx, y: ny });
-          }
-        }
-      }
-
-      if (gameStore.money < totalCost) {
-        throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
-      }
-
-      this.stompClient?.publish({
-        destination: '/app/place-brush',
-        body: JSON.stringify(pixelsToPlace.map(p => ({ x: p.x, y: p.y, color: this.selectedColor })))
-      });
-
-      console.log(`[Brush ${this.brushSize}x${this.brushSize}] Placement de ${pixelsToPlace.length} pixels.`);
-      this.startCooldown(5);
-    },
-
     startCooldown(seconds: number) {
       this.cooldownSeconds = seconds;
       const timer = setInterval(() => {
@@ -251,7 +189,7 @@ export const useRPlaceStore = defineStore('rplace', {
       const authStore = useAuthStore();
       if (!authStore.isAuthenticated) return;
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/colors/owned`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/owned`, {
           headers: { Authorization: `Bearer ${authStore.token}` }
         });
         this.ownedColors = response.data;
@@ -264,49 +202,12 @@ export const useRPlaceStore = defineStore('rplace', {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
       try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/colors/buy`,
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/buy`,
           { color },
           { headers: { Authorization: `Bearer ${authStore.token}` } }
         );
         this.ownedColors.push(color);
         gameStore.money -= 500;
-        return true;
-      } catch (error: any) {
-        throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
-      }
-    },
-
-    async fetchOwnedBrushes() {
-      const authStore = useAuthStore();
-      if (!authStore.isAuthenticated) return;
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/brushes/owned`, {
-          headers: { Authorization: `Bearer ${authStore.token}` }
-        });
-        this.ownedBrushes = response.data;
-      } catch (error) {
-        console.error('Erreur lors de la récupération des pinceaux possédés', error);
-      }
-    },
-
-    async buyBrush(upgrade: string) {
-      const authStore = useAuthStore();
-      const gameStore = useGameStore();
-      
-      const prices: Record<string, number> = {
-        "3x3": 500,
-        "5x5": 1000,
-        "7x7": 2500,
-        "9x9": 5000
-      };
-
-      try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/brushes/buy`,
-          { upgrade },
-          { headers: { Authorization: `Bearer ${authStore.token}` } }
-        );
-        this.ownedBrushes.push(upgrade);
-        gameStore.money -= prices[upgrade] || 0;
         return true;
       } catch (error: any) {
         throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
