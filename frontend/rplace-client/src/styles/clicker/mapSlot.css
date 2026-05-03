@@ -45,24 +45,66 @@
   object-fit: contain;
 }
 
-.slot-progress-container {
-  width: 80%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 5px;
+.slot-border-container {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 5;
 }
 
-.slot-progress-bar {
-  height: 100%;
-  background: #4facfe;
-  transition: width 0.1s linear;
+.slot-progress-svg {
+  display: block;
+  overflow: visible;
 }
 
-.slot-progress-bar.boosting {
-  background: #f093fb;
-  box-shadow: 0 0 5px #f093fb;
+.progress-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 4px;
+}
+
+.progress-fg {
+  fill: none;
+  stroke: #4facfe;
+  stroke-width: 4px;
+  stroke-linecap: round;
+  transition: stroke 0.3s, stroke-dashoffset 0.1s linear, filter 0.3s;
+}
+
+.progress-fg.boosting {
+  filter: drop-shadow(0 0 5px #fda085);
+  stroke-width: 5px;
+}
+
+.map-slot.occupied.boosting {
+  animation: onFire 0.5s infinite alternate;
+  border-color: #fda085;
+  box-shadow: 0 0 15px rgba(253, 160, 133, 0.4);
+}
+
+@keyframes onFire {
+  from { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  to { transform: scale(1.02) rotate(0.5deg); filter: brightness(1.2); }
+}
+
+.progress-fg.ready {
+  stroke: #2ecc71;
+  filter: drop-shadow(0 0 5px #2ecc71);
+}
+
+.ready-tag {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: #2ecc71;
+  text-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+  margin-top: 2px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
 }
 
 .boost-tag {

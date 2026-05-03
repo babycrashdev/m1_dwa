@@ -123,7 +123,7 @@ export const useUpgradeStore = defineStore('upgrade', () => {
 
         const now = currentTime.value;
         const duration = getBoostDuration(slot.buildingType);
-        return now < (slot.lastBoostAt + duration);
+        return now < (slot.lastBoostAt + duration - 1000);
     }
 
     function hasSlotAutoBonusCharge(slot: SlotDTO): boolean {

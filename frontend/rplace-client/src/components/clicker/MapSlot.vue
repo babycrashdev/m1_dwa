@@ -23,19 +23,45 @@
     </div>
 
     <div v-else class="slot-content building-content">
+      <div class="slot-border-container">
+        <svg class="slot-progress-svg" width="100%" height="100%">
+          <defs>
+            <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff9a9e" />
+              <stop offset="50%" stop-color="#fecfef" />
+              <stop offset="100%" stop-color="#ff0844" />
+            </linearGradient>
+            <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f6d365" />
+              <stop offset="100%" stop-color="#fda085" />
+            </linearGradient>
+          </defs>
+          <rect 
+            x="2" y="2" rx="10" ry="10" 
+            class="progress-bg"
+            :style="{ width: 'calc(100% - 4px)', height: 'calc(100% - 4px)' }"
+          />
+          <rect 
+            x="2" y="2" rx="10" ry="10" 
+            class="progress-fg"
+            :class="{ boosting: isBoosting, ready: progressPercent >= 99.9 }"
+            pathLength="100"
+            :style="{ 
+              width: 'calc(100% - 4px)', 
+              height: 'calc(100% - 4px)',
+              strokeDasharray: '100', 
+              strokeDashoffset: 100 - Math.min(100, progressPercent),
+              stroke: isBoosting ? 'url(#flameGradient)' : (progressPercent >= 99.9 ? '#2ecc71' : '#4facfe')
+            }"
+          />
+        </svg>
+      </div>
+
       <div class="building-sprite">
         <img :src="getSpriteUrl(slotData.buildingType)" :alt="slotData.buildingType" />
       </div>
 
-      <div class="slot-progress-container">
-        <div 
-          class="slot-progress-bar" 
-          :class="{ boosting: isBoosting }"
-          :style="{ width: progressPercent + '%' }"
-        ></div>
-      </div>
 
-      <div v-if="isBoosting" class="boost-tag">⚡ BOOST</div>
     </div>
 
     <div v-if="showPicker" class="building-picker-overlay" @click.stop="showPicker = false">
