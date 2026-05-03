@@ -4,9 +4,12 @@
     :class="{ 
       locked: !slotData?.unlocked, 
       empty: slotData?.unlocked && !slotData?.buildingType,
-      occupied: slotData?.buildingType
+      occupied: slotData?.buildingType,
+      'picker-open': showPicker
     }"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
 
     <div v-if="!slotData?.unlocked" class="slot-content locked-content">
@@ -49,7 +52,6 @@
             <span class="p-name">{{ b.id }}</span>
           </div>
         </div>
-        <button class="close-btn" @click="showPicker = false">Annuler</button>
       </div>
     </div>
 
@@ -79,6 +81,8 @@ const {
   mapStore,
   showPicker,
   showMenu,
+  handleMouseEnter,
+  handleMouseLeave,
   slotData,
   isBoosting,
   cooldown,

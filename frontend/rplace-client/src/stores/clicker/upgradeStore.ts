@@ -157,6 +157,9 @@ export const useUpgradeStore = defineStore('upgrade', () => {
             } 
             else if (hasSlotAutoBonusCharge(slot)) {
                 total += bonus;
+                slot.lastAutoBonusAt = Date.now();
+                hasAutoBonusCharge.value[`slot_${slot.slotIndex}`] = false;
+                autoBonusProgress.value[`slot_${slot.slotIndex}`] = 0;
             }
         });
 

@@ -62,45 +62,71 @@
 
 /* Pickers & Menus */
 .building-picker-overlay, .slot-menu-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  width: 200%; /* Un peu plus large que le slot */
+  pointer-events: all;
 }
 
 .picker-card, .menu-card {
-  background: rgba(30, 40, 50, 0.95);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  width: 280px;
+  background: rgba(20, 30, 45, 0.98);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+  width: 100%;
+  max-width: 220px;
+  animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.picker-card h3 {
+  font-size: 0.8rem;
+  margin: 0 0 10px 0;
+  text-align: center;
+  color: #4facfe;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .picker-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 15px 0;
+  gap: 8px;
+  margin-bottom: 0;
 }
 
 .picker-item {
-  background: rgba(255,255,255,0.05);
-  padding: 10px;
-  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  padding: 8px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
-.picker-item:hover { background: rgba(255,255,255,0.15); }
+.picker-item:hover { 
+  background: rgba(79, 172, 254, 0.2); 
+  border-color: rgba(79, 172, 254, 0.5);
+  transform: translateY(-2px);
+}
+
+.p-icon { font-size: 1.5rem; }
+.p-name { font-size: 0.6rem; font-weight: bold; }
 
 .menu-card { display: flex; flex-direction: column; gap: 10px; }
 .menu-btn {

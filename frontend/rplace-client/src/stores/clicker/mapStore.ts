@@ -116,6 +116,18 @@ export const useMapStore = defineStore('map', () => {
         await fetchMapState();
     }
 
+    async function destroyBuilding(slotIndex: number) {
+        if (!authStore.token) return;
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/map/destroy`, { slotIndex }, {
+                headers: { Authorization: `Bearer ${authStore.token}` }
+            });
+            await fetchMapState();
+        } catch (error) {
+            console.error("Erreur destruction bâtiment", error);
+        }
+    }
+
     return {
         slots,
         loading,
@@ -126,6 +138,7 @@ export const useMapStore = defineStore('map', () => {
         placeBuilding,
         activateSlotBoost,
         activateAllBoosts,
-        activateBoostsByType
+        activateBoostsByType,
+        destroyBuilding
     };
 });

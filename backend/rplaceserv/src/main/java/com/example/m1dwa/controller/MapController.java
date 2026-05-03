@@ -56,6 +56,15 @@ public class MapController {
         return ResponseEntity.ok(convertToDTO(slotService.activateAllBoosts(authentication.getName())));
     }
 
+    @PostMapping("/destroy")
+    public ResponseEntity<List<SlotDTO>> destroyBuilding(
+            @RequestBody Map<String, Integer> request,
+            Authentication authentication) {
+        
+        int slotIndex = request.get("slotIndex");
+        return ResponseEntity.ok(convertToDTO(slotService.destroyBuilding(authentication.getName(), slotIndex)));
+    }
+
     private List<SlotDTO> convertToDTO(List<Slot> slots) {
         return slots.stream().map(s -> {
             SlotDTO dto = new SlotDTO();

@@ -11,6 +11,17 @@ export function useMapSlot(slotIndex: number) {
     const showPicker = ref(false);
     const showMenu = ref(false);
 
+    const handleMouseEnter = () => {
+        if (slotData.value?.unlocked && !slotData.value.buildingType) {
+            showPicker.value = true;
+        }
+    };
+
+    const handleMouseLeave = () => {
+        showPicker.value = false;
+        showMenu.value = false;
+    };
+
     const slotData = computed(() => mapStore.slots.find(s => s.slotIndex === slotIndex));
 
     const isBoosting = computed(() => {
@@ -30,7 +41,7 @@ export function useMapSlot(slotIndex: number) {
             const upg = upgradeStore.config?.upgrades[slotData.value.buildingType];
             if (!upg?.boosts) return 0;
             const duration = upgradeStore.getBoostDuration(slotData.value.buildingType);
-            const elapsed = Date.now() - (slotData.value.lastBoostAt || 0);
+            const elapsed = upgradeStore.currentTime - (slotData.value.lastBoostAt || 0);
             return Math.max(0, 100 - (elapsed / duration) * 100);
         }
 
@@ -39,9 +50,9 @@ export function useMapSlot(slotIndex: number) {
 
     const availableBuildings = computed(() => {
         if (!upgradeStore.config) return [];
-        return Object.values(upgradeStore.config.upgrades).filter(u => 
-            u.category === 'BUILDING' && upgradeStore.getLevel(u.id) > 0
-        );
+        return Object.entries(upgradeStore.config.upgrades)
+            .filter(([id, u]) => u.category === 'BUILDING' && upgradeStore.getLevel(id) > 0)
+            .map(([id, u]) => ({ ...u, id }));
     });
 
     function handleClick() {
@@ -52,9 +63,7 @@ export function useMapSlot(slotIndex: number) {
             return;
         }
 
-        if (!slotData.value.buildingType) {
-            showPicker.value = true;
-        } else {
+        if (slotData.value.buildingType) {
             showMenu.value = true;
         }
     }
@@ -71,8 +80,7 @@ export function useMapSlot(slotIndex: number) {
     }
 
     function destroy() {
-        // TODO: API pour détruire un bâtiment
-        // mapStore.destroyBuilding(slotIndex);
+        mapStore.destroyBuilding(slotIndex);
         showMenu.value = false;
     }
 
@@ -96,6 +104,8 @@ export function useMapSlot(slotIndex: number) {
         gameStore,
         showPicker,
         showMenu,
+        handleMouseEnter,
+        handleMouseLeave,
         slotData,
         isBoosting,
         cooldown,

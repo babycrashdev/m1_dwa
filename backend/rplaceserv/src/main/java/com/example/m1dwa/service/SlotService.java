@@ -106,6 +106,18 @@ public class SlotService {
         }
 
         slot.setBuildingType(buildingType.toUpperCase());
+        
+        LocalDateTime now = LocalDateTime.now();
+        slot.setLastAutoBonusAt(now);
+        
+        var config = gameConfigService.getUpgrades().get(buildingType.toUpperCase());
+        if (config != null && config.getBoosts() != null) {
+            long durationMs = config.getBoosts().getDurationMs();
+            slot.setLastBoostAt(now.minus(java.time.Duration.ofMillis(durationMs)));
+        } else {
+            slot.setLastBoostAt(now);
+        }
+
         slotRepository.save(slot);
 
         log.info("Utilisateur {} a posé un {} sur le slot {}", username, buildingType, slotIndex);
@@ -166,6 +178,20 @@ public class SlotService {
         }
 
         log.info("Utilisateur {} a activé {} boosts simultanément", username, activatedCount);
+        return getSlots(username);
+    }
+
+    @Transactional
+    public List<Slot> destroyBuilding(String username, int slotIndex) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Slot slot = slotRepository.findByUserAndSlotIndex(user, slotIndex).orElseThrow(() -> new RuntimeException("Slot non trouvé"));
+
+        slot.setBuildingType(null);
+        slot.setLastBoostAt(null);
+        slot.setLastAutoBonusAt(null);
+        slotRepository.save(slot);
+
+        log.info("Utilisateur {} a détruit le bâtiment sur le slot {}", username, slotIndex);
         return getSlots(username);
     }
 
