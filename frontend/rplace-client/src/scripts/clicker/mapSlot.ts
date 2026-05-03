@@ -98,6 +98,12 @@ export function useMapSlot(slotIndex: number) {
         return mapping[type] || '🏭';
     }
 
+    function getSpriteUrl(type: string) {
+        const upg = upgradeStore.config?.upgrades[type.toUpperCase()];
+        const spriteName = upg?.sprite || 'default.png';
+        return new URL(`../../assets/building/${spriteName}`, import.meta.url).href;
+    }
+
     return {
         mapStore,
         upgradeStore,
@@ -117,6 +123,7 @@ export function useMapSlot(slotIndex: number) {
         destroy,
         formatNumber,
         formatTime,
-        getIcon
+        getIcon,
+        getSpriteUrl
     };
 }

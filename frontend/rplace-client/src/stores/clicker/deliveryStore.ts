@@ -54,9 +54,18 @@ export const useDeliveryStore = defineStore('delivery', () => {
         }
     }
 
+    function addParcelToDelivery(deliveryId: number, bonus: number) {
+        const delivery = activeDeliveries.value.find(d => d.id === deliveryId);
+        if (delivery) {
+            delivery.value += (delivery.weight * bonus);
+            console.log(`[Clicker] Colis ramassé ! Nouvelle valeur de la livraison: ${delivery.value} (Poids: ${delivery.weight}, Bonus: ${bonus})`);
+        }
+    }
+
     return {
         activeDeliveries,
         startDelivery,
-        completeDelivery
+        completeDelivery,
+        addParcelToDelivery
     };
 });

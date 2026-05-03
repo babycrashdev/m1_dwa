@@ -13,4 +13,5 @@ public class SlotDTO {
     private String buildingType;
     private Long lastBoostAt;
     private Long lastAutoBonusAt;
+    private boolean parcelPresent;
 }

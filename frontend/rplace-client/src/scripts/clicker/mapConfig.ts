@@ -74,3 +74,18 @@ export const CITY_SVG_PATH = [
     "L 190 120", "Q 150 120 150 80",
     "L 150 50"                        
 ].join(" ");
+
+export const SLOT_PATH_PROGRESS: Record<number, number> = {
+    0: 21,
+    1: 30,
+    2: 38,
+    3: 46,
+    4: 48,
+    5: 50,
+    6: 57,
+    7: 59,
+    8: 61,
+    9: 69,
+    10: 77,
+    11: 86
+};

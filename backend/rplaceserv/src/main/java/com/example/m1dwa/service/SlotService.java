@@ -189,9 +189,22 @@ public class SlotService {
         slot.setBuildingType(null);
         slot.setLastBoostAt(null);
         slot.setLastAutoBonusAt(null);
+        slot.setParcelPresent(false);
         slotRepository.save(slot);
 
         log.info("Utilisateur {} a détruit le bâtiment sur le slot {}", username, slotIndex);
+        return getSlots(username);
+    }
+
+    @Transactional
+    public List<Slot> setParcelState(String username, int slotIndex, boolean present) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Slot slot = slotRepository.findByUserAndSlotIndex(user, slotIndex).orElseThrow(() -> new RuntimeException("Slot non trouvé"));
+
+        slot.setParcelPresent(present);
+        slotRepository.save(slot);
+
+        log.info("Colis sur le slot {} mis à jour: {} pour {}", slotIndex, present, username);
         return getSlots(username);
     }
 
