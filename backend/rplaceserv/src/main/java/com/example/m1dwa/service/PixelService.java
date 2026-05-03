@@ -46,11 +46,6 @@ public class PixelService {
         long initialPrice = gameConfigService.getRplaceConfig().getInitialPrice();
         long priceIncrement = gameConfigService.getRplaceConfig().getPixelPriceIncrement();
 
-        if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
-            log.error("Coordonnées invalides pour {}: {}, {}", username, request.x(), request.y());
-            return null;
-        }
-
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {
             log.warn("Cooldown actif pour l'utilisateur {}", username);

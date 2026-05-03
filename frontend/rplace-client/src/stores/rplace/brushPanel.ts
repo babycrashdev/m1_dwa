@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useRPlaceStore } from '../rplace';
 import { useAuthStore } from '../auth';
-import { useGameStore } from '../game';
+import { useGameStore } from '../clicker/game';
 
 export const useBrushPanelStore = defineStore('brushPanel', () => {
   const rplaceStore = useRPlaceStore();
