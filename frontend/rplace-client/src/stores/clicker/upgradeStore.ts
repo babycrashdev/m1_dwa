@@ -3,6 +3,8 @@ import { ref, computed } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../auth';
 import { useGameStore } from './game';
+import { useDeliveryStore } from './deliveryStore';
+import { useMapStore, type SlotDTO } from './mapStore';
 
 export interface SubUpgradeConfig {
     basePrice: number;
@@ -38,7 +40,14 @@ export interface UpgradeStatus {
 }
 
 export interface ClickerConfig {
-    global: { syncIntervalMs: number; baseCarValue: number };
+    global: { 
+        syncIntervalMs: number; 
+        baseCarValue: number;
+        maxSlots?: number;
+        slotBasePrice?: number;
+        slotPriceMultiplier?: number;
+        firstSlotFree?: boolean;
+    };
     upgrades: Record<string, UpgradeConfig>;
 }
 
@@ -102,14 +111,22 @@ export const useUpgradeStore = defineStore('upgrade', () => {
 
 
     function isBoostActive(id: string): boolean {
-        const upperId = id.toUpperCase();
-        const status = levels.value[upperId];
-        if (!status?.lastBoostAt) return false;
-        
+        const mapStore = useMapStore();
+        return mapStore.slots.some(s => s.buildingType === id.toUpperCase() && isSlotBoostActive(s));
+    }
+
+    function isSlotBoostActive(slot: SlotDTO): boolean {
+        if (!slot.lastBoostAt || !slot.buildingType) return false;
+        const upg = config.value?.upgrades[slot.buildingType];
+        if (!upg?.boosts) return false;
+
         const now = currentTime.value;
-        const duration = getBoostDuration(upperId);
-        const endTime = status.lastBoostAt + duration;
-        return now < endTime;
+        const duration = getBoostDuration(slot.buildingType);
+        return now < (slot.lastBoostAt + duration);
+    }
+
+    function hasSlotAutoBonusCharge(slot: SlotDTO): boolean {
+        return hasAutoBonusCharge.value[`slot_${slot.slotIndex}`] || false;
     }
 
     function getBuildingInterval(id: string): number {
@@ -123,23 +140,23 @@ export const useUpgradeStore = defineStore('upgrade', () => {
     }
 
     function consumeAndGetTotalBonus(): number {
-        if (!config.value) return 0;
+        const mapStore = useMapStore();
+        if (!config.value || !mapStore.slots) return 0;
         let total = 0;
 
-        Object.keys(config.value.upgrades).forEach(id => {
-            const upperId = id.toUpperCase();
-            const upg = config.value!.upgrades[id];
-            if (!upg || upg.category !== 'BUILDING') return;
+        mapStore.slots.forEach(slot => {
+            if (!slot.buildingType) return;
+            
+            const upg = config.value!.upgrades[slot.buildingType];
+            if (!upg) return;
 
             const bonus = upg.bonusValueBonus || 0;
             
-            if (isBoostActive(upperId)) {
+            if (isSlotBoostActive(slot)) {
                 total += bonus;
             } 
-            else if (hasAutoBonusCharge.value[upperId]) {
+            else if (hasSlotAutoBonusCharge(slot)) {
                 total += bonus;
-                hasAutoBonusCharge.value[upperId] = false;
-                autoBonusProgress.value[upperId] = 0;
             }
         });
 
@@ -160,16 +177,18 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         return groups;
     });
 
-    const totalBuildingBonus = computed(() => {
-        if (!config.value || !config.value.upgrades) return 0;
+    function getTotalBuildingBonus(): number {
+        const mapStore = useMapStore();
+        if (!config.value || !mapStore.slots) return 0;
         let total = 0;
-        Object.entries(config.value.upgrades).forEach(([id, upgrade]) => {
-            if (upgrade.category?.toUpperCase() === 'BUILDING' && getLevel(id) > 0) {
-                total += (upgrade.bonusValueBonus || 0);
+        mapStore.slots.forEach(slot => {
+            if (slot.buildingType && getLevel(slot.buildingType) > 0) {
+                const upg = config.value!.upgrades[slot.buildingType];
+                if (upg) total += (upg.bonusValueBonus || 0);
             }
         });
         return total;
-    });
+    }
 
     async function fetchConfig() {
         try {
@@ -210,46 +229,22 @@ export const useUpgradeStore = defineStore('upgrade', () => {
     }
 
     async function activateBoost(type: string) {
-        if (!authStore.token) return;
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/boost`, 
-                { type: type.toUpperCase() },
-                { headers: { Authorization: `Bearer ${authStore.token}` } }
-            );
-            levels.value = response.data.upgradeLevels;
-        } catch (error: any) {
-            console.error("Erreur boost", error.response?.data || error.message);
-        }
+        const mapStore = useMapStore();
+        await mapStore.activateBoostsByType(type);
     }
 
     async function activateAllBoosts() {
-        if (!config.value) return;
-        const readyUpgrades = Object.keys(config.value.upgrades).filter(id => {
-            const upperId = id.toUpperCase();
-            const upg = config.value?.upgrades[id];
-            if (!upg) return false;
-            
-            return upg.category === 'BUILDING' && 
-                   getLevel(upperId) > 0 && 
-                   !isBoostActive(upperId) &&
-                   getBoostCooldownRemaining(upperId) === 0;
-        });
-
-        for (const id of readyUpgrades) {
-            await activateBoost(id);
-        }
+        const mapStore = useMapStore();
+        await mapStore.activateAllBoosts();
     }
 
     function getBoostCooldownRemaining(id: string): number {
-        const upperId = id.toUpperCase();
-        const status = levels.value[upperId];
-        const upg = config.value?.upgrades[upperId];
-        if (!status?.lastBoostAt || !upg?.boosts) return 0;
+        const mapStore = useMapStore();
+        const relevantSlots = mapStore.slots.filter(s => s.buildingType === id.toUpperCase());
+        if (relevantSlots.length === 0) return 0;
         
-        const now = currentTime.value;
-        const duration = getBoostDuration(upperId);
-        const nextAvailable = status.lastBoostAt + duration + upg.boosts.cooldownMs;
-        return Math.max(0, nextAvailable - now);
+        const cooldowns = relevantSlots.map(s => getSlotBoostCooldown(s));
+        return Math.min(...cooldowns);
     }
 
     function startProductionLoop() {
@@ -282,21 +277,22 @@ export const useUpgradeStore = defineStore('upgrade', () => {
                 }
             });
 
-            Object.entries(config.value.upgrades).forEach(([id, upg]) => {
-                const upperId = id.toUpperCase();
-                if (upg.category !== 'BUILDING' || getLevel(upperId) <= 0) return;
+            const mapStore = useMapStore();
+            mapStore.slots.forEach(slot => {
+                if (!slot.buildingType || getLevel(slot.buildingType) <= 0) return;
 
-                if (isBoostActive(upperId)) return;
-                if (hasAutoBonusCharge.value[upperId]) return;
+                const slotKey = `slot_${slot.slotIndex}`;
+                if (isSlotBoostActive(slot)) return;
+                if (hasSlotAutoBonusCharge(slot)) return;
 
-                const interval = getBuildingInterval(upperId);
+                const interval = getBuildingInterval(slot.buildingType);
                 const increment = (TICK_RATE_MS / interval) * 100;
                 
-                const current = autoBonusProgress.value[upperId] || 0;
-                autoBonusProgress.value[upperId] = Math.min(100, current + increment);
+                const current = autoBonusProgress.value[slotKey] || 0;
+                autoBonusProgress.value[slotKey] = Math.min(100, current + increment);
 
-                if (autoBonusProgress.value[upperId] >= 100) {
-                    hasAutoBonusCharge.value[upperId] = true;
+                if (autoBonusProgress.value[slotKey] >= 100) {
+                    hasAutoBonusCharge.value[slotKey] = true;
                 }
             });
         }, TICK_RATE_MS);
@@ -309,19 +305,24 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         }
     }
 
-    const readyBoostsCount = computed(() => {
-        if (!config.value) return 0;
-        return Object.keys(config.value.upgrades).filter(id => {
-            const upperId = id.toUpperCase();
-            const upg = config.value?.upgrades[id];
-            if (!upg) return false;
-            
-            return upg.category === 'BUILDING' && 
-                   getLevel(upperId) > 0 && 
-                   !isBoostActive(upperId) &&
-                   getBoostCooldownRemaining(upperId) === 0;
+    function getReadyBoostsCount(): number {
+        const mapStore = useMapStore();
+        return mapStore.slots.filter(slot => {
+            if (!slot.buildingType) return false;
+            return !isSlotBoostActive(slot) && getSlotBoostCooldown(slot) === 0;
         }).length;
-    });
+    }
+
+    function getSlotBoostCooldown(slot: SlotDTO): number {
+        if (!slot.lastBoostAt || !slot.buildingType) return 0;
+        const upg = config.value?.upgrades[slot.buildingType];
+        if (!upg?.boosts) return 0;
+
+        const now = currentTime.value;
+        const duration = getBoostDuration(slot.buildingType);
+        const nextAvailable = slot.lastBoostAt + duration + upg.boosts.cooldownMs;
+        return Math.max(0, nextAvailable - now);
+    }
 
     return {
         config,
@@ -331,15 +332,17 @@ export const useUpgradeStore = defineStore('upgrade', () => {
         autoBonusProgress,
         hasAutoBonusCharge,
         groupedUpgrades,
-        totalBuildingBonus,
-        readyBoostsCount,
+        totalBuildingBonus: getTotalBuildingBonus,
+        readyBoostsCount: getReadyBoostsCount,
         getLevel,
         getWorkerInterval,
         getWorkerProduction,
         isBoostActive,
+        isSlotBoostActive,
         getBoostDuration,
         getBuildingInterval,
         getBoostCooldownRemaining,
+        getSlotBoostCooldown,
         consumeAndGetTotalBonus,
         fetchConfig,
         fetchState,

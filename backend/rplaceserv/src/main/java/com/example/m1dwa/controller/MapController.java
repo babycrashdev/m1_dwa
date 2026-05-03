@@ -26,8 +26,9 @@ public class MapController {
     }
 
     @PostMapping("/unlock")
-    public ResponseEntity<List<SlotDTO>> unlockSlot(Authentication authentication) {
-        return ResponseEntity.ok(convertToDTO(slotService.unlockNextSlot(authentication.getName())));
+    public ResponseEntity<List<SlotDTO>> unlockSlot(@RequestBody Map<String, Integer> request,Authentication authentication) {
+        int slotIndex = request.get("slotIndex");
+        return ResponseEntity.ok(convertToDTO(slotService.unlockSlot(authentication.getName(), slotIndex)));
     }
 
     @PostMapping("/place")

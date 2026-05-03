@@ -1,6 +1,8 @@
 import { computed, ref, watch } from 'vue';
 import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';
+import { useMapStore } from '../../stores/clicker/mapStore';
+import type { SlotDTO } from '../../stores/clicker/mapStore';
 
 export function useUpgradePanel() {
     const upgradeStore = useUpgradeStore();
@@ -123,15 +125,7 @@ export function useUpgradePanel() {
     };
 
     const getBoostCooldownRemaining = (id: string): number => {
-        const upperId = id.toUpperCase();
-        const status = upgradeStore.levels[upperId];
-        const upg = upgradeStore.config?.upgrades[upperId];
-        if (!status?.lastBoostAt || !upg?.boosts) return 0;
-        
-        const now = upgradeStore.currentTime;
-        const duration = upgradeStore.getBoostDuration(upperId);
-        const nextAvailable = status.lastBoostAt + duration + upg.boosts.cooldownMs;
-        return Math.max(0, nextAvailable - now);
+        return upgradeStore.getBoostCooldownRemaining(id);
     };
 
     const activateBoost = (id: string) => {
@@ -140,6 +134,20 @@ export function useUpgradePanel() {
 
     const activateAllBoosts = () => {
         upgradeStore.activateAllBoosts();
+    };
+
+    const getPlacedCount = (type: string): number => {
+        const mapStore = useMapStore();
+        return mapStore.slots.filter((s: SlotDTO) => s.buildingType === type.toUpperCase()).length;
+    };
+
+    const getReadyCountByType = (type: string): number => {
+        const mapStore = useMapStore();
+        return mapStore.slots.filter((s: SlotDTO) => 
+            s.buildingType === type.toUpperCase() && 
+            !upgradeStore.isSlotBoostActive(s) && 
+            upgradeStore.getSlotBoostCooldown(s) === 0
+        ).length;
     };
 
     return {
@@ -160,6 +168,8 @@ export function useUpgradePanel() {
         getBoostCooldownRemaining,
         activateBoost,
         activateAllBoosts,
-        readyBoostsCount: computed(() => upgradeStore.readyBoostsCount)
+        readyBoostsCount: computed(() => upgradeStore.readyBoostsCount()),
+        getPlacedCount,
+        getReadyCountByType
     };
 }

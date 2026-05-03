@@ -32,37 +32,40 @@ public class SlotService {
     @Transactional
     public List<Slot> getSlots(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-
         List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         
         if (slots.isEmpty()) {
             int maxSlots = gameConfigService.getClickerConfig().getMaxSlots();
-            slots = new ArrayList<>();
             for (int i = 0; i < maxSlots; i++) {
                 Slot slot = new Slot();
                 slot.setUser(user);
                 slot.setSlotIndex(i);
-                if (gameConfigService.getClickerConfig().isFirstSlotFree() && i == 0) {
-                    slot.setUnlocked(true);
-                } else {
-                    slot.setUnlocked(false);
+                slot.setUnlocked(gameConfigService.getClickerConfig().isFirstSlotFree() && i == 0);
+                try {
+                    slotRepository.saveAndFlush(slot);
+                } catch (Exception e) {
+                    log.debug("Le slot {} existe déjà pour {}", i, username);
                 }
-                slots.add(slotRepository.save(slot));
             }
+            slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         }
         
         return slots;
     }
 
     @Transactional
-    public List<Slot> unlockNextSlot(String username) {
+    public List<Slot> unlockSlot(String username, int slotIndex) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         List<Slot> slots = getSlots(username);
-        Slot nextLocked = slots.stream()
-                .filter(s -> !s.isUnlocked())
+        Slot target = slots.stream()
+                .filter(s -> s.getSlotIndex() == slotIndex)
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Tous les emplacements sont déjà débloqués"));
+                .orElseThrow(() -> new RuntimeException("Slot non trouvé"));
+
+        if (target.isUnlocked()) {
+            throw new RuntimeException("Ce slot est déjà débloqué");
+        }
 
         long unlockedCount = slots.stream().filter(Slot::isUnlocked).count();
         ClickerConfig config = gameConfigService.getClickerConfig();
@@ -71,17 +74,18 @@ public class SlotService {
 
         Wallet wallet = user.getWallet();
         if (wallet.getMoneys() < price) {
-            throw new RuntimeException("Solde insuffisant : " + price + " requis");
+            throw new RuntimeException("Pas assez d'argent (Prix: " + price + ")");
         }
 
         wallet.setMoneys(wallet.getMoneys() - price);
         walletRepository.save(wallet);
 
-        nextLocked.setUnlocked(true);
-        slotRepository.save(nextLocked);
+        target.setUnlocked(true);
+        target.setLastAutoBonusAt(LocalDateTime.now());
+        slotRepository.save(target);
 
-        log.info("Utilisateur {} a débloqué le slot {} pour {}", username, nextLocked.getSlotIndex(), price);
-        return getSlots(username);
+        log.info("{} a débloqué le slot {} pour {}", username, slotIndex, price);
+        return slots;
     }
 
     @Transactional

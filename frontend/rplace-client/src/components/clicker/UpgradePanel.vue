@@ -143,12 +143,15 @@
                    <button class="b-btn main-level" @click="buy(upgrade.id!, 'main')" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
                       <div class="b-brand">
                         <div class="b-icon-circle">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
-                        <div class="b-meta">
-                          <span class="b-name">{{ formatName(upgrade.id!) }}</span>
-                          <span class="b-price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
-                        </div>
-                      </div>
-                      <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
+                         <div class="b-meta">
+                           <span class="b-name">{{ formatName(upgrade.id!) }}</span>
+                           <span class="b-price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
+                           <div class="on-map-badge" :class="{ 'none': getPlacedCount(upgrade.id!) === 0 }">
+                              📍 Sur Map : {{ getPlacedCount(upgrade.id!) }}
+                           </div>
+                         </div>
+                       </div>
+                       <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
                    </button>
 
                    <button class="b-btn speed-up" @click="buy(upgrade.id!, 'time')" :class="{ disabled: !canAfford(upgrade.id!, 'time') || isMaxLevel(upgrade.id!, 'time') }">
@@ -167,12 +170,15 @@
                       disabled: isBoostActive(upgrade.id!) || getBoostCooldownRemaining(upgrade.id!) > 0 
                     }"
                    >
-                      <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay">
-                        <span class="timer">{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
-                      </div>
-                      <div class="b-label">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</div>
-                      <div class="boost-icon-small">⚡</div>
-                   </button>
+                       <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay">
+                         <span class="timer">{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
+                       </div>
+                       <div class="b-label">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</div>
+                       <div class="boost-icon-small">
+                         ⚡
+                         <span v-if="getReadyCountByType(upgrade.id!) > 0" class="ready-mini-badge">{{ getReadyCountByType(upgrade.id!) }}</span>
+                       </div>
+                    </button>
                 </div>
              </div>
           </div>
@@ -226,7 +232,9 @@ const {
     getBoostCooldownRemaining,
     activateBoost,
     activateAllBoosts,
-    readyBoostsCount
+    readyBoostsCount,
+    getPlacedCount,
+    getReadyCountByType
 } = useUpgradePanel();
 </script>
 

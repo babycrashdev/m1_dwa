@@ -8,8 +8,11 @@
         :key="index"
         :class="['tile', tile.type === 'ROAD' ? 'road-tile' : (tile.type === 'ACTION' ? 'action-case' : 'empty-tile')]"
         :style="{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }"
-        @click="tile.type === 'ACTION' && handleActionClick(tile)"
       >
+        <MapSlot 
+          v-if="tile.type === 'ACTION' && tile.slotIndex !== undefined" 
+          :slotIndex="tile.slotIndex" 
+        />
       </div>
     </div>
 
@@ -30,6 +33,7 @@ import { CITY_TILES, CITY_SVG_PATH } from '../../scripts/clicker/mapConfig';
 import { useCityMapLogic } from '../../scripts/clicker/cityMapLogic';
 import { useDeliveryStore } from '../../stores/clicker/deliveryStore';
 import CarSprite from './CarSprite.vue';
+import MapSlot from './MapSlot.vue';
 
 const deliveryStore = useDeliveryStore();
 const { handleActionClick } = useCityMapLogic();

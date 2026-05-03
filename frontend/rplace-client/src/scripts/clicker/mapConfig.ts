@@ -8,6 +8,7 @@ export interface MapTile {
     x: number;
     y: number;
     type: 'ROAD' | 'ACTION' | 'EMPTY';
+    slotIndex?: number;
 }
 
 const routePoints = [
@@ -49,11 +50,17 @@ for (let y = 1; y <= CITY_MAP_HEIGHT; y++) {
         ];
         
         const isAction = !isRoad && actionCoords.some(p => p.x === x && p.y === y);
+        let slotIndex: number | undefined = undefined;
+        
+        if (isAction) {
+            slotIndex = actionCoords.findIndex(p => p.x === x && p.y === y);
+        }
 
         CITY_TILES.push({
             x: x - 1,
             y: y - 1,
-            type: isRoad ? 'ROAD' : (isAction ? 'ACTION' : 'EMPTY')
+            type: isRoad ? 'ROAD' : (isAction ? 'ACTION' : 'EMPTY'),
+            slotIndex
         });
     }
 }

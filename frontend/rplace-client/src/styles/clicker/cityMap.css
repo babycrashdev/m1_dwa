@@ -30,57 +30,8 @@
 }
 
 .action-case {
-  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
   position: relative;
-}
-
-.action-case::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 20px;
-  padding: 3px;
-  background: linear-gradient(90deg, #fff 50%, transparent 50%) repeat-x,
-              linear-gradient(90deg, #fff 50%, transparent 50%) repeat-x,
-              linear-gradient(0deg, #fff 50%, transparent 50%) repeat-y,
-              linear-gradient(0deg, #fff 50%, transparent 50%) repeat-y;
-  background-size: 15px 3px, 15px 3px, 3px 15px, 3px 15px;
-  background-position: 0 0, 0 100%, 0 0, 100% 0;
-  mask: linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, 
-                linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
-  animation: marchingAnts 0.5s linear infinite;
-}
-
-@keyframes marchingAnts {
-  to { background-position: 15px 0, -15px 100%, 0 -15px, 100% 15px; }
-}
-
-.action-case:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
-  border-color: #fff;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-}
-
-.action-case::before {
-  content: '+';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  color: #fff;
-  opacity: 0.5;
 }
 
 

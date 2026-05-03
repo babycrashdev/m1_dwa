@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/auth';
 import { useAppStore } from '../stores/app';
 import { useGameStore } from '../stores/clicker/game';
 import { useUpgradeStore } from '../stores/clicker/upgradeStore';
+import { useMapStore } from '../stores/clicker/mapStore';
 import { storeToRefs } from 'pinia';
 import axios from 'axios';
 
@@ -26,6 +27,9 @@ export function useApp() {
             authStore.setUser(response.data);
             
             await upgradeStore.fetchState();
+            const mapStore = useMapStore();
+            await mapStore.fetchMapState();
+            
             gameStore.startSpawnerTimer();
             upgradeStore.startProductionLoop();
         } catch (error) {
@@ -37,6 +41,9 @@ export function useApp() {
   watch(() => authStore.isAuthenticated, async (isAuth) => {
     if (isAuth) {
       await upgradeStore.fetchState();
+      const mapStore = useMapStore();
+      await mapStore.fetchMapState();
+
       gameStore.startSpawnerTimer();
       upgradeStore.startProductionLoop();
     } else {

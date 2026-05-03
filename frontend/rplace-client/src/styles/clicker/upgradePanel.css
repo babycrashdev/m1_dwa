@@ -213,6 +213,42 @@
   margin-bottom: 24px;
 }
 
+.on-map-badge {
+  font-size: 0.65rem;
+  background: rgba(79, 172, 254, 0.2);
+  color: #4facfe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.on-map-badge.none {
+  background: rgba(255, 71, 87, 0.1);
+  color: #ff4757;
+  opacity: 0.7;
+}
+
+.ready-mini-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4757;
+  color: white;
+  font-size: 0.6rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+}
+
+.boost-icon-small {
+  position: relative;
+}
+
 .global-boost-btn {
   width: 100%;
   padding: 16px;
