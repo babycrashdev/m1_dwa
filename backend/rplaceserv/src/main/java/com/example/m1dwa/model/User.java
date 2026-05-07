@@ -1,10 +1,15 @@
 package com.example.m1dwa.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode.Exclude;
+import lombok.ToString.Exclude;
+import lombok.com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -35,6 +40,9 @@ public class User {
     @Column(nullable = true)
     private LocalDateTime lastClickerSyncAt;
   
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Wallet wallet;
 }

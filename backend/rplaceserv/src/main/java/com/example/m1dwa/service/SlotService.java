@@ -72,13 +72,12 @@ public class SlotService {
         
         long price = (long) (config.getSlotBasePrice() * Math.pow(config.getSlotPriceMultiplier(), unlockedCount));
 
-        Wallet wallet = user.getWallet();
-        if (wallet.getMoneys() < price) {
+        int updated = walletRepository.decrementMoneys(user.getId(), price);
+
+        if (updated == 0) {
             throw new RuntimeException("Pas assez d'argent (Prix: " + price + ")");
         }
 
-        wallet.setMoneys(wallet.getMoneys() - price);
-        walletRepository.save(wallet);
 
         target.setUnlocked(true);
         target.setLastAutoBonusAt(LocalDateTime.now());

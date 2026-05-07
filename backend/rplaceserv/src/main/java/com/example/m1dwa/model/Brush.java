@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode.Exclude;
+import lombok.ToString.Exclude;
+import lombok.com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "brush")
@@ -18,6 +21,9 @@ public class Brush {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private User user;
 
     @Column(nullable = false, length = 3)

@@ -52,8 +52,8 @@ public class PixelService {
             return Collections.emptyList();
         }
 
-        Wallet wallet = walletRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Wallet non trouvé pour l'utilisateur " + username));
+        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+                .orElseThrow(() -> new RuntimeException("Wallet non trouvé"));
 
         int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
         int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
@@ -64,7 +64,8 @@ public class PixelService {
             maxY = Math.max(maxY, r.y());
         }
 
-        List<Pixel> existingPixels = pixelRepository.findAllInArea(minX, maxX, minY, maxY);
+        List<Pixel> existingPixels = pixelRepository.findAllInAreaWithLock(minX, maxX, minY, maxY);
+
         Map<String, Pixel> pixelMap = new HashMap<>();
         for (Pixel p : existingPixels) {
             pixelMap.put(p.getX() + "," + p.getY(), p);
@@ -72,6 +73,8 @@ public class PixelService {
 
         List<PixelDTO> placedPixels = new ArrayList<>();
         List<Pixel> pixelsToSave = new ArrayList<>();
+        long totalCost = 0;
+        long estimatedBalance = wallet.getMoneys();
 
         for (PlacePixelRequest request : requests) {
             if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
@@ -84,13 +87,14 @@ public class PixelService {
 
             long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
 
-            if (wallet.getMoneys() < currentPrice) {
+            if (estimatedBalance < currentPrice) {
                 log.warn("Solde insuffisant pour {} au pixel ({}, {}): {} < {}", username, request.x(), request.y(),
-                        wallet.getMoneys(), currentPrice);
+                        estimatedBalance, currentPrice);
                 break;
             }
 
-            wallet.setMoneys(wallet.getMoneys() - currentPrice);
+            estimatedBalance -= currentPrice;
+            totalCost += currentPrice;
 
             pixel.setColor(request.color());
             pixel.setLastModifiedBy(user);
@@ -109,12 +113,19 @@ public class PixelService {
         }
 
         if (!placedPixels.isEmpty()) {
+            int updated = walletRepository.decrementMoneys(user.getId(), totalCost);
+            if (updated == 0) {
+
+                log.error("Échec de la déduction atomique pour {}: solde insuffisant ou conflit", username);
+                throw new RuntimeException("Solde insuffisant ou erreur de transaction");
+            }
+            
             pixelRepository.saveAll(pixelsToSave);
-            walletRepository.save(wallet);
             user.setLastPixelPlacedAt(now);
             userRepository.save(user);
-            log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, placedPixels.size());
+            log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);
         }
+
 
         return placedPixels;
     }

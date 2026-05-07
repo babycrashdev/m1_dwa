@@ -36,15 +36,12 @@ public class ColorService {
             return "Vous possédez déjà cette couleur !";
         }
 
-        Wallet wallet = walletRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
+        int updated = walletRepository.decrementMoneys(user.getId(), COLOR_PRICE);
 
-        if (wallet.getMoneys() < COLOR_PRICE) {
+        if (updated == 0) {
             return "Solde insuffisant !";
         }
 
-        wallet.setMoneys(wallet.getMoneys() - COLOR_PRICE);
-        walletRepository.save(wallet);
 
         colorRepository.save(new Color(user, hex));
 
