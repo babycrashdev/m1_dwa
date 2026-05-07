@@ -225,7 +225,8 @@ export function useRPlaceBoard() {
   };
 
   const handleMouseUp = (e: MouseEvent) => {
-    if (camera.isDragging && !camera.dragMoved && camera.scale >= 5) {
+    //if (camera.isDragging && !camera.dragMoved && camera.scale >= 5) {
+    if (camera.isDragging && !camera.dragMoved) {
       if (!authStore.isAuthenticated) {
         // TODO : afficher un message à l'utilisateur
         console.warn('Vous devez être connecté pour dessiner !');
