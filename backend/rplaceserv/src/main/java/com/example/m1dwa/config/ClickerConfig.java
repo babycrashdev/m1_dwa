@@ -7,7 +7,7 @@ public class ClickerConfig {
     private long syncIntervalMs;
     private long baseCarValue;
 
-    private int maxSlots;
+    private Integer maxSlots;
     private boolean firstSlotFree;
     private long slotBasePrice;
     private double slotPriceMultiplier;

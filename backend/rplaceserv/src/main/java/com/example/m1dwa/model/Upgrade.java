@@ -1,12 +1,10 @@
 package com.example.m1dwa.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.EqualsAndHashCode.Exclude;
-import lombok.ToString.Exclude;
-import lombok.com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "upgrades", uniqueConstraints = {
@@ -23,8 +21,8 @@ public class Upgrade {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @JsonIgnore
     private User user;
 

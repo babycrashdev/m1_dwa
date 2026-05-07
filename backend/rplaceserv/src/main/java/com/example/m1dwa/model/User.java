@@ -5,9 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode.Exclude;
-import lombok.ToString.Exclude;
-import lombok.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import java.time.LocalDateTime;
 
@@ -41,8 +40,8 @@ public class User {
     private LocalDateTime lastClickerSyncAt;
   
     @OneToOne(mappedBy = "user")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @JsonIgnore
     private Wallet wallet;
 }

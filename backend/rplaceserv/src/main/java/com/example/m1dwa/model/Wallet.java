@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode.Exclude;
-import lombok.ToString.Exclude;
-import lombok.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "wallets")
@@ -21,8 +19,8 @@ public class Wallet {
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
     @JsonIgnore
     private User user;
 
