@@ -82,7 +82,7 @@ export function useRPlaceBoard() {
   };
 
   const overviewImage = new Image();
-  overviewImage.src = '/local/FondTemp2.png';
+  //overviewImage.src = '/local/FondTemp2.png';
   let isImageLoaded = false;
   overviewImage.onload = () => { isImageLoaded = true; };
 
@@ -109,7 +109,6 @@ export function useRPlaceBoard() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvasRef.value.width / dpr, canvasRef.value.height / dpr);
     
-    // On arrondit pour éviter les fissures entre pixels (sub-pixel rendering gaps)
     ctx.translate(Math.round(rect.width / 2 + camera.x), Math.round(rect.height / 2 + camera.y));
     ctx.scale(camera.scale, camera.scale);
     ctx.translate(-store.gridSize / 2, -store.gridSize / 2);
@@ -124,12 +123,9 @@ export function useRPlaceBoard() {
       
       if (camera.scale < 5 && isImageLoaded) {
         ctx.imageSmoothingEnabled = true;
-        // Petit overlap de 0.5 pour éviter les traits blancs au zoom arrière
-        ctx.drawImage(overviewImage, offsetX, 0, store.gridSize + 0.5, store.gridSize);
       } else {
         ctx.imageSmoothingEnabled = false;
-        // Petit overlap de 0.1 pour boucher les fissures
-        ctx.drawImage(offscreenCanvas, offsetX, 0, store.gridSize + 0.1, store.gridSize);
+        ctx.drawImage(offscreenCanvas, offsetX, 0, store.gridSize + 0.15, store.gridSize);
 
         if (store.hoveredPixel.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
           ctx.save();
@@ -142,15 +138,25 @@ export function useRPlaceBoard() {
             const cx = store.hoveredPixel.x;
             const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 0.1;
             for (let dy = -offset; dy <= offset; dy++) {
               for (let dx = -offset; dx <= offset; dx++) {
                 const nx = ((cx + dx) % store.gridSize + store.gridSize) % store.gridSize;
                 const ny = cy + dy;
-                ctx.fillRect(nx, ny, 1, 1);
+                ctx.fillRect(nx + 0.1, ny + 0.1, 0.8, 0.8);
+                ctx.strokeRect(nx, ny, 1, 1);
               }
             }
+            ctx.restore();
           } else {
-            ctx.fillRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 0.1;
+            ctx.fillRect(store.hoveredPixel.x + 0.1, store.hoveredPixel.y + 0.1, 0.8, 0.8);
+            ctx.strokeRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
+            ctx.restore();
           }
           ctx.restore();
         }
