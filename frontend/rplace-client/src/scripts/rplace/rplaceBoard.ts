@@ -86,10 +86,7 @@ export function useRPlaceBoard() {
   let isImageLoaded = false;
   overviewImage.onload = () => { isImageLoaded = true; };
 
-
   const mousePos = ref({ x: 0, y: 0 });
-
-
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -107,69 +104,64 @@ export function useRPlaceBoard() {
     if (!ctx || !canvasRef.value) return;
 
     const dpr = window.devicePixelRatio || 1;
+    const rect = canvasRef.value.getBoundingClientRect();
+
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvasRef.value.width / dpr, canvasRef.value.height / dpr);
-    ctx.translate(canvasRef.value.width / (2 * dpr) + camera.x, canvasRef.value.height / (2 * dpr) + camera.y);
+    
+    // On arrondit pour éviter les fissures entre pixels (sub-pixel rendering gaps)
+    ctx.translate(Math.round(rect.width / 2 + camera.x), Math.round(rect.height / 2 + camera.y));
     ctx.scale(camera.scale, camera.scale);
     ctx.translate(-store.gridSize / 2, -store.gridSize / 2);
 
-    // Scale 5 (à changer pour avoir l'image de fond plus tôt/tard)
-    if (camera.scale < 5 && isImageLoaded) {
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(overviewImage, 0, 0, store.gridSize, store.gridSize);
-    } else {
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(offscreenCanvas, 0, 0);
+    const copyWidth = store.gridSize;
+    const viewWidth = rect.width / camera.scale;
+    const startCopy = Math.floor((-camera.x / camera.scale - viewWidth / 2) / copyWidth);
+    const endCopy = Math.ceil((-camera.x / camera.scale + viewWidth / 2) / copyWidth);
 
-      if (store.hoveredPixel.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
-        ctx.fillStyle = store.selectedColor;
-        ctx.globalAlpha = 0.5;
+    for (let i = startCopy; i <= endCopy; i++) {
+      const offsetX = i * store.gridSize;
+      
+      if (camera.scale < 5 && isImageLoaded) {
+        ctx.imageSmoothingEnabled = true;
+        // Petit overlap de 0.5 pour éviter les traits blancs au zoom arrière
+        ctx.drawImage(overviewImage, offsetX, 0, store.gridSize + 0.5, store.gridSize);
+      } else {
+        ctx.imageSmoothingEnabled = false;
+        // Petit overlap de 0.1 pour boucher les fissures
+        ctx.drawImage(offscreenCanvas, offsetX, 0, store.gridSize + 0.1, store.gridSize);
 
-        if (brushStore.isBrushActive) {
-          const offset = Math.floor(brushStore.brushSize / 2);
-          const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
-          const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
+        if (store.hoveredPixel.x !== -1 && authStore.isAuthenticated && store.cooldownSeconds === 0) {
+          ctx.save();
+          ctx.translate(offsetX, 0);
+          ctx.fillStyle = store.selectedColor;
+          ctx.globalAlpha = 0.5;
 
-          for (let dy = -offset; dy <= offset; dy++) {
-            for (let dx = -offset; dx <= offset; dx++) {
-              const nx = cx + dx;
-              const ny = cy + dy;
-              ctx.fillRect(nx, ny, 1, 1);
+          if (brushStore.isBrushActive) {
+            const offset = Math.floor(brushStore.brushSize / 2);
+            const cx = store.hoveredPixel.x;
+            const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
+
+            for (let dy = -offset; dy <= offset; dy++) {
+              for (let dx = -offset; dx <= offset; dx++) {
+                const nx = ((cx + dx) % store.gridSize + store.gridSize) % store.gridSize;
+                const ny = cy + dy;
+                ctx.fillRect(nx, ny, 1, 1);
+              }
             }
+          } else {
+            ctx.fillRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
           }
-        } else {
-          ctx.fillRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
-        }
-
-        ctx.globalAlpha = 1.0;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 0.1;
-
-        if (brushStore.isBrushActive) {
-          const offset = Math.floor(brushStore.brushSize / 2);
-          const cx = Math.max(offset, Math.min(store.hoveredPixel.x, store.gridSize - 1 - offset));
-          const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
-
-          for (let dy = -offset; dy <= offset; dy++) {
-            for (let dx = -offset; dx <= offset; dx++) {
-              const nx = cx + dx;
-              const ny = cy + dy;
-              ctx.strokeRect(nx, ny, 1, 1);
-            }
-          }
-        } else {
-          ctx.strokeRect(store.hoveredPixel.x, store.hoveredPixel.y, 1, 1);
+          ctx.restore();
         }
       }
-    }
 
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 0.1;
-    ctx.strokeRect(0, 0, store.gridSize, store.gridSize);
+    }
 
     animationFrame = requestAnimationFrame(draw);
   };
 
+  // Réalisé et débuggé grâce à l'IA
   const handleResize = () => {
     if (canvasRef.value) {
       const dpr = window.devicePixelRatio || 1;
@@ -183,6 +175,7 @@ export function useRPlaceBoard() {
     }
   };
 
+  // Réalisé et débuggé grâce à l'IA
   const handleMouseDown = (e: MouseEvent) => {
     if (e.button === 0) {
       camera.isDragging = true;
@@ -192,6 +185,7 @@ export function useRPlaceBoard() {
     }
   };
 
+  // Réalisé et débuggé grâce à l'IA
   const handleMouseMove = (e: MouseEvent) => {
     mousePos.value = { x: e.clientX, y: e.clientY };
     const { x, y } = screenToGrid(e.clientX, e.clientY);
@@ -201,7 +195,8 @@ export function useRPlaceBoard() {
       store.hoveredPixel = { x: -1, y: -1 };
     }
 
-    if (camera.isDragging) {
+    if (camera.isDragging && canvasRef.value) {
+      const rect = canvasRef.value.getBoundingClientRect();
       const dx = e.clientX - camera.lastMouseX;
       const dy = e.clientY - camera.lastMouseY;
 
@@ -211,6 +206,12 @@ export function useRPlaceBoard() {
 
       camera.x += dx;
       camera.y += dy;
+
+      const totalWidth = store.gridSize * camera.scale;
+      camera.x = ((camera.x + totalWidth / 2) % totalWidth + totalWidth) % totalWidth - totalWidth / 2;
+
+      const limitY = Math.max(0, (store.gridSize * camera.scale) / 2 - rect.height / 2);
+      camera.y = Math.min(limitY, Math.max(-limitY, camera.y));
 
       camera.lastMouseX = e.clientX;
       camera.lastMouseY = e.clientY;
@@ -227,7 +228,7 @@ export function useRPlaceBoard() {
         try {
           if (brushStore.isBrushActive) {
             const offset = Math.floor(brushStore.brushSize / 2);
-            const cx = Math.max(offset, Math.min(x, store.gridSize - 1 - offset));
+            const cx = x;
             const cy = Math.max(offset, Math.min(y, store.gridSize - 1 - offset));
             brushStore.placeBrushPixels(cx, cy);
           } else {
@@ -241,22 +242,31 @@ export function useRPlaceBoard() {
     camera.isDragging = false;
   };
 
+  // Réalisé et débuggé grâce à l'IA
   const handleWheel = (e: WheelEvent) => {
     e.preventDefault();
     if (!canvasRef.value) return;
 
+    const rect = canvasRef.value.getBoundingClientRect();
     const zoomSpeed = 0.1;
     const delta = e.deltaY > 0 ? 1 - zoomSpeed : 1 + zoomSpeed;
     const oldScale = camera.scale;
-    const newScale = Math.min(Math.max(camera.scale * delta, 0.5), 100);
 
-    const rect = canvasRef.value.getBoundingClientRect();
+    const minScale = Math.min(rect.width / store.gridSize, rect.height / store.gridSize);
+    const newScale = Math.min(Math.max(camera.scale * delta, minScale), 100);
+
     const mouseX = e.clientX - rect.left - rect.width / 2;
     const mouseY = e.clientY - rect.top - rect.height / 2;
 
     camera.x -= (mouseX - camera.x) * (newScale / oldScale - 1);
     camera.y -= (mouseY - camera.y) * (newScale / oldScale - 1);
     camera.scale = newScale;
+
+    const totalWidth = store.gridSize * newScale;
+    camera.x = ((camera.x + totalWidth / 2) % totalWidth + totalWidth) % totalWidth - totalWidth / 2;
+
+    const limitY = Math.max(0, (store.gridSize * camera.scale) / 2 - rect.height / 2);
+    camera.y = Math.min(limitY, Math.max(-limitY, camera.y));
   };
 
   const screenToGrid = (screenX: number, screenY: number) => {
@@ -272,7 +282,7 @@ export function useRPlaceBoard() {
     const worldY = (y / dpr - camera.y) / camera.scale + store.gridSize / 2;
 
     return {
-      x: Math.floor(worldX),
+      x: ((Math.floor(worldX) % store.gridSize) + store.gridSize) % store.gridSize,
       y: Math.floor(worldY)
     };
   };

@@ -33,15 +33,18 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
     let total = 0;
     const offset = Math.floor(brushSize.value / 2);
-    const cx = Math.max(offset, Math.min(rplaceStore.hoveredPixel.x, gridSize.value - 1 - offset));
+    const cx = rplaceStore.hoveredPixel.x;
     const cy = Math.max(offset, Math.min(rplaceStore.hoveredPixel.y, gridSize.value - 1 - offset));
 
     for (let dy = -offset; dy <= offset; dy++) {
       for (let dx = -offset; dx <= offset; dx++) {
-        const nx = cx + dx;
+        const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
-        const index = ny * gridSize.value + nx;
-        total += pixels.value[index]?.price || initialPrice.value;
+        
+        if (ny >= 0 && ny < gridSize.value) {
+          const index = ny * gridSize.value + nx;
+          total += pixels.value[index]?.price || initialPrice.value;
+        }
       }
     }
     return total;
@@ -124,9 +127,9 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
     for (let dy = -offset; dy <= offset; dy++) {
       for (let dx = -offset; dx <= offset; dx++) {
-        const nx = cx + dx;
+        const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
-        if (nx >= 0 && nx < gridSize.value && ny >= 0 && ny < gridSize.value) {
+        if (ny >= 0 && ny < gridSize.value) {
           pixelsToPlace.push({ x: nx, y: ny, color: rplaceStore.selectedColor });
         }
       }
