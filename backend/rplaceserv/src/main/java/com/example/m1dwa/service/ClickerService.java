@@ -54,8 +54,11 @@ public class ClickerService {
 
     @Transactional
     public ClickerStateDTO upgrade(String username, String upgradeType, String subType) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+                .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
+        
+        User user = wallet.getUser();
+
         
         UpgradeDefinition config = gameConfigService.getUpgrades().get(upgradeType.toUpperCase());
         if (config == null) throw new RuntimeException("Type d'upgrade inconnu: " + upgradeType);
@@ -108,8 +111,11 @@ public class ClickerService {
     /* Fait avec l'IA */
     @Transactional
     public void syncMoneys(String username, long amount) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+                .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
+        
+        User user = wallet.getUser();
+
         
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastClickerSyncAt() == null) {
@@ -127,9 +133,8 @@ public class ClickerService {
             throw new RuntimeException("Montant de synchronisation invalide (trop élevé)");
         }
         
-        walletRepository.incrementMoneys(username, amount);
-        user.setLastClickerSyncAt(now);
-        userRepository.save(user);
+        walletRepository.incrementMoneys(user.getId(), amount);
+        userRepository.updateLastClickerSyncAt(username, now);
         
         log.debug("Synchronisation validée de {} moneys pour {} (Max théorique : {})", amount, username, maxPossible);
     }

@@ -21,9 +21,9 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
 
     @Modifying
     @Transactional
-    /*Requête SQL faite avec l'aide de l'IA (Désoler madame Lacayrelle) */
-    @Query("UPDATE Wallet w SET w.moneys = w.moneys + :amount WHERE w.user.id = (SELECT usr.id FROM User usr WHERE usr.username = :username)")
-    int incrementMoneys(@Param("username") String username, @Param("amount") long amount);
+    /*Requête SQL faite avec l'aide de l'IA */
+    @Query(value = "UPDATE wallets SET moneys = moneys + :amount WHERE user_id = :userId", nativeQuery = true)
+    int incrementMoneys(@Param("userId") Long userId, @Param("amount") long amount);
 
     @Modifying
     @Transactional

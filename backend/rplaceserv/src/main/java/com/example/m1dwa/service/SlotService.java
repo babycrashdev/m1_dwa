@@ -55,7 +55,11 @@ public class SlotService {
 
     @Transactional
     public List<Slot> unlockSlot(String username, int slotIndex) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+                .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
+        
+        User user = wallet.getUser();
+
 
         List<Slot> slots = getSlots(username);
         Slot target = slots.stream()

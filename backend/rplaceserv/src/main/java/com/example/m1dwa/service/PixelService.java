@@ -121,8 +121,7 @@ public class PixelService {
             }
             
             pixelRepository.saveAll(pixelsToSave);
-            user.setLastPixelPlacedAt(now);
-            userRepository.save(user);
+            userRepository.updateLastPixelPlacedAt(username, now);
             log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);
         }
 
