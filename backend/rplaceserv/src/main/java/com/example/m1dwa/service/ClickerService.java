@@ -81,13 +81,12 @@ public class ClickerService {
             price = (long) (subConfig.getBasePrice() * Math.pow(subConfig.getPriceMultiplier(), currentLevel));
         }
 
-        Wallet wallet = user.getWallet();
-        if (wallet.getMoneys() < price) {
-            throw new RuntimeException("Solde insuffisant: " + price + " requis");
+        int updated = walletRepository.decrementMoneys(user.getId(), price);
+
+        if (updated == 0) {
+            throw new RuntimeException("Solde insuffisant (concurrence détectée)");
         }
 
-        wallet.setMoneys(wallet.getMoneys() - price);
-        walletRepository.save(wallet);
 
         if ("main".equals(subType)) {
             upgrade.setLevel(currentLevel + 1);

@@ -38,17 +38,14 @@ public class BrushService {
             return "Vous possédez déjà cette amélioration !";
         }
 
-        Wallet wallet = walletRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
-
         long price = UPGRADE_PRICES.get(upgrade);
+        int updated = walletRepository.decrementMoneys(user.getId(), price);
 
-        if (wallet.getMoneys() < price) {
+        if (updated == 0) {
             return "Solde insuffisant !";
         }
 
-        wallet.setMoneys(wallet.getMoneys() - price);
-        walletRepository.save(wallet);
+
 
         brushRepository.save(new Brush(user, upgrade));
 

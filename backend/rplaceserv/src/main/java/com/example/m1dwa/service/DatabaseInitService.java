@@ -27,6 +27,7 @@ public class DatabaseInitService {
         int gridSize = gameConfigService.getRplaceConfig().getGridSize();
         log.info("Vérification de la grille (taille cible: {}x{})", gridSize, gridSize);
 
+
         List<PixelDTO> existing = pixelRepository.findAllSimplified(gridSize);
         Set<String> coords = existing.stream()
                 .map(p -> p.x() + "," + p.y())
@@ -63,3 +64,5 @@ public class DatabaseInitService {
         }
     }
 }
+
+
