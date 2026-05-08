@@ -34,5 +34,5 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 
 
     boolean existsByXAndY(int x, int y);
-    long countByUser(User user);
+    long countByLastModifiedBy(User user);
 }

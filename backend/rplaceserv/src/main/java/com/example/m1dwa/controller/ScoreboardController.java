@@ -44,7 +44,7 @@ public class ScoreboardController {
                 .filter(s -> s.isUnlocked())
                 .count();
 
-            long totalPixels = pixelRepository.countByUser(user);
+            long totalPixels = pixelRepository.countByLastModifiedBy(user);
 
 
             return new ScoreboardEntryDTO(
