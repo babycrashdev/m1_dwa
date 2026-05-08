@@ -5,5 +5,6 @@ public record ScoreboardEntryDTO(
     String country,
     long moneys,
     int totalUpgradeLevels,
-    int unlockedSlots
+    int unlockedSlots,
+    long totalPixels
 ) {}
