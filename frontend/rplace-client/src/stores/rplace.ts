@@ -3,6 +3,7 @@ import { Client } from '@stomp/stompjs';
 import axios from 'axios';
 import { useAuthStore } from './auth';
 import { useGameStore } from './clicker/game';
+import { useServerStore } from './common/serverStore';
 
 export interface PixelData {
   x: number;
@@ -34,6 +35,7 @@ export const useRPlaceStore = defineStore('rplace', {
   },
   actions: {
     async fetchConfig() {
+      if (this.gridSize > 0) return;
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/config/rplace`);
         this.gridSize = response.data.gridSize;
@@ -57,6 +59,7 @@ export const useRPlaceStore = defineStore('rplace', {
     },
 
     async fetchInitialBoard() {
+      if (this.isInitialLoaded) return;
       if (this.gridSize === 0) await this.fetchConfig();
 
       try {
@@ -91,18 +94,28 @@ export const useRPlaceStore = defineStore('rplace', {
         connectHeaders['Authorization'] = `Bearer ${authStore.token}`;
       }
 
+      const serverStore = useServerStore();
+
       this.stompClient = new Client({
         brokerURL: import.meta.env.VITE_WS_URL,
         connectHeaders: connectHeaders,
         onConnect: () => {
           console.log(authStore.token ? 'Connecté au WebSocket (Authentifié)' : 'Connecté au WebSocket (Anonyme)');
+          serverStore.reportSuccess();
           this.stompClient?.subscribe('/topic/board', (message) => {
             const pixelData = JSON.parse(message.body);
             this.updatePixelFromWS(pixelData);
           });
         },
         onStompError: (frame) => {
-          console.error('Erreur STOMP', frame);
+          console.error('[ServerSecurity] Erreur STOMP', frame);
+          serverStore.reportFailure();
+        },
+        onWebSocketClose: () => {
+          if (serverStore.isOnline) {
+             console.warn('[ServerSecurity] WebSocket fermé');
+             serverStore.reportFailure();
+          }
         }
       });
 

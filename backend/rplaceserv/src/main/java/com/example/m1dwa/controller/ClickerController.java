@@ -12,27 +12,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user/clicker")
 @RequiredArgsConstructor
 public class ClickerController {
 
     private final ClickerService clickerService;
     private final GameConfigService gameConfigService;
 
-    @GetMapping("/config/clicker")
-    public ResponseEntity<?> getClickerConfig() {
-        return ResponseEntity.ok(Map.of(
-            "global", gameConfigService.getClickerConfig(),
-            "upgrades", gameConfigService.getUpgrades()
-        ));
-    }
-
-    @GetMapping("/user/clicker/state")
+    @GetMapping("/state")
     public ResponseEntity<ClickerStateDTO> getPlayerState(Authentication authentication) {
         return ResponseEntity.ok(clickerService.getClickerState(authentication.getName()));
     }
 
-    @PostMapping("/user/clicker/upgrade")
+    @PostMapping("/upgrade")
     public ResponseEntity<ClickerStateDTO> upgrade(
             @RequestBody Map<String, String> request,
             Authentication authentication) {
@@ -43,7 +35,7 @@ public class ClickerController {
         return ResponseEntity.ok(clickerService.upgrade(authentication.getName(), type, subType));
     }
 
-    @PostMapping("/user/clicker/sync")
+    @PostMapping("/sync")
     public ResponseEntity<?> syncMoneys(
             @RequestBody Map<String, Long> request,
             Authentication authentication) {

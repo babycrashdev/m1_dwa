@@ -26,9 +26,4 @@ public class PixelController {
         return pixelRepository.findAllSimplified(gridSize);
     }
 
-    @GetMapping("/config/rplace")
-    public Map<String, Object> getRPlaceConfig() {
-        int gridSize = gameConfigService.getRplaceConfig().getGridSize();
-        return Map.of("gridSize", gridSize);
-    }
 }
