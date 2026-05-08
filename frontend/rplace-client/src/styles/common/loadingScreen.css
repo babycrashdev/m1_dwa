@@ -160,3 +160,42 @@
 .fade-leave-to {
     opacity: 0;
 }
+
+/* --- États d'erreur Serveur --- */
+.server-error {
+    background: rgba(20, 10, 10, 0.95);
+}
+
+.error-icon {
+    color: #ef4444;
+    filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.4));
+    animation: errorShake 0.5s ease-in-out;
+}
+
+.status-error .status-text {
+    color: #f87171;
+}
+
+.status-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.status-subtext {
+    font-size: 0.85rem;
+    color: rgba(248, 113, 113, 0.6);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+}
+
+.status-error .dot {
+    background: #ef4444;
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
