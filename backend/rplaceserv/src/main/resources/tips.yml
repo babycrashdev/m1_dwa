@@ -1,11 +1,18 @@
+default_time: 2000
 tips:
   - id: 1
-    content: "Cliquez sur les bâtiments pour générer des ressources !"
+    content: "Les bâtiments pour générer des bonus appliqués au drone qui ramasse leurs colis !"
   - id: 2
-    content: "Le zoom sur la carte r/Place est limité pour garder une vue d'ensemble."
+    content: "La grille de pixels est infini, ou presque ..."
   - id: 3
-    content: "Améliorez vos bâtiments pour augmenter votre production passive."
+    content: "Acheter des pixels garce a l'argent générer par les drones."
   - id: 4
-    content: "Les colis apparaissent périodiquement sur vos bâtiments débloqués."
+    content: "Vous pouvez choisir entre booster sois un batiments, sois tout les batiment identique ou encore tout les batiments."
   - id: 5
-    content: "Utilisez les boosts pour accélérer temporairement votre économie."
+    content: "Placez vos batiments sur la carte une fois débloquer pour qui génère des colis."
+  - id: 6
+    content: "Les drones ramassent les colis et les ramène à l'entrepôt."
+  - id: 7
+    content: "Achetez des ouvriers pour qu'il génèrent des drones automatiquement."
+  - id: 8
+    content: "Attention, le prix d'un pixel augmente apres avoir etait achter !"

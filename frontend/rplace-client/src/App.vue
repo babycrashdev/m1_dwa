@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
-
-
+    <LoadingScreen />
     <Profile />
 
     <div v-if="!showAuth" class="nav-container">
@@ -64,6 +63,7 @@
   import RPlace from './components/RPlace.vue';
   import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue';
+  import LoadingScreen from './components/common/LoadingScreen.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import BrushPanel from './components/rplace/BrushPanel.vue';

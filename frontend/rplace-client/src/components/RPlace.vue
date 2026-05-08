@@ -1,7 +1,7 @@
 <template>
   <div class="rplace-container">
-    <RPlaceBoard />
-    <div class="rplace-ui">
+    <RPlaceBoard v-if="store.gridSize > 0" />
+    <div v-if="store.gridSize > 0" class="rplace-ui">
       <CooldownTimer />
     </div>
   </div>

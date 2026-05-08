@@ -34,6 +34,7 @@ export const useRPlaceStore = defineStore('rplace', {
   },
   actions: {
     async fetchConfig() {
+      if (this.gridSize > 0) return;
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/config/rplace`);
         this.gridSize = response.data.gridSize;
@@ -57,6 +58,7 @@ export const useRPlaceStore = defineStore('rplace', {
     },
 
     async fetchInitialBoard() {
+      if (this.isInitialLoaded) return;
       if (this.gridSize === 0) await this.fetchConfig();
 
       try {

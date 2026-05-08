@@ -2,6 +2,7 @@ package com.example.m1dwa.service;
 
 import com.example.m1dwa.model.GameTip;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,11 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Getter
 public class TipService {
 
     private final List<GameTip> tips = new ArrayList<>();
+    private int defaultTime = 2000;
 
     @PostConstruct
     public void loadTips() {
@@ -25,6 +28,11 @@ public class TipService {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("tips.yml")) {
             if (is != null) {
                 Map<String, Object> data = yaml.load(is);
+
+                if (data.containsKey("default_time")) {
+                    this.defaultTime = (Integer) data.get("default_time");
+                }
+
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tipsList = (List<Map<String, Object>>) data.get("tips");
                 

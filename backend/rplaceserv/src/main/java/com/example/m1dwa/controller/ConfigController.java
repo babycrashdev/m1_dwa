@@ -36,7 +36,10 @@ public class ConfigController {
     }
 
     @GetMapping("/tips")
-    public ResponseEntity<List<GameTip>> getTips() {
-        return ResponseEntity.ok(tipService.getAllTips());
+    public ResponseEntity<?> getTips() {
+        return ResponseEntity.ok(Map.of(
+            "defaultTime", tipService.getDefaultTime(),
+            "tips", tipService.getAllTips()
+        ));
     }
 }
