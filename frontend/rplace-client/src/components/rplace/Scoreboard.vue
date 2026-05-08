@@ -1,6 +1,5 @@
 <template>
   <div class="scoreboard">
-    <!-- Header -->
     <div class="scoreboard__header">
       <h2 class="scoreboard__title">Classement</h2>
       <div class="scoreboard__sort">
@@ -16,7 +15,6 @@
       </div>
     </div>
 
-    <!-- Status -->
     <div class="scoreboard__status">
       <span class="status__updated" v-if="store.lastUpdated">
         Mis à jour {{ formattedTime }}
@@ -27,16 +25,16 @@
       </span>
     </div>
 
-    <!-- Table -->
     <div class="scoreboard__body">
       <table class="scoreboard__table" v-if="sorted.length > 0">
         <thead>
           <tr>
             <th class="col-rank">#</th>
             <th>Joueur</th>
-            <th class="col-score">💰 Crédits</th>
-            <th class="col-score">⬆️ Niveaux</th>
-            <th class="col-score">🏠 Slots</th>
+            <th class="col-score">🎨</th>
+            <th class="col-score">💰</th>
+            <th class="col-score">⬆️</th>
+            <th class="col-score">🏠</th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +43,6 @@
             :key="entry.username"
             :class="{ 'row--me': entry.username === currentUsername }"
           >
-            <!-- Rank -->
             <td class="rank-cell">
               <span class="rank-medal" v-if="index === 0">🥇</span>
               <span class="rank-medal" v-else-if="index === 1">🥈</span>
@@ -53,7 +50,6 @@
               <span class="rank-number" v-else>{{ index + 1 }}</span>
             </td>
 
-            <!-- Player -->
             <td>
               <div class="player-cell">
                 <span class="player-name" :class="{ 'player-name--me': entry.username === currentUsername }">
@@ -64,35 +60,35 @@
               </div>
             </td>
 
-            <!-- Moneys -->
             <td class="score-cell">
-              <span
-                class="score-value score-value--primary"
-                :class="{ 'score-value--active': store.sortKey === 'moneys' }"
-              >
+              <span class="score-value score-value--quaternary"
+                :class="{ 'score-value--active': store.sortKey === 'totalPixels' }">
+                {{ formatNumber(entry.totalPixels) }}
+              </span>
+            </td>
+
+            <td class="score-cell">
+              <span class="score-value score-value--primary"
+                :class="{ 'score-value--active': store.sortKey === 'moneys' }">
                 {{ formatNumber(entry.moneys) }}
               </span>
             </td>
 
-            <!-- Upgrade levels -->
             <td class="score-cell">
-              <span
-                class="score-value score-value--secondary"
-                :class="{ 'score-value--active': store.sortKey === 'totalUpgradeLevels' }"
-              >
+              <span class="score-value score-value--secondary"
+                :class="{ 'score-value--active': store.sortKey === 'totalUpgradeLevels' }">
                 {{ entry.totalUpgradeLevels }}
               </span>
             </td>
 
-            <!-- Slots -->
             <td class="score-cell">
-              <span
-                class="score-value score-value--tertiary"
-                :class="{ 'score-value--active': store.sortKey === 'unlockedSlots' }"
-              >
+              <span class="score-value score-value--tertiary"
+                :class="{ 'score-value--active': store.sortKey === 'unlockedSlots' }">
                 {{ entry.unlockedSlots }}
               </span>
             </td>
+
+
           </tr>
         </tbody>
       </table>
@@ -115,9 +111,10 @@ const authStore = useAuthStore();
 const currentUsername = computed(() => authStore.user?.username ?? '');
 
 const sortOptions: { key: SortKey; label: string; icon: string }[] = [
-  { key: 'moneys',            label: 'Crédits',  icon: '💰' },
+  { key: 'totalPixels',        label: 'Pixels',   icon: '🎨' },
+  { key: 'moneys',             label: 'Crédits', icon: '💰' },
   { key: 'totalUpgradeLevels', label: 'Niveaux',  icon: '⬆️' },
-  { key: 'unlockedSlots',     label: 'Slots',    icon: '🏠' },
+  { key: 'unlockedSlots',      label: 'Slots',    icon: '🏠' },
 ];
 
 const sorted = computed(() => store.getSortedEntries());
@@ -125,9 +122,7 @@ const sorted = computed(() => store.getSortedEntries());
 const formattedTime = computed(() => {
   if (!store.lastUpdated) return '';
   return store.lastUpdated.toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
   });
 });
 

@@ -211,6 +211,7 @@
 .score-value--primary   { color: #a0a0ff; }
 .score-value--secondary { color: #7ec8a0; }
 .score-value--tertiary  { color: #c87ec8; }
+.score-value--quaternary { color: #f0a070; }
 
 .scoreboard__empty {
     padding: 40px 20px;
