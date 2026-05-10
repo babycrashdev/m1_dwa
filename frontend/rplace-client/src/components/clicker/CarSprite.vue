@@ -20,7 +20,7 @@
         font-size="10" 
         font-weight="bold"
       >
-        x{{ delivery.weight }}
+        x{{ formatNumber(delivery.weight) }}
       </text>
     </g>
   </g>
@@ -33,6 +33,7 @@ import { useMapStore } from '../../stores/clicker/mapStore';
 import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';
 import { useDeliveryStore } from '../../stores/clicker/deliveryStore';
+import { formatNumber } from '../../scripts/common/formatNumber';
 import droneImg from '../../assets/drone.png';
 
 const props = defineProps<{

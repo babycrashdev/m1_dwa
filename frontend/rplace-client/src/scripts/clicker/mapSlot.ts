@@ -2,6 +2,8 @@ import { ref, computed } from 'vue';
 import { useMapStore } from '../../stores/clicker/mapStore';
 import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';
+import { formatNumber } from '../common/formatNumber';
+import { formatTime } from '../common/formatTime';
 
 export function useMapSlot(slotIndex: number) {
     const mapStore = useMapStore();
@@ -82,15 +84,6 @@ export function useMapSlot(slotIndex: number) {
     function destroy() {
         mapStore.destroyBuilding(slotIndex);
         showMenu.value = false;
-    }
-
-    function formatNumber(num: number) {
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-        return num.toString();
-    }
-
-    function formatTime(ms: number) {
-        return (ms / 1000).toFixed(0) + 's';
     }
 
     function getIcon(type: string) {
