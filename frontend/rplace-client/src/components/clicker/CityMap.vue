@@ -9,6 +9,9 @@
         :class="['tile', tile.type === 'ROAD' ? 'road-tile' : (tile.type === 'ACTION' ? 'action-case' : 'empty-tile')]"
         :style="{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }"
       >
+        <div v-if="tile.type === 'ROAD' && tile.x === 1 && tile.y === 0" class="depot-icon">
+          📦
+        </div>
         <MapSlot 
           v-if="tile.type === 'ACTION' && tile.slotIndex !== undefined" 
           :slotIndex="tile.slotIndex" 
