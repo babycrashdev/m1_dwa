@@ -30,6 +30,12 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
     /*Requête SQL faite avec l'aide de l'IA */
     @Query(value = "UPDATE wallets SET moneys = moneys - :amount WHERE user_id = :userId AND moneys >= :amount", nativeQuery = true)
     int decrementMoneys(@Param("userId") Long userId, @Param("amount") long amount);
+
+    @Modifying
+    @Transactional
+    /*Requête SQL faite avec l'aide de l'IA */
+    @Query("UPDATE Wallet w SET w.pixelRecord = :recordS WHERE w.user.id = :userId AND :recordS > w.pixelRecord")
+    int updatePixelRecordIfBetter(@Param("userId") Long userId, @Param("recordS") long recordS);
 }
 
 

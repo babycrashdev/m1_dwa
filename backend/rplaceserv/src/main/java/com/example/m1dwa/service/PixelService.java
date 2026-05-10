@@ -93,6 +93,15 @@ public class PixelService {
                 break;
             }
 
+            if (pixel.getLastModifiedBy() != null
+                && !pixel.getLastModifiedBy().getId().equals(user.getId())
+                && pixel.getLastModifiedAt() != null) {
+
+                long ageMs = java.time.Duration.between(pixel.getLastModifiedAt(), now).toSeconds();
+                walletRepository.updatePixelRecordIfBetter(pixel.getLastModifiedBy().getId(), ageMs);
+                log.info("Record pixel mis à jour pour {} : {}s", pixel.getLastModifiedBy().getUsername(), ageMs);
+            }
+
             estimatedBalance -= currentPrice;
             totalCost += currentPrice;
 
