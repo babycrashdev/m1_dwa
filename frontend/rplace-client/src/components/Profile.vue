@@ -12,7 +12,7 @@
       </span>
       <span class="user-context-info" v-else>Connexion</span>
       <span class="user-pixels" v-if="currentView === 'clicker'">
-        ✨ {{ gameStore.money }}
+        ✨ {{ formatNumber(gameStore.money) }}
       </span>
     </div>
   </div>
@@ -24,6 +24,7 @@
 import { useAuthStore } from '../stores/auth';
 import { useApp } from '../scripts/app';
 import { useGameStore } from '../stores/clicker/game';
+import { formatNumber } from '../scripts/formatNumber';
 import Register from './Register.vue';
 
 const authStore = useAuthStore();

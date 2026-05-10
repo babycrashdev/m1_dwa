@@ -13,7 +13,7 @@
         </div>
         <div class="info-row">
           <span class="label">Prix</span>
-          <span class="value highlight">✨ {{ rplaceStore.hoveredPixelData.price }}</span>
+          <span class="value highlight">✨ {{ formatNumber(rplaceStore.hoveredPixelData.price) }}</span>
         </div>
       </div>
     </div>
@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { useRPlaceStore } from '../../stores/rplace.ts';
+import { formatNumber } from '../../scripts/formatNumber';
 
 const rplaceStore = useRPlaceStore();
 </script>

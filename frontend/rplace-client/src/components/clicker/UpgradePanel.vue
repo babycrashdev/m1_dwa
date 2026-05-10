@@ -227,12 +227,7 @@
 <script setup lang="ts">
 import { useUpgradePanel } from '../../scripts/clicker/upgradePanel';
 
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-    return num.toString();
-  };
+import { formatNumber, formatTime } from '../../scripts/formatNumber';
 
   const formatTime = (ms: number): string => {
     const totalSeconds = ms / 1000;
