@@ -2,7 +2,8 @@
 
 /* ── Bouton ── */
 .rules-btn {
-    margin-top: 25px;
+    margin-top: -25px;
+    margin-left: 140px;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -34,7 +35,7 @@
 .rules-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     display: flex;
@@ -46,7 +47,7 @@
 /* ── Card ── */
 .rules-card {
     width: 100%;
-    max-width: 400px;
+    max-width: 600px;
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
