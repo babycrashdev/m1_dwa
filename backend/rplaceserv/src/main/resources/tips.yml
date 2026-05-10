@@ -1,18 +1,18 @@
 default_time: 2000
 tips:
   - id: 1
-    content: "Les bâtiments pour générer des bonus appliqués au drone qui ramasse leurs colis !"
+    content: "Débloquez des bâtiments pour générer des bonus appliqués au drone qui ramassent leurs colis !"
   - id: 2
     content: "La grille de pixels est infini, ou presque ..."
   - id: 3
     content: "Acheter des pixels garce a l'argent générer par les drones."
   - id: 4
-    content: "Vous pouvez choisir entre booster sois un batiments, sois tout les batiment identique ou encore tout les batiments."
+    content: "Vous pouvez choisir entre booster soit un bâtiment, soit tous les bâtiments identiques ou encore tous les bâtiments."
   - id: 5
-    content: "Placez vos batiments sur la carte une fois débloquer pour qui génère des colis."
+    content: "Placez vos batiments sur la carte une fois débloqué pour qu'ils génèrent des colis."
   - id: 6
     content: "Les drones ramassent les colis et les ramène à l'entrepôt."
   - id: 7
     content: "Achetez des ouvriers pour qu'il génèrent des drones automatiquement."
   - id: 8
-    content: "Attention, le prix d'un pixel augmente apres avoir etait achter !"
+    content: "Attention, le prix d'un pixel augmente après avoir été acheté !"

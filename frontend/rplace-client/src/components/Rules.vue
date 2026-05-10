@@ -38,14 +38,14 @@
                   <span class="rule-number">01</span>
                   <div class="rule-content">
                     <h3>Placer un pixel</h3>
-                    <p>Cliquez sur n'importe quelle case du canvas pour y déposer un pixel de la couleur sélectionnée. Chaque pixel a un coût en crédits ✨.</p>
+                    <p>Cliquez sur n'importe quelle case du canvas pour y déposer un pixel de la couleur sélectionnée. La grille de pixels est infini, ou presque ... Chaque pixel a un coût en crédits ✨.</p>
                   </div>
                 </div>
                 <div class="rules-rule">
                   <span class="rule-number">02</span>
                   <div class="rule-content">
                     <h3>Cooldown</h3>
-                    <p>Après avoir placé un pixel, vous devez attendre quelques secondes avant de pouvoir en placer un nouveau.</p>
+                    <p>Après avoir placé un pixel, vous devez attendre quelques secondes avant de pouvoir en placer un nouveau. Attention, le prix d'un pixel augmente après avoir été acheté !</p>
                   </div>
                 </div>
                 <div class="rules-rule">
@@ -76,28 +76,28 @@
                   <span class="rule-number">01</span>
                   <div class="rule-content">
                     <h3>Cliquer pour produire</h3>
-                    <p>Appuyez sur le bouton 🏭 pour ajouter des voitures à la file. Un drone les livrera automatiquement toutes les 10 secondes.</p>
+                    <p>Appuyez sur le bouton 🏭 pour ajouter des voitures à la file. Un drone les livrera automatiquement toutes les 10 secondes. Les drones ramassent les colis et les ramène à l'entrepôt.</p>
                   </div>
                 </div>
                 <div class="rules-rule">
                   <span class="rule-number">02</span>
                   <div class="rule-content">
                     <h3>Ouvriers</h3>
-                    <p>Achetez des ouvriers pour automatiser la production. Plus vous en avez, plus votre usine tourne vite sans intervention.</p>
+                    <p>Achetez des ouvriers pour qu'il génèrent des drones automatiquement.</p>
                   </div>
                 </div>
                 <div class="rules-rule">
                   <span class="rule-number">03</span>
                   <div class="rule-content">
                     <h3>Bâtiments</h3>
-                    <p>Placez des bâtiments sur la carte pour générer des bonus de valeur sur chaque livraison. Chaque type de bâtiment a ses propres avantages.</p>
+                    <p>Débloquez des bâtiments pour générer des bonus appliqués au drone qui ramassent leurs colis ! Placez vos batiments sur la carte une fois débloqués pour qu'ils génèrent des colis. Chaque type de bâtiment a ses propres avantages.</p>
                   </div>
                 </div>
                 <div class="rules-rule">
                   <span class="rule-number">04</span>
                   <div class="rule-content">
                     <h3>Boost</h3>
-                    <p>Activez le boost sur vos bâtiments pour accélérer temporairement leur production. Un cooldown s'applique entre chaque activation.</p>
+                    <p>Activez le boost sur vos bâtiments pour accélérer temporairement leur production. Un cooldown s'applique entre chaque activation. Vous pouvez choisir entre booster soit un bâtiment, soit tous les bâtiments identiques ou encore tous les bâtiments.</p>
                   </div>
                 </div>
                 <div class="rules-rule">
