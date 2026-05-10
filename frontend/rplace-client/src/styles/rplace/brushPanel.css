@@ -79,6 +79,23 @@
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
 }
 
+.brush-opt-btn-preview.active {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  height: 80px;
+  width: 80px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
 /* Animation latérale DROITE */
 .fade-right-enter-active {
   transition:
@@ -122,13 +139,10 @@
   width: 80px;
   height: 80px;
   margin: 1.5rem auto;
-  background: rgba(255, 215, 0, 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
 .upgrade-name {

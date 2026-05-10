@@ -28,14 +28,11 @@
           <div class="modal-content">
             <h3>Débloquer ce Pinceau ?</h3>
             <div class="brush-preview-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2">
-                <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-                <path d="M2 2l5 5"/>
-                <path d="M11 11l1 1"/>
-              </svg>
+              <button class="brush-opt-btn-preview active" style="pointer-events: none;">
+                <span class="btn-text">{{ brushToBuy }}</span>
+              </button>
             </div>
-            <p class="upgrade-name">Mode {{ brushToBuy }}</p>
+            
             <p class="upgrade-price">Prix : {{ prices[brushToBuy] }} moneys</p>
             
             <div class="modal-actions">
