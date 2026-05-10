@@ -23,6 +23,7 @@
           </svg>
         </button>
       </div>
+      <Rules default-tab="rplace" />
     </div>
 
     <main class="content-wrapper">
@@ -33,9 +34,8 @@
       <div v-if="currentView === 'clicker'" class="game-section">
         <Clicker />
       </div>
-  </main>
-
-
+    </main>
+ 
 
     <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
       <!-- Infos Pixel à GAUCHE -->
@@ -68,6 +68,7 @@
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import BrushPanel from './components/rplace/BrushPanel.vue';
   import InfoPixel from './components/rplace/InfoPixel.vue';
+  import Rules from './components/Rules.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
