@@ -6,7 +6,7 @@
       <!-- <div class="progress-fill" :style="{ height: progress + '%' }"></div> -->
       
       <div class="btn-content">
-        <div class="car-icon">🚗</div>
+        <div class="car-icon">🏭</div>
         <div class="weight-info" v-if="currentWeight > 0">
           x{{ formatNumber(currentWeight) }}
         </div>
