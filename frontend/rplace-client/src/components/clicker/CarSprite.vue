@@ -33,7 +33,7 @@ import { useMapStore } from '../../stores/clicker/mapStore';
 import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';
 import { useDeliveryStore } from '../../stores/clicker/deliveryStore';
-import { formatNumber } from '../../scripts/formatNumber';
+import { formatNumber } from '../../scripts/common/formatNumber';
 import droneImg from '../../assets/drone.png';
 
 const props = defineProps<{

@@ -24,7 +24,7 @@
 import { useAuthStore } from '../stores/auth';
 import { useApp } from '../scripts/app';
 import { useGameStore } from '../stores/clicker/game';
-import { formatNumber } from '../scripts/formatNumber';
+import { formatNumber } from '../scripts/common/formatNumber';
 import Register from './Register.vue';
 
 const authStore = useAuthStore();

@@ -226,19 +226,8 @@
 
 <script setup lang="ts">
 import { useUpgradePanel } from '../../scripts/clicker/upgradePanel';
-
-import { formatNumber, formatTime } from '../../scripts/formatNumber';
-
-  const formatTime = (ms: number): string => {
-    const totalSeconds = ms / 1000;
-    if (totalSeconds < 60) return `${totalSeconds.toFixed(0)}s`;
-    
-    const totalMinutes = totalSeconds / 60;
-    if (totalMinutes < 60) return `${totalMinutes.toFixed(0)}m`;
-    
-    const totalHours = totalMinutes / 60;
-    return `${totalHours.toFixed(0)}h`;
-  };
+import { formatNumber} from '../../scripts/common/formatNumber';
+import { formatTime } from '../../scripts/common/formatTime';
 
 const { 
     upgradeStore, 

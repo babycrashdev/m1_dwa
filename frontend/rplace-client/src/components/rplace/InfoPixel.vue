@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { useRPlaceStore } from '../../stores/rplace.ts';
-import { formatNumber } from '../../scripts/formatNumber';
+import { formatNumber } from '../../scripts/common/formatNumber';
 
 const rplaceStore = useRPlaceStore();
 </script>

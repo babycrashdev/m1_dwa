@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { useManualSpawner } from '../../scripts/clicker/manualSpawner';
-import { formatNumber } from '../../scripts/formatNumber';
+import { formatNumber } from '../../scripts/common/formatNumber';
 const { addWeight, currentWeight, progress } = useManualSpawner();
 </script>
 
