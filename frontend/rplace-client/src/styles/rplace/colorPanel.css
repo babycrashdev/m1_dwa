@@ -130,6 +130,21 @@
   transition: left 0.1s ease-out;
 }
 
+.upgrade-price {
+  color: #ffd700 !important;
+  font-weight: 800;
+  font-size: 18px !important;
+}
+
+.color-swatch-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  margin: 0 auto 8px;
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
 @keyframes slideUp {
   from {
     transform: translate(-50%, 50px);

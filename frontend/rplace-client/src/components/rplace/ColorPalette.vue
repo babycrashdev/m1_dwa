@@ -27,8 +27,8 @@
       <div v-if="showBuyModal" class="modal-overlay" @click.self="showBuyModal = false">
         <div class="modal-content">
           <h3>Acheter cette couleur ?</h3>
-          <div class="color-preview" :style="{ backgroundColor: colorToBuy }"></div>
-          <p>Prix : 500 moneys</p>
+          <div class="color-swatch-preview" :style="{ backgroundColor: colorToBuy }"></div>
+          <p class=upgrade-price>Prix : 500 moneys</p>
           <div class="modal-actions">
             <button class="buy-btn" @click="confirmPurchase" :disabled="isBuying">
               {{ isBuying ? 'Achat...' : 'Payer' }}
