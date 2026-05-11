@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.Collections;
@@ -32,6 +33,7 @@ public class PixelService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final GameConfigService gameConfigService;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public PixelDTO placePixel(PlacePixelRequest request, String username) {
@@ -101,6 +103,11 @@ public class PixelService {
                 if (heldSeconds > previousUser.getPixelRecordSeconds()) {
                     previousUser.setPixelRecordSeconds(heldSeconds);
                     userRepository.save(previousUser);
+                    messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
+                        "type", "record",
+                        "username", previousUser.getUsername(),
+                        "pixelRecord", heldSeconds
+                    ));
                 }
             }
 

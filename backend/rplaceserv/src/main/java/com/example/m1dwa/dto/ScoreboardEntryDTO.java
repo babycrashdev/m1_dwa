@@ -6,5 +6,6 @@ public record ScoreboardEntryDTO(
     long moneys,
     int totalUpgradeLevels,
     int unlockedSlots,
-    long totalPixels
+    long totalPixels,
+    long pixelRecord
 ) {}

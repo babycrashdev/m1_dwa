@@ -7,6 +7,7 @@ import com.example.m1dwa.repository.WalletRepository;
 import com.example.m1dwa.repository.UpgradeRepository;
 import com.example.m1dwa.repository.SlotRepository;
 import com.example.m1dwa.repository.PixelRepository;
+import com.example.m1dwa.service.PixelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ public class ScoreboardController {
     private final UpgradeRepository upgradeRepository;
     private final SlotRepository slotRepository;
     private final PixelRepository pixelRepository;
+    private final PixelService pixelService;
 
     @GetMapping("/scoreboard")
     public ResponseEntity<List<ScoreboardEntryDTO>> getScoreboard() {
@@ -53,7 +55,8 @@ public class ScoreboardController {
                 moneys,
                 totalUpgradeLevels,
                 unlockedSlots,
-                totalPixels
+                totalPixels,
+                pixelService.getRecord(user)
             );
         }).collect(Collectors.toList());
 
