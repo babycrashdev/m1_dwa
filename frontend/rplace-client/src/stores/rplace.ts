@@ -106,6 +106,18 @@ export const useRPlaceStore = defineStore('rplace', {
             const pixelData = JSON.parse(message.body);
             this.updatePixelFromWS(pixelData);
           });
+
+          const scoreboardStore = useScoreboardStore();
+              this.stompClient?.subscribe('/topic/scoreboard', (message) => {
+                  const update = JSON.parse(message.body);
+                  if (update.type === 'record') {
+                      const entry = scoreboardStore.entries.find(e => e.username === update.username);
+                      if (entry) {
+                          entry.pixelRecord = update.pixelRecord;
+                          scoreboardStore.lastUpdated = new Date();
+                      }
+                  }
+              });
         },
         onStompError: (frame) => {
           console.error('[ServerSecurity] Erreur STOMP', frame);

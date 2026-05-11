@@ -15,16 +15,6 @@
       </div>
     </div>
 
-    <div class="scoreboard__status">
-      <span class="status__updated" v-if="store.lastUpdated">
-        Mis à jour {{ formattedTime }}
-      </span>
-      <span v-else>—</span>
-      <span class="status__loading" v-if="store.isLoading">
-        <span class="loading-dot"></span> Chargement…
-      </span>
-    </div>
-
     <div class="scoreboard__body">
       <table class="scoreboard__table" v-if="sorted.length > 0">
         <thead>
@@ -35,6 +25,7 @@
             <th class="col-score">💰</th>
             <th class="col-score">⬆️</th>
             <th class="col-score">🏠</th>
+            <th class="col-score">⏱️</th>
           </tr>
         </thead>
         <tbody>
@@ -88,6 +79,12 @@
               </span>
             </td>
 
+            <td class="score-cell">
+              <span class="score-value score-value--active"
+                :class="{ 'score-value--active': store.sortKey === 'pixelRecord' }">
+                {{ formatTime(entry.pixelRecord) }}
+              </span>
+            </td>
 
           </tr>
         </tbody>
@@ -104,6 +101,8 @@
 import { computed, onMounted, onUnmounted } from 'vue';
 import { useScoreboardStore, type SortKey } from '../../stores/scoreboard';
 import { useAuthStore } from '../../stores/auth';
+import { formatNumber } from '../../scripts/common/formatNumber';
+import { formatTime } from '../../scripts/common/formatTime';
 
 const store = useScoreboardStore();
 const authStore = useAuthStore();
@@ -115,22 +114,10 @@ const sortOptions: { key: SortKey; label: string; icon: string }[] = [
   { key: 'moneys',             label: 'Crédits', icon: '💰' },
   { key: 'totalUpgradeLevels', label: 'Niveaux',  icon: '⬆️' },
   { key: 'unlockedSlots',      label: 'Slots',    icon: '🏠' },
+  { key: 'pixelRecord',        label: 'Record',   icon: '⏱️' },
 ];
 
 const sorted = computed(() => store.getSortedEntries());
-
-const formattedTime = computed(() => {
-  if (!store.lastUpdated) return '';
-  return store.lastUpdated.toLocaleTimeString('fr-FR', {
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-  });
-});
-
-function formatNumber(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-  if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'k';
-  return n.toString();
-}
 
 onMounted(() => store.startPolling());
 onUnmounted(() => store.stopPolling());

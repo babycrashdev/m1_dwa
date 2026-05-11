@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from './auth';
 
-export type SortKey = 'moneys' | 'totalUpgradeLevels' | 'unlockedSlots' | 'totalPixels';
+export type SortKey = 'moneys' | 'totalUpgradeLevels' | 'unlockedSlots' | 'totalPixels' | 'pixelRecord';
 
 export interface ScoreboardEntry {
     username: string;
@@ -12,6 +12,7 @@ export interface ScoreboardEntry {
     totalUpgradeLevels: number;
     unlockedSlots: number;
     totalPixels: number;
+    pixelRecord: number;
 }
 
 export const useScoreboardStore = defineStore('scoreboard', () => {
