@@ -6,9 +6,9 @@
       <!-- <div class="progress-fill" :style="{ height: progress + '%' }"></div> -->
       
       <div class="btn-content">
-        <div class="car-icon">🚗</div>
+        <div class="car-icon">🏭</div>
         <div class="weight-info" v-if="currentWeight > 0">
-          x{{ currentWeight }}
+          x{{ formatNumber(currentWeight) }}
         </div>
       </div>
 
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { useManualSpawner } from '../../scripts/clicker/manualSpawner';
+import { formatNumber } from '../../scripts/common/formatNumber';
 const { addWeight, currentWeight, progress } = useManualSpawner();
 </script>
 

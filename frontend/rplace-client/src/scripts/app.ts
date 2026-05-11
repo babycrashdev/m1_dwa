@@ -4,6 +4,8 @@ import { useAppStore } from '../stores/app';
 import { useGameStore } from '../stores/clicker/game';
 import { useUpgradeStore } from '../stores/clicker/upgradeStore';
 import { useMapStore } from '../stores/clicker/mapStore';
+import { useRPlaceStore } from '../stores/rplace';
+import { useLoadingStore } from '../stores/common/loadingStore';
 import { storeToRefs } from 'pinia';
 import axios from 'axios';
 
@@ -11,13 +13,30 @@ export function useApp() {
   const authStore = useAuthStore();
   const appStore = useAppStore();
   const gameStore = useGameStore();
+  const rplaceStore = useRPlaceStore();
+  const upgradeStore = useUpgradeStore();
+  const loadingStore = useLoadingStore();
   
   const { showAuth, currentView } = storeToRefs(appStore);
 
-  const upgradeStore = useUpgradeStore();
-
   onMounted(async () => {
-    await upgradeStore.fetchConfig();
+    loadingStore.performTransition(async () => {
+        try {
+            const promises: Promise<any>[] = [
+                upgradeStore.fetchConfig(),
+                rplaceStore.fetchConfig(),
+                loadingStore.fetchTips()
+            ];
+
+            if (currentView.value === 'grid') {
+                promises.push(rplaceStore.fetchInitialBoard());
+            }
+
+            await Promise.all(promises);
+        } catch (error) {
+            console.error("Erreur lors du chargement initial:", error);
+        }
+    });
 
     if (authStore.isAuthenticated && authStore.token) {
         try {
@@ -60,8 +79,11 @@ export function useApp() {
       showAuth.value = true;
       return;
     }
-    currentView.value = view;
-    showAuth.value = false;
+    
+    loadingStore.performTransition(() => {
+        currentView.value = view;
+        showAuth.value = false;
+    });
   };
 
   const toggleAuth = () => {

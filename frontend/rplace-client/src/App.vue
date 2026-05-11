@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
-
-
+    <LoadingScreen />
     <Profile />
 
     <div v-if="!showAuth" class="nav-container">
@@ -24,6 +23,7 @@
           </svg>
         </button>
       </div>
+      <Rules default-tab="rplace" />
     </div>
 
     <main class="content-wrapper">
@@ -34,9 +34,8 @@
       <div v-if="currentView === 'clicker'" class="game-section">
         <Clicker />
       </div>
-  </main>
-
-
+    </main>
+ 
 
     <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
       <!-- Infos Pixel à GAUCHE -->
@@ -64,10 +63,12 @@
   import RPlace from './components/RPlace.vue';
   import Profile from './components/Profile.vue';
   import Clicker from './components/Clicker.vue';
+  import LoadingScreen from './components/common/LoadingScreen.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import BrushPanel from './components/rplace/BrushPanel.vue';
   import InfoPixel from './components/rplace/InfoPixel.vue';
+  import Rules from './components/Rules.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
