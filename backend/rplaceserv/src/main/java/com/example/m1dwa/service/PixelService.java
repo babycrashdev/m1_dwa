@@ -139,6 +139,9 @@ public class PixelService {
             }
             
             pixelRepository.saveAll(pixelsToSave);
+            messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
+                "type", "refresh"
+            ));
             userRepository.updateLastPixelPlacedAt(username, now);
             log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);
         }
