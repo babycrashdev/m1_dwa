@@ -2,6 +2,7 @@ package com.example.m1dwa.repository;
 
 import com.example.m1dwa.dto.PixelDTO;
 import com.example.m1dwa.model.Pixel;
+import com.example.m1dwa.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
     Optional<Pixel> findByXAndY(int x, int y);
+
+    List<Pixel> findByLastModifiedBy(User user);
 
     /*Requête SQL faite avec l'aide de l'IA (Désoler madame Lacayrelle) */
     @Query("SELECT new com.example.m1dwa.dto.PixelDTO(p.x, p.y, p.color, p.price, u.username, p.lastModifiedAt) " +
@@ -33,4 +36,6 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 
 
     boolean existsByXAndY(int x, int y);
+
+
 }

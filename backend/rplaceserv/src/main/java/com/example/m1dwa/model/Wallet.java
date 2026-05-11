@@ -26,7 +26,4 @@ public class Wallet {
 
     @Column(nullable = false)
     private long moneys = 0;
-
-    @Column(nullable = false)
-    private long pixelRecord = 0;
 }
