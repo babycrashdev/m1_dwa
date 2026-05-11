@@ -4,6 +4,7 @@ import com.example.m1dwa.model.User;
 import com.example.m1dwa.model.Wallet;
 import com.example.m1dwa.repository.WalletRepository;
 import com.example.m1dwa.repository.UserRepository;
+import com.example.m1dwa.service.PixelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,9 @@ public class UserController {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private PixelService pixelService;
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
@@ -44,7 +48,8 @@ public class UserController {
             "username", user.getUsername(),
             "age", user.getAge(),
             "country", user.getCountry(),
-            "moneys", wallet.getMoneys()
+            "moneys", wallet.getMoneys(),
+            "pixelRecord", pixelService.getRecord(user)
         ));
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -85,12 +86,22 @@ public class PixelService {
             String key = request.x() + "," + request.y();
             Pixel pixel = pixelMap.getOrDefault(key, new Pixel(request.x(), request.y(), "#FFFFFF"));
 
+            User previousUser = pixel.getLastModifiedBy();
+            LocalDateTime lastModified = pixel.getLastModifiedAt();
+
             long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
 
             if (estimatedBalance < currentPrice) {
                 log.warn("Solde insuffisant pour {} au pixel ({}, {}): {} < {}", username, request.x(), request.y(),
                         estimatedBalance, currentPrice);
                 break;
+            }
+            if (previousUser != null && lastModified != null) {
+                long heldSeconds = Duration.between(lastModified, LocalDateTime.now()).getSeconds();
+                if (heldSeconds > previousUser.getPixelRecordSeconds()) {
+                    previousUser.setPixelRecordSeconds(heldSeconds);
+                    userRepository.save(previousUser);
+                }
             }
 
             estimatedBalance -= currentPrice;
@@ -127,5 +138,13 @@ public class PixelService {
 
 
         return placedPixels;
+    }
+    public long getRecord(User user) {
+        long savedRecord = user.getPixelRecordSeconds();
+        long currentBest = pixelRepository.findByLastModifiedBy(user).stream()
+            .mapToLong(p -> Duration.between(p.getLastModifiedAt(), LocalDateTime.now()).getSeconds())
+            .max()
+            .orElse(0);
+        return Math.max(savedRecord, currentBest);
     }
 }

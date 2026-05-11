@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
     Optional<Pixel> findByXAndY(int x, int y);
 
+    List<Pixel> findByLastModifiedBy(User user);
+
     /*Requête SQL faite avec l'aide de l'IA (Désolé madame Lacayrelle) */
     @Query("SELECT new com.example.m1dwa.dto.PixelDTO(p.x, p.y, p.color, p.price, u.username, p.lastModifiedAt) " +
            "FROM Pixel p LEFT JOIN p.lastModifiedBy u " +
@@ -30,8 +32,6 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
     @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Pixel p WHERE p.x >= :minX AND p.x <= :maxX AND p.y >= :minY AND p.y <= :maxY")
     List<Pixel> findAllInAreaWithLock(@Param("minX") int minX, @Param("maxX") int maxX, @Param("minY") int minY, @Param("maxY") int maxY);
-
-
 
     boolean existsByXAndY(int x, int y);
     long countByLastModifiedBy(User user);
