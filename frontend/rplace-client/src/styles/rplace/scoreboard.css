@@ -11,11 +11,11 @@
     font-family: 'Inter', sans-serif;
     overflow: hidden;
     box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    border-radius: 25px;
 }
 
 .scoreboard__header {
     padding: 16px 20px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
 }
 
@@ -44,11 +44,11 @@
 .sort-btn {
     flex: 1;
     padding: 6px 8px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.0);
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
     border-radius: 25px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.65rem;
     font-weight: 700;
     cursor: pointer;
@@ -112,6 +112,9 @@
     flex: 1;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    margin-left: 25px;
+    margin-right: 25px;
+    border-radius: 13px;
 }
 
 .scoreboard__body::-webkit-scrollbar       { width: 4px; }
@@ -133,9 +136,9 @@
 }
 
 .scoreboard__table th {
-    background: rgba(25, 25, 35, 0.95);
+    background: rgba(0, 0, 0, 0.3);
     padding: 8px 12px;
-    font-size: 0.6rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -152,6 +155,7 @@
     font-size: 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     vertical-align: middle;
+
 }
 
 .scoreboard__table tbody tr {
