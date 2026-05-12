@@ -51,15 +51,9 @@ export const useScoreboardStore = defineStore('scoreboard', () => {
 
     function startPolling() {
         fetchScoreboard();
-        if (pollInterval) return;
-        pollInterval = window.setInterval(fetchScoreboard, 30_000);
     }
 
     function stopPolling() {
-        if (pollInterval) {
-            window.clearInterval(pollInterval);
-            pollInterval = null;
-        }
     }
 
     return {

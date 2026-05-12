@@ -111,15 +111,16 @@ export const useRPlaceStore = defineStore('rplace', {
           const scoreboardStore = useScoreboardStore();
             this.stompClient?.subscribe('/topic/scoreboard', (message) => {
                 const update = JSON.parse(message.body);
+                if (update.type === 'full') {
+                    scoreboardStore.entries = update.entries;
+                    scoreboardStore.lastUpdated = new Date();
+                }
                 if (update.type === 'record') {
                     const entry = scoreboardStore.entries.find(e => e.username === update.username);
                     if (entry) {
                         entry.pixelRecord = update.pixelRecord;
                         scoreboardStore.lastUpdated = new Date();
                     }
-                }
-                if (update.type === 'refresh') {
-                    scoreboardStore.fetchScoreboard();
                 }
             });
         },

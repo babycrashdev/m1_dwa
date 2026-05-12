@@ -17,6 +17,7 @@ public class BrushService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final BrushRepository brushRepository;
+    private final ScoreboardService scoreboardService;
 
     private static final Map<String, Long> UPGRADE_PRICES = Map.of(
             "3x3", 500L,
@@ -48,6 +49,7 @@ public class BrushService {
 
 
         brushRepository.save(new Brush(user, upgrade));
+        scoreboardService.pushScoreboard();
 
         return "Achat réussi !";
     }

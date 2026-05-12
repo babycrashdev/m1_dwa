@@ -29,6 +29,7 @@ public class ClickerService {
     private final WalletRepository walletRepository;
     private final SlotRepository slotRepository;
     private final GameConfigService gameConfigService;
+    private final ScoreboardService scoreboardService;
 
     public ClickerStateDTO getClickerState(String username) {
         User user = userRepository.findByUsername(username)
@@ -102,6 +103,8 @@ public class ClickerService {
             }
         }
         upgradeRepository.save(upgrade);
+        scoreboardService.pushScoreboard();
+
 
         log.info("Utilisateur {} a acheté l'upgrade {}/{} pour {}", username, upgradeType, subType, price);
         
@@ -111,8 +114,13 @@ public class ClickerService {
     /* Fait avec l'IA */
     @Transactional
     public void syncMoneys(String username, long amount) {
-        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
-                .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
+       Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+            .orElse(null);
+
+        if (wallet == null) {
+            log.warn("Sync ignoré pour {} : wallet non encore créé", username);
+            return;
+        }
         
         User user = wallet.getUser();
 
@@ -134,6 +142,7 @@ public class ClickerService {
         }
         
         walletRepository.incrementMoneys(user.getId(), amount);
+        scoreboardService.pushScoreboard();
         userRepository.updateLastClickerSyncAt(username, now);
         
         log.debug("Synchronisation validée de {} moneys pour {} (Max théorique : {})", amount, username, maxPossible);

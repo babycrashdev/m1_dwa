@@ -28,6 +28,7 @@ public class SlotService {
     private final WalletRepository walletRepository;
     private final UpgradeRepository upgradeRepository;
     private final GameConfigService gameConfigService;
+    private final ScoreboardService scoreboardService;
 
     @Transactional
     public List<Slot> getSlots(String username) {
@@ -86,6 +87,7 @@ public class SlotService {
         target.setUnlocked(true);
         target.setLastAutoBonusAt(LocalDateTime.now());
         slotRepository.save(target);
+        scoreboardService.pushScoreboard();
 
         log.info("{} a débloqué le slot {} pour {}", username, slotIndex, price);
         return slots;

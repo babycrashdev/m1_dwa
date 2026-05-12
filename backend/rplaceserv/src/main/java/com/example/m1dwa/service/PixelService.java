@@ -33,6 +33,7 @@ public class PixelService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final GameConfigService gameConfigService;
+    private final ScoreboardService scoreboardService;
     private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Transactional
@@ -103,11 +104,6 @@ public class PixelService {
                 if (heldSeconds > previousUser.getPixelRecordSeconds()) {
                     previousUser.setPixelRecordSeconds(heldSeconds);
                     userRepository.save(previousUser);
-                    messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
-                        "type", "record",
-                        "username", previousUser.getUsername(),
-                        "pixelRecord", heldSeconds
-                    ));
                 }
             }
 
@@ -146,6 +142,7 @@ public class PixelService {
             log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);
         }
 
+        scoreboardService.pushScoreboard();
 
         return placedPixels;
     }
