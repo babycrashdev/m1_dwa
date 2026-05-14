@@ -23,22 +23,6 @@
       ></div>
     </div>
 
-    <Teleport to="body">
-      <div v-if="showBuyModal" class="modal-overlay" @click.self="showBuyModal = false">
-        <div class="modal-content">
-          <h3>Débloquer cette couleur ?</h3>
-          <div class="color-swatch-preview" :style="{ backgroundColor: colorToBuy }"></div>
-          <p class=upgrade-price>Prix : 500 moneys</p>
-          <div class="modal-actions">
-            <button class="buy-btn" @click="confirmPurchase" :disabled="isBuying">
-              {{ isBuying ? 'Achat...' : 'Débloquer' }}
-            </button>
-            <button class="cancel-btn" @click="showBuyModal = false">Plus tard</button>
-          </div>
-          <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
-        </div>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -51,11 +35,6 @@ const {
   isAuthenticated, 
   isLocked, 
   handleColorClick, 
-  confirmPurchase, 
-  showBuyModal, 
-  colorToBuy, 
-  isBuying, 
-  errorMessage,
   scrollContainer,
   scrollProgress,
   thumbWidth,

@@ -14,11 +14,6 @@ export function useColorPalette() {
 
   const lockedColors = ['#FFB7CE', '#AEC6CF', '#B2F2BB'];
 
-  const showBuyModal = ref(false);
-  const colorToBuy = ref('');
-  const isBuying = ref(false);
-  const errorMessage = ref('');
-
   const isLocked = (color: string) => {
     if (!lockedColors.includes(color)) return false;
     return !store.ownedColors.includes(color);
@@ -31,24 +26,9 @@ export function useColorPalette() {
 
   const handleColorClick = (color: string) => {
     if (isLocked(color)) {
-      colorToBuy.value = color;
-      showBuyModal.value = true;
-      errorMessage.value = '';
+      store.openBuyModal(color);
     } else {
       selectColor(color);
-    }
-  };
-
-  const confirmPurchase = async () => {
-    isBuying.value = true;
-    errorMessage.value = '';
-    try {
-      await store.buyColor(colorToBuy.value);
-      showBuyModal.value = false;
-    } catch (err: any) {
-      errorMessage.value = err.message;
-    } finally {
-      isBuying.value = false;
     }
   };
 
@@ -85,11 +65,6 @@ export function useColorPalette() {
     isLocked,
     selectColor,
     handleColorClick,
-    confirmPurchase,
-    showBuyModal,
-    colorToBuy,
-    isBuying,
-    errorMessage,
     scrollContainer,
     scrollProgress,
     thumbWidth,

@@ -24,7 +24,13 @@ export const useRPlaceStore = defineStore('rplace', {
     stompClient: null as Client | null,
     isInitialLoaded: false,
     initialPrice: 10,
-    hoveredPixel: { x: -1, y: -1 }
+    hoveredPixel: { x: -1, y: -1 },
+    
+    // État du modal d'achat de couleur centralisé
+    showBuyModal: false,
+    colorToBuy: '',
+    isBuying: false,
+    errorMessage: ''
   }),
   getters: {
     hoveredPixelData: (state) => {
@@ -233,6 +239,27 @@ export const useRPlaceStore = defineStore('rplace', {
         return true;
       } catch (error: any) {
         throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
+      }
+    },
+
+    openBuyModal(color: string) {
+      this.colorToBuy = color.toUpperCase();
+      this.errorMessage = '';
+      this.showBuyModal = true;
+    },
+
+    async confirmColorPurchase() {
+      if (!this.colorToBuy) return;
+      this.isBuying = true;
+      this.errorMessage = '';
+      try {
+        await this.buyColor(this.colorToBuy);
+        this.selectedColor = this.colorToBuy;
+        this.showBuyModal = false;
+      } catch (err: any) {
+        this.errorMessage = err.message;
+      } finally {
+        this.isBuying = false;
       }
     }
   }
