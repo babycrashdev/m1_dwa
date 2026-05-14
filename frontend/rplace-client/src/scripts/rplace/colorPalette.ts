@@ -25,6 +25,7 @@ export function useColorPalette() {
   };
 
   const handleColorClick = (color: string) => {
+    if (dragDistance.value > 5) return;
     if (isLocked(color)) {
       store.openBuyModal(color);
     } else {
@@ -35,6 +36,52 @@ export function useColorPalette() {
   const scrollContainer = ref<HTMLElement | null>(null);
   const scrollProgress = ref(0);
   const thumbWidth = ref(20);
+
+  // Genere par ia au dessous
+  const isDragging = ref(false);
+  const startX = ref(0);
+  const scrollLeftStart = ref(0);
+  const dragDistance = ref(0);
+
+  const startDragging = (e: MouseEvent) => {
+    isDragging.value = true;
+    dragDistance.value = 0;
+    if (!scrollContainer.value) return;
+
+    startX.value = e.pageX - scrollContainer.value.offsetLeft;
+    scrollLeftStart.value = scrollContainer.value.scrollLeft;
+
+    window.addEventListener('mousemove', onDragging);
+    window.addEventListener('mouseup', stopDragging);
+
+    scrollContainer.value.style.cursor = 'grabbing';
+    scrollContainer.value.style.userSelect = 'none';
+  };
+
+  const stopDragging = () => {
+    if (!isDragging.value) return;
+    isDragging.value = false;
+
+    window.removeEventListener('mousemove', onDragging);
+    window.removeEventListener('mouseup', stopDragging);
+
+    if (scrollContainer.value) {
+      scrollContainer.value.style.cursor = 'grab';
+      scrollContainer.value.style.removeProperty('user-select');
+    }
+  };
+
+  const onDragging = (e: MouseEvent) => {
+    if (!isDragging.value || !scrollContainer.value) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainer.value.offsetLeft;
+    const dist = x - startX.value;
+    dragDistance.value = Math.abs(dist);
+    const walk = dist * 1.5;
+    scrollContainer.value.scrollLeft = scrollLeftStart.value - walk;
+  };
+
+  //Genere par ia au dessus
 
   const handleScroll = (e: Event) => {
     const el = e.target as HTMLElement;
@@ -88,6 +135,9 @@ export function useColorPalette() {
     scrollContainer,
     scrollProgress,
     thumbWidth,
-    handleScroll
+    handleScroll,
+    startDragging,
+    stopDragging,
+    onDragging
   };
 }

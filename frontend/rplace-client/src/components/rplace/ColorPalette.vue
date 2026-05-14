@@ -1,6 +1,12 @@
 <template>
   <div v-if="isAuthenticated" class="palette-outer">
-    <div class="palette-container" ref="scrollContainer" @scroll="handleScroll">
+    <div 
+      class="palette-container" 
+      ref="scrollContainer" 
+      @scroll="handleScroll"
+      @mousedown="startDragging"
+      style="cursor: grab;"
+    >
       <div 
         v-for="color in colors" 
         :key="color" 
@@ -38,7 +44,10 @@ const {
   scrollContainer,
   scrollProgress,
   thumbWidth,
-  handleScroll
+  handleScroll,
+  startDragging,
+  stopDragging,
+  onDragging
 } = useColorPalette();
 </script>
 
