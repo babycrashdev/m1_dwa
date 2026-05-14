@@ -11,6 +11,12 @@
   padding-right: 20px;
 }
 
+.pixel-info-box:last-child {
+  border-right: none;
+  margin-right: 0;
+  padding-right: 0;
+}
+
 .tooltip-header {
   display: flex;
   align-items: center;

@@ -37,20 +37,21 @@
     </main>
  
 
-    <div v-if="currentView === 'grid' && !showAuth && authStore.isAuthenticated" class="rplace-controls">
-      <!-- Infos Pixel à GAUCHE -->
+    <div v-if="currentView === 'grid' && !showAuth && (authStore.isAuthenticated || rplaceStore.hoveredPixelData)" class="rplace-controls">
       <InfoPixel />
 
-      <div class="main-actions">
-        <div class="tools-row">
-          <button class="tool-btn-placeholder" title="Futur outil"></button>
-          <button class="tool-btn-placeholder" title="Futur outil"></button>
-          <BrushToggle />
+      <template v-if="authStore.isAuthenticated">
+        <div class="main-actions">
+          <div class="tools-row">
+            <button class="tool-btn-placeholder" title="Futur outil"></button>
+            <button class="tool-btn-placeholder" title="Futur outil"></button>
+            <BrushToggle />
+          </div>
+          <ColorPalette />
         </div>
-        <ColorPalette />
-      </div>
 
-      <BrushPanel />
+        <BrushPanel />
+      </template>
     </div>
 
     <footer class="footer">
