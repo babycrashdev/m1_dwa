@@ -101,9 +101,9 @@ public class PixelService {
             }
             if (previousUser != null && lastModified != null) {
                 long heldSeconds = Duration.between(lastModified, LocalDateTime.now()).getSeconds();
-                if (heldSeconds > previousUser.getPixelRecordSeconds()) {
-                    previousUser.setPixelRecordSeconds(heldSeconds);
-                    userRepository.save(previousUser);
+                if (previousUser.getWallet() != null && heldSeconds > previousUser.getWallet().getPixelRecordSeconds()) {
+                    previousUser.getWallet().setPixelRecordSeconds(heldSeconds);
+                    walletRepository.save(previousUser.getWallet());
                 }
             }
 
@@ -145,13 +145,5 @@ public class PixelService {
         scoreboardService.pushScoreboard();
 
         return placedPixels;
-    }
-    public long getRecord(User user) {
-        long savedRecord = user.getPixelRecordSeconds();
-        long currentBest = pixelRepository.findByLastModifiedBy(user).stream()
-            .mapToLong(p -> Duration.between(p.getLastModifiedAt(), LocalDateTime.now()).getSeconds())
-            .max()
-            .orElse(0);
-        return Math.max(savedRecord, currentBest);
     }
 }

@@ -1,13 +1,7 @@
 package com.example.m1dwa.controller;
 
 import com.example.m1dwa.dto.ScoreboardEntryDTO;
-import com.example.m1dwa.model.User;
-import com.example.m1dwa.repository.UserRepository;
-import com.example.m1dwa.repository.WalletRepository;
-import com.example.m1dwa.repository.UpgradeRepository;
-import com.example.m1dwa.repository.SlotRepository;
-import com.example.m1dwa.repository.PixelRepository;
-import com.example.m1dwa.service.PixelService;
+import com.example.m1dwa.service.ScoreboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,44 +16,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ScoreboardController {
 
-    private final UserRepository userRepository;
-    private final WalletRepository walletRepository;
-    private final UpgradeRepository upgradeRepository;
-    private final SlotRepository slotRepository;
-    private final PixelRepository pixelRepository;
-    private final PixelService pixelService;
+    private final ScoreboardService scoreboardService;
 
     @GetMapping("/scoreboard")
     public ResponseEntity<List<ScoreboardEntryDTO>> getScoreboard() {
-        List<User> users = userRepository.findAll();
-
-        List<ScoreboardEntryDTO> entries = users.stream().map(user -> {
-            long moneys = walletRepository.findByUserUsername(user.getUsername())
-                .map(w -> w.getMoneys())
-                .orElse(0L);
-
-            int totalUpgradeLevels = upgradeRepository.findByUser(user).stream()
-                .mapToInt(u -> u.getLevel() + u.getEfficiencyLevel() + u.getProductionLevel())
-                .sum();
-
-            int unlockedSlots = (int) slotRepository.findByUser(user).stream()
-                .filter(s -> s.isUnlocked())
-                .count();
-
-            long totalPixels = pixelRepository.countByLastModifiedBy(user);
-
-
-            return new ScoreboardEntryDTO(
-                user.getUsername(),
-                user.getCountry(),
-                moneys,
-                totalUpgradeLevels,
-                unlockedSlots,
-                totalPixels,
-                pixelService.getRecord(user)
-            );
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(entries);
+        return ResponseEntity.ok(scoreboardService.getScoreboardEntries());
     }
 }
