@@ -1,47 +1,25 @@
 <template>
   <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="store.showBuyModal" class="modal-overlay" @click.self="close">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>Débloquer cette couleur ?</h3>
-            <button class="close-icon-btn" @click="close">&times;</button>
-          </div>
+    <div v-if="store.showBuyModal" class="modal-overlay" @click.self="close">
+      <div class="modal-content">
+        <h3>Débloquer cette couleur ?</h3>
+        
+        <div class="color-swatch-preview" :style="{ backgroundColor: store.colorToBuy }"></div>
+        
+        <div class="modal-actions">
+          <button class="buy-btn" @click="store.confirmColorPurchase" :disabled="store.isBuying">
+            <span>500</span>
+            <span class="money-icon">✨</span>
+          </button>
           
-          <div class="modal-body">
-            <div class="color-preview-container">
-              <div class="color-circle" :style="{ backgroundColor: store.colorToBuy }"></div>
-              <span class="color-hex">{{ store.colorToBuy }}</span>
-            </div>
-            
-            <p class="description">
-              Cette couleur est actuellement verrouillée. Voulez-vous la débloquer pour votre collection ?
-            </p>
-            
-            <div class="price-tag">
-              <span class="label">Prix</span>
-              <span class="value">500 moneys</span>
-            </div>
-          </div>
-
-          <div class="modal-actions">
-            <button 
-              class="confirm-btn" 
-              @click="store.confirmColorPurchase" 
-              :disabled="store.isBuying"
-            >
-              <span v-if="!store.isBuying">Débloquer</span>
-              <span v-else class="loader"></span>
-            </button>
-            <button class="cancel-btn" @click="close" :disabled="store.isBuying">Plus tard</button>
-          </div>
-          
-          <Transition name="slide-up">
-            <p v-if="store.errorMessage" class="error-msg">{{ store.errorMessage }}</p>
-          </Transition>
+          <button class="cancel-btn" @click="close">
+            Plus tard
+          </button>
         </div>
+        
+        <p v-if="store.errorMessage" class="error-msg">{{ store.errorMessage }}</p>
       </div>
-    </Transition>
+    </div>
   </Teleport>
 </template>
 
