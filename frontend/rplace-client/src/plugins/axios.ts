@@ -3,6 +3,15 @@ import axios from 'axios';
 import { useServerStore } from '../stores/common/serverStore';
 
 export function setupAxiosInterceptors() {
+
+    axios.interceptors.request.use((config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
+
     axios.interceptors.response.use(
         (response) => {
             const serverStore = useServerStore();
