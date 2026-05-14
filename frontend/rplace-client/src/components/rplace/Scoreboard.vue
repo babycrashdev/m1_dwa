@@ -23,8 +23,6 @@
             <th>Joueur</th>
             <th class="col-score">🎨</th>
             <th class="col-score">💰</th>
-            <th class="col-score">⬆️</th>
-            <th class="col-score">🏠</th>
             <th class="col-score">⏱️</th>
           </tr>
         </thead>
@@ -66,20 +64,6 @@
             </td>
 
             <td class="score-cell">
-              <span class="score-value score-value--secondary"
-                :class="{ 'score-value--active': store.sortKey === 'totalUpgradeLevels' }">
-                {{ entry.totalUpgradeLevels }}
-              </span>
-            </td>
-
-            <td class="score-cell">
-              <span class="score-value score-value--tertiary"
-                :class="{ 'score-value--active': store.sortKey === 'unlockedSlots' }">
-                {{ entry.unlockedSlots }}
-              </span>
-            </td>
-
-            <td class="score-cell">
               <span class="score-value score-value--active"
                 :class="{ 'score-value--active': store.sortKey === 'pixelRecord' }">
                 {{ formatTime(entry.pixelRecord) }}
@@ -112,8 +96,6 @@ const currentUsername = computed(() => authStore.user?.username ?? '');
 const sortOptions: { key: SortKey; label: string; icon: string }[] = [
   { key: 'totalPixels',        label: 'Pixels',   icon: '🎨' },
   { key: 'moneys',             label: 'Crédits', icon: '💰' },
-  { key: 'totalUpgradeLevels', label: 'Niveaux',  icon: '⬆️' },
-  { key: 'unlockedSlots',      label: 'Slots',    icon: '🏠' },
   { key: 'pixelRecord',        label: 'Record',   icon: '⏱️' },
 ];
 
