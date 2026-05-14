@@ -24,7 +24,7 @@
 
     <div v-else class="slot-content building-content">
       <div class="slot-border-container">
-        <svg class="slot-progress-svg" width="100%" height="100%">
+        <svg class="slot-progress-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
           <defs>
             <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#ff9a9e" />
@@ -37,21 +37,18 @@
             </linearGradient>
           </defs>
           <rect 
-            x="2" y="2" rx="10" ry="10" 
+            x="2" y="2" width="96" height="92" rx="5" ry="5" 
             class="progress-bg"
-            :style="{ width: 'calc(100% - 4px)', height: 'calc(100% - 4px)' }"
           />
           <rect 
-            x="2" y="2" rx="10" ry="10" 
+            x="2" y="2" width="96" height="92" rx="5" ry="5" 
             class="progress-fg"
-            :class="{ boosting: isBoosting, ready: progressPercent >= 99.9 }"
+            :class="{ boosting: isBoosting, ready: !isBoosting && (progressPercent >= 99.9 || slotData?.parcelPresent) }"
             pathLength="100"
             :style="{ 
-              width: 'calc(100% - 4px)', 
-              height: 'calc(100% - 4px)',
               strokeDasharray: '100', 
-              strokeDashoffset: 100 - Math.min(100, progressPercent),
-              stroke: isBoosting ? 'url(#flameGradient)' : (progressPercent >= 99.9 ? '#2ecc71' : '#4facfe')
+              strokeDashoffset: isBoosting ? (100 - progressPercent) : ((slotData?.parcelPresent || progressPercent >= 99.9) ? 0 : 100 - progressPercent),
+              stroke: isBoosting ? 'url(#flameGradient)' : ((slotData?.parcelPresent || progressPercent >= 99.9) ? '#2ecc71' : '#4facfe')
             }"
           />
         </svg>
