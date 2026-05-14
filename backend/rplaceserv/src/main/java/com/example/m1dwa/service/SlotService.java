@@ -36,8 +36,6 @@ public class SlotService {
         List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         
         if (slots.isEmpty()) {
-                    slotRepository.saveAndFlush(slot);
-                } catch (Exception e) {
             initializeSlotsForUser(user);
             slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         }
