@@ -10,7 +10,7 @@
         :style="{ gridColumn: tile.x + 1, gridRow: tile.y + 1 }"
       >
         <div v-if="tile.type === 'ROAD' && tile.x === 1 && tile.y === 0" class="depot-icon">
-          📦
+          <img :src="arriverImg" alt="Depot" class="depot-img" />
         </div>
         <MapSlot 
           v-if="tile.type === 'ACTION' && tile.slotIndex !== undefined" 
@@ -56,6 +56,7 @@ import { useCityMapLogic } from '../../scripts/clicker/cityMapLogic';
 import { useDeliveryStore } from '../../stores/clicker/deliveryStore';
 import { useMapStore } from '../../stores/clicker/mapStore';
 import colisImg from '../../assets/colis.png';
+import arriverImg from '../../assets/arriver.png';
 import CarSprite from './CarSprite.vue';
 import MapSlot from './MapSlot.vue';
 
