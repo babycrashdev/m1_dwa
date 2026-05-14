@@ -3,6 +3,8 @@ import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';
 import { useMapStore } from '../../stores/clicker/mapStore';
 import type { SlotDTO } from '../../stores/clicker/mapStore';
+import { formatNumber } from '../common/formatNumber';
+import { formatTime } from '../common/formatTime';
 
 export function useUpgradePanel() {
     const upgradeStore = useUpgradeStore();
@@ -121,13 +123,13 @@ export function useUpgradePanel() {
         if (!sub) return '';
 
         if (subType === 'efficiency' || subType === 'time') {
-            const reduction = (sub.reductionPerLevelMs || 0) / 1000;
-            return `-${reduction.toFixed(1)}s`;
+            const reduction = sub.reductionPerLevelMs || 0;
+            return `-${formatTime(reduction)}`;
         }
 
         if (subType === 'production') {
             const increase = sub.increasePerLevel || 0;
-            return `+${increase}`;
+            return `+${formatNumber(increase)}`;
         }
 
         return '';
