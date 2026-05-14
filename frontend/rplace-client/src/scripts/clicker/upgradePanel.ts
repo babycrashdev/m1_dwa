@@ -124,7 +124,7 @@ export function useUpgradePanel() {
 
         if (subType === 'efficiency' || subType === 'time') {
             const reduction = sub.reductionPerLevelMs || 0;
-            return `-${formatTime(reduction)}`;
+            return `-${formatTime(reduction/1000)}`;
         }
 
         if (subType === 'production') {
