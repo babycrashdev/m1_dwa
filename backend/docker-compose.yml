@@ -1,5 +1,4 @@
 services:
-  
   database:
     image: mariadb:latest
     container_name: rplaceclicker_db
@@ -10,17 +9,22 @@ services:
       MARIADB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - rplace_db_data:/var/lib/mysql
-
     ports:
       - "3306:3306"
     restart: always
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   server:
     image: eclipse-temurin:17-jre-jammy
     container_name: rplaceclicker_serv
     env_file: .env
     ports:
-      - "8080:8080"
+      - "8081:8080"
     volumes:
       - ./rplaceserv/target/m1dwa-server-0.2.0.jar:/app/app.jar
     working_dir: /app
@@ -33,10 +37,9 @@ services:
       - APP_JWT_SECRET=${JWT_SECRET}
       - APP_JWT_EXPIRATION=${JWT_EXPIRATION}
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     entrypoint: ["java", "-jar", "app.jar"]
-    
+
 volumes:
   rplace_db_data:
-
-
