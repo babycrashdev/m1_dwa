@@ -1,4 +1,4 @@
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
 
@@ -51,10 +51,30 @@ export function useColorPalette() {
     }
   };
 
+  // Fonction généré par IA
+  const scrollToSelectedColor = () => {
+    if (!scrollContainer.value) return;
+    const index = colors.indexOf(store.selectedColor);
+    if (index === -1) return;
+
+    const swatchWidth = 44; // 32px + 12px de gap
+    const targetScroll = index * swatchWidth;
+
+    scrollContainer.value.scrollTo({
+      left: targetScroll - (scrollContainer.value.clientWidth / 2) + (swatchWidth / 2),
+      behavior: 'smooth'
+    });
+  };
+
+  watch(() => store.selectedColor, () => {
+    scrollToSelectedColor();
+  });
+
   onMounted(() => {
     if (authStore.isAuthenticated) {
       store.fetchOwnedColors();
     }
+    setTimeout(scrollToSelectedColor, 100);
   });
 
   return {
