@@ -39,9 +39,6 @@ public class User {
     @Column(nullable = true)
     private LocalDateTime lastClickerSyncAt;
 
-    @Column(nullable = false)
-    private long pixelRecordSeconds = 0;
-  
     @OneToOne(mappedBy = "user")
     @lombok.ToString.Exclude
     @lombok.EqualsAndHashCode.Exclude

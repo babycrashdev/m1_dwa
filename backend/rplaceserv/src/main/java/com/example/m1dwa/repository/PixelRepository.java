@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +36,8 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 
     boolean existsByXAndY(int x, int y);
     long countByLastModifiedBy(User user);
+    
+    /*Requête SQL faite avec l'aide de l'IA */
+    @Query("SELECT MIN(p.lastModifiedAt) FROM Pixel p WHERE p.lastModifiedBy = :user")
+    Optional<LocalDateTime> findOldestPixelDateByUser(@Param("user") User user);
 }

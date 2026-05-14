@@ -19,13 +19,13 @@ public interface WalletRepository extends JpaRepository<Wallet, Long> {
 
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     /*Requête SQL faite avec l'aide de l'IA */
     @Query(value = "UPDATE wallets SET moneys = moneys + :amount WHERE user_id = :userId", nativeQuery = true)
     int incrementMoneys(@Param("userId") Long userId, @Param("amount") long amount);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     /*Requête SQL faite avec l'aide de l'IA */
     @Query(value = "UPDATE wallets SET moneys = moneys - :amount WHERE user_id = :userId AND moneys >= :amount", nativeQuery = true)
