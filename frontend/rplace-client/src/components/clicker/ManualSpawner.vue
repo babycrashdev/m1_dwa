@@ -1,18 +1,19 @@
-<!-- Temporaire -->
 <template>
-  <div class="manual-spawner">
-    <button @click="addWeight" class="spawn-btn">
-      <!-- Barre de progression en arrière-plan -->
-      <!-- <div class="progress-fill" :style="{ height: progress + '%' }"></div> -->
+  <div class="manual-spawner" @click="addWeight">
+    <div class="spawner-building">
+      <img :src="entrepotImg" alt="Entrepot" class="building-img" />
       
-      <div class="btn-content">
-        <div class="car-icon">🏭</div>
-        <div class="weight-info" v-if="currentWeight > 0">
-          x{{ formatNumber(currentWeight) }}
-        </div>
+      <div class="spawner-ui">
+        <button class="spawn-btn">
+          <div class="weight-badge" v-if="currentWeight === 0">
+            x0
+          </div>
+          <div class="weight-badge" v-else>
+            x{{ formatNumber(currentWeight) }}
+          </div>
+        </button>
       </div>
 
-      <!-- Badge indiquant le temps restant (visuel) -->
       <div class="timer-ring">
         <svg viewBox="0 0 36 36" class="circular-chart">
           <path class="circle-bg"
@@ -24,13 +25,15 @@
           />
         </svg>
       </div>
-    </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useManualSpawner } from '../../scripts/clicker/manualSpawner';
 import { formatNumber } from '../../scripts/common/formatNumber';
+import entrepotImg from '../../assets/building/entrepot.png';
+
 const { addWeight, currentWeight, progress } = useManualSpawner();
 </script>
 
