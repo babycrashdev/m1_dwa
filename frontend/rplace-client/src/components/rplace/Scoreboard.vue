@@ -54,6 +54,7 @@
                 :class="{ 'score-value--active': store.sortKey === 'totalPixels' }">
                 {{ formatNumber(entry.totalPixels) }}
               </span>
+              <span class="score-value score-value--quaternary"> ({{ formatPercent(entry.totalPixels) }})</span>
             </td>
 
             <td class="score-cell">
@@ -87,6 +88,16 @@ import { useScoreboardStore, type SortKey } from '../../stores/scoreboard';
 import { useAuthStore } from '../../stores/auth';
 import { formatNumber } from '../../scripts/common/formatNumber';
 import { formatTime } from '../../scripts/common/formatTime';
+import { useRPlaceStore } from '../../stores/rplace';
+
+const rplaceStore = useRPlaceStore();
+const totalCells = computed(() => rplaceStore.gridSize * rplaceStore.gridSize);
+
+function formatPercent(pixels: number): string {
+  if (!totalCells.value) return '';
+  const pct = (pixels / totalCells.value) * 100;
+  return pct < 0.01 ? '<0.01%' : `${pct.toFixed(2)}%`;
+}
 
 const store = useScoreboardStore();
 const authStore = useAuthStore();
