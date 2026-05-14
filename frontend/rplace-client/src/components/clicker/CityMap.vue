@@ -18,36 +18,36 @@
         />
       </div>
     </div>
-
-    <svg class="animation-layer" viewBox="0 0 700 400" preserveAspectRatio="xMinYMid meet">
-      <path id="delivery-path" :d="CITY_SVG_PATH" fill="none" />
-      
-      <g 
-        v-for="slot in mapStore.slots.filter(s => s.parcelPresent)"
-        :key="'parcel-' + slot.slotIndex"
-        :style="{ 
-          offsetPath: `path('${CITY_SVG_PATH}')`, 
-          offsetDistance: `${SLOT_PATH_PROGRESS[slot.slotIndex]}%`,
-          offsetRotate: '0deg',
-          position: 'absolute'
-        }"
-      >
-        <image 
-          :href="colisImg"
-          width="40"
-          height="40"
-          x="-20"
-          y="-20"
-        />
-      </g>
-
-      <CarSprite 
-        v-for="delivery in deliveryStore.activeDeliveries" 
-        :key="delivery.id"
-        :delivery="delivery"
-      />
-    </svg>
   </div>
+
+  <svg class="animation-layer-fixed" viewBox="0 0 700 400" preserveAspectRatio="xMinYMid meet">
+    <path id="delivery-path" :d="CITY_SVG_PATH" fill="none" />
+    
+    <g 
+      v-for="slot in mapStore.slots.filter(s => s.parcelPresent)"
+      :key="'parcel-' + slot.slotIndex"
+      :style="{ 
+        offsetPath: `path('${CITY_SVG_PATH}')`, 
+        offsetDistance: `${SLOT_PATH_PROGRESS[slot.slotIndex]}%`,
+        offsetRotate: '0deg',
+        position: 'absolute'
+      }"
+    >
+      <image 
+        :href="colisImg"
+        width="40"
+        height="40"
+        x="-20"
+        y="-20"
+      />
+    </g>
+
+    <CarSprite 
+      v-for="delivery in deliveryStore.activeDeliveries" 
+      :key="delivery.id"
+      :delivery="delivery"
+    />
+  </svg>
 </template>
 
 <script setup lang="ts">
