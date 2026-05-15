@@ -30,15 +30,17 @@
     width: 220px;
     height: 230px;
     z-index: 1000;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Faster and simpler transition to reduce lag */
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     cursor: pointer;
     overflow: hidden;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    will-change: width, height, transform, opacity;
 }
 
 .area-scoreboard:not(.is-open):hover {
-    transform: translateY(-5px) scale(1.01);
+    transform: translateY(-5px) scale(1.02);
     box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
 }
 
@@ -46,13 +48,14 @@
     width: 420px;
     height: calc(100vh - 40px);
     cursor: default;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 /* State when a modal is open */
 .area-scoreboard.is-dimmed {
-    z-index: 100; /* Move to background */
+    z-index: 100;
     opacity: 0.4;
-    pointer-events: none; /* Disable interaction */
+    pointer-events: none;
     filter: blur(2px) grayscale(0.5);
     transform: scale(0.98);
 }
