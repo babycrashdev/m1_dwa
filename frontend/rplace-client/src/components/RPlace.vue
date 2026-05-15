@@ -5,13 +5,14 @@
       <CooldownTimer />
     </div>
 
-    <div class="area-scoreboard" :class="{ 'is-open': isScoreboardOpen }">
-        <Scoreboard />
-        <button class="panel-toggle panel-toggle--scoreboard" @click="isScoreboardOpen = !isScoreboardOpen" :title="isScoreboardOpen ? 'Fermer' : 'Classement'">
-          <span class="toggle-icon">{{ isScoreboardOpen ? '🏆' : '🏆' }}</span>
-        </button>
-      </div>
+    <div 
+      class="area-scoreboard" 
+      :class="{ 'is-open': isScoreboardOpen }" 
+      @click="!isScoreboardOpen ? isScoreboardOpen = true : null"
+    >
+      <Scoreboard :is-open="isScoreboardOpen" @toggle="isScoreboardOpen = !isScoreboardOpen" />
     </div>
+  </div>
 </template>
 
 
@@ -23,7 +24,7 @@ import CooldownTimer from './rplace/CooldownTimer.vue';
 import Scoreboard from './rplace/Scoreboard.vue';
 
 const { store } = useRPlace();
-const isScoreboardOpen = ref(true);
+const isScoreboardOpen = ref(false);
 </script>
 
 <style src="../styles/rplace.css" scoped></style>
