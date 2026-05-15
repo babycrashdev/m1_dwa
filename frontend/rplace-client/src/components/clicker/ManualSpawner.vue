@@ -6,10 +6,10 @@
       <div class="spawner-ui">
         <button class="spawn-btn">
           <div class="weight-badge" v-if="currentWeight === 0">
-            x0
+            x0📦
           </div>
           <div class="weight-badge" v-else>
-            x{{ formatNumber(currentWeight) }}
+            x{{ formatNumber(currentWeight) }}📦
           </div>
         </button>
       </div>
