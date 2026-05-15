@@ -77,10 +77,23 @@
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
+  import { onMounted, watch } from 'vue';
 
   const { showAuth, currentView, switchView} = useApp();
   const authStore = useAuthStore();
   const rplaceStore = useRPlaceStore();
+
+  onMounted(() => {
+    rplaceStore.connectWebSocket();
+  });
+
+  watch(() => authStore.isAuthenticated, () => {
+    if (rplaceStore.stompClient) {
+      rplaceStore.stompClient.deactivate();
+      rplaceStore.stompClient = null;
+    }
+    rplaceStore.connectWebSocket();
+  });
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';

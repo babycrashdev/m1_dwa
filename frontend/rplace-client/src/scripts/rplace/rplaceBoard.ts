@@ -49,11 +49,6 @@ export function useRPlaceBoard() {
     if (loaded) updateBuffer();
   });
 
-  watch(() => authStore.token, () => {
-    console.log('Mise à jour WebSocket');
-    store.disconnectWebSocket();
-    store.connectWebSocket();
-  });
 
   store.$onAction(({ name, args, after }) => {
     if (name === 'placePixel') {
@@ -323,7 +318,6 @@ export function useRPlaceBoard() {
 
       await store.fetchInitialBoard();
 
-      store.connectWebSocket();
 
       //store.generateTestGrid();
       updateBuffer();
@@ -336,7 +330,6 @@ export function useRPlaceBoard() {
     window.removeEventListener('resize', handleResize);
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
-    store.disconnectWebSocket();
     cancelAnimationFrame(animationFrame);
   });
 
