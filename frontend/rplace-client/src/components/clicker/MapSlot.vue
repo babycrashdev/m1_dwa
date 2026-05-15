@@ -87,7 +87,7 @@
           :class="{ disabled: isBoosting || cooldown > 0 }"
           @click="boost"
         >
-          {{ isBoosting ? 'Boost Actif' : (cooldown > 0 ? formatTime(cooldown) : '🚀 BOOST') }}
+          {{ isBoosting ? 'Boost Actif' : (cooldown > 0 ? formatTime(cooldown/1000) : '🚀 BOOST') }}
         </button>
         <button class="menu-btn destroy" @click="destroy">🗑️ Détruire</button>
       </div>

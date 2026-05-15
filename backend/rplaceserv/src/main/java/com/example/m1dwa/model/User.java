@@ -38,7 +38,7 @@ public class User {
 
     @Column(nullable = true)
     private LocalDateTime lastClickerSyncAt;
-  
+
     @OneToOne(mappedBy = "user")
     @lombok.ToString.Exclude
     @lombok.EqualsAndHashCode.Exclude

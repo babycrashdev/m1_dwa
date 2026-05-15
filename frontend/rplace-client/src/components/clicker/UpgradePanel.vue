@@ -75,7 +75,8 @@
 
                   <div class="b2-footer">
                     <div class="b2-stats">
-                      <span class="prod">{{ formatNumber(upgradeStore.getWorkerProduction(upgrade.id!) * upgradeStore.getLevel(upgrade.id!)) }} voitures / {{ formatTime(upgradeStore.getWorkerInterval(upgrade.id!)) }}</span>
+                      <span class="prod">{{ formatNumber(upgradeStore.getWorkerProduction(upgrade.id!) * upgradeStore.getLevel(upgrade.id!)) }} voitures / {{ formatTime(upgradeStore.getWorkerInterval(upgrade.id!)/1000) }}</span>
+
                       <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
                     </div>
                     <button 
@@ -216,7 +217,7 @@
                          <div class="b2-progress-fill" :style="{ width: getAutoBonusProgress(upgrade.id!) + '%', opacity: 0.3 }"></div>
                          
                          <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay-pill">
-                           <span>{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
+                           <span>{{ formatTime(getBoostCooldownRemaining(upgrade.id!)/1000) }}</span>
                          </div>
                          
                          <span v-else class="b2-sub-label" style="color: white; z-index: 2;">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</span>
