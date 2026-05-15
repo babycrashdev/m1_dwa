@@ -3,6 +3,8 @@ import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';
 import { useMapStore } from '../../stores/clicker/mapStore';
 import type { SlotDTO } from '../../stores/clicker/mapStore';
+import { formatNumber } from '../common/formatNumber';
+import { formatTime } from '../common/formatTime';
 
 export function useUpgradePanel() {
     const upgradeStore = useUpgradeStore();
@@ -98,10 +100,39 @@ export function useUpgradePanel() {
         return mapping[name] || name.charAt(0).toUpperCase() + name.slice(1);
     };
 
+    const getSpriteUrl = (id: string): string => {
+        const upg = upgradeStore.config?.upgrades[id.toUpperCase()];
+        const spriteName = upg?.sprite || 'default.png';
+        return new URL(`../../assets/building/${spriteName}`, import.meta.url).href;
+    };
+
     const getIcon = (category: string, id: string): string => {
-        if (id === 'WORKER') return '👷';
-        if (id === 'BUILDING') return '🏢';
-        return '📦';
+        if (category === 'WORKER') {
+            if (id === 'WORKER') return '👷';
+            return '👷';
+        }
+        return '🏢';
+    };
+
+    const getUpgradeBonus = (id: string, subType: string): string => {
+        const upperId = id.toUpperCase();
+        const upg = upgradeStore.config?.upgrades[upperId];
+        if (!upg) return '';
+
+        const sub = upg.upgrades[subType];
+        if (!sub) return '';
+
+        if (subType === 'efficiency' || subType === 'time') {
+            const reduction = sub.reductionPerLevelMs || 0;
+            return `-${formatTime(reduction/1000)}`;
+        }
+
+        if (subType === 'production') {
+            const increase = sub.increasePerLevel || 0;
+            return `+${formatNumber(increase)}`;
+        }
+
+        return '';
     };
 
     const getUpgradeDesc = (id: string, subType: string): string => {
@@ -172,6 +203,8 @@ export function useUpgradePanel() {
         productionSummary,
         formatName,
         getIcon,
+        getSpriteUrl,
+        getUpgradeBonus,
         getUpgradeDesc,
         getAutoBonusProgress,
         isBoostActive,

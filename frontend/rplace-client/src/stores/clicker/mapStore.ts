@@ -32,7 +32,7 @@ export const useMapStore = defineStore('map', () => {
     }
 
     async function fetchMapState() {
-        if (!authStore.token) return;
+        if (!authStore.token || loading.value) return;
         loading.value = true;
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/clicker/map`, {

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuthStore } from './auth';
 import { useGameStore } from './clicker/game';
 import { useServerStore } from './common/serverStore';
+import { useScoreboardStore } from './rplace/scoreboard';
 
 export interface PixelData {
   x: number;
@@ -112,6 +113,22 @@ export const useRPlaceStore = defineStore('rplace', {
             const pixelData = JSON.parse(message.body);
             this.updatePixelFromWS(pixelData);
           });
+
+          const scoreboardStore = useScoreboardStore();
+            this.stompClient?.subscribe('/topic/scoreboard', (message) => {
+                const update = JSON.parse(message.body);
+                if (update.type === 'full') {
+                    scoreboardStore.entries = update.entries;
+                    scoreboardStore.lastUpdated = new Date();
+                }
+                if (update.type === 'record') {
+                    const entry = scoreboardStore.entries.find(e => e.username === update.username);
+                    if (entry) {
+                        entry.pixelRecord = update.pixelRecord;
+                        scoreboardStore.lastUpdated = new Date();
+                    }
+                }
+            });
         },
         onStompError: (frame) => {
           console.error('[ServerSecurity] Erreur STOMP', frame);

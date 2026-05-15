@@ -8,7 +8,7 @@
         :class="{ active: activeTab === cat }"
         @click="activeTab = cat"
       >
-        {{ cat }}
+        {{ formatName(cat) }}
       </button>
     </div>
 
@@ -63,49 +63,64 @@
                 </div>
               </div>
 
-              <div v-else class="dashboard-area">
-                <div class="main-action" @click="buy(upgrade.id!, 'main')" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
-                  <div class="worker-brand">
-                    <div class="icon-circle">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
-                    <div class="worker-meta">
+              <div v-else class="b2-content">
+                <div class="b2-info-area">
+                  <div class="b2-header">
+                    <div class="b2-icon">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
+                    <div class="b2-title">
                       <span class="name">{{ formatName(upgrade.id!) }}</span>
                       <div class="level-tag">Quantité : {{ upgradeStore.getLevel(upgrade.id!) }}</div>
                     </div>
                   </div>
-                  <div class="production-info">
-                    <span class="prod-value">{{ formatNumber(upgradeStore.getWorkerProduction(upgrade.id!) * upgradeStore.getLevel(upgrade.id!)) }} voitures / {{ formatTime(upgradeStore.getWorkerInterval(upgrade.id!)) }}</span>
-                    <div class="buy-row">
+
+                  <div class="b2-footer">
+                    <div class="b2-stats">
+                      <span class="prod">{{ formatNumber(upgradeStore.getWorkerProduction(upgrade.id!) * upgradeStore.getLevel(upgrade.id!)) }} voitures / {{ formatTime(upgradeStore.getWorkerInterval(upgrade.id!)/1000) }}</span>
+
                       <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
                     </div>
+                    <button 
+                      class="b2-up-btn" 
+                      @click="buy(upgrade.id!, 'main')"
+                      :class="{ disabled: !canAfford(upgrade.id!, 'main') }"
+                    >
+                       <svg class="up-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                         <path d="M12 17L12 10M12 10L15 13M12 10L9 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                         <path d="M16 7H12H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                         <path  d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" stroke-width="1.5"/>
+                       </svg>
+                    </button>
                   </div>
                 </div>
 
-                <div class="sub-actions">
-                  <div class="sub-btn efficiency" 
+                <div class="b2-sub-area">
+                  <button class="b2-sub-btn" 
                     @click="buy(upgrade.id!, 'efficiency')" 
                     :class="{ 
                       disabled: !canAfford(upgrade.id!, 'efficiency') || isMaxLevel(upgrade.id!, 'efficiency'),
                       max: isMaxLevel(upgrade.id!, 'efficiency')
                     }"
                   >
-                    <div class="sub-label">VITESSE</div>
-                    <div class="sub-price" v-if="!isMaxLevel(upgrade.id!, 'efficiency')">✨ {{ formatNumber(getPrice(upgrade.id!, 'efficiency')) }}</div>
-                    <div class="sub-price" v-else>MAX</div>
-                    <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'efficiency') }}</div>
-                  </div>
+                    <div class="b2-level-circle mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'efficiency') }}</div>
+                    <span class="b2-sub-label">VITESSE</span>
+                    <span class="bonus-val" v-if="!isMaxLevel(upgrade.id!, 'efficiency')">{{ getUpgradeBonus(upgrade.id!, 'efficiency') }}</span>
+                    <span class="b2-sub-price" v-if="!isMaxLevel(upgrade.id!, 'efficiency')">✨ {{ formatNumber(getPrice(upgrade.id!, 'efficiency')) }}</span>
+                    <span class="b2-sub-price" v-else>MAX</span>
+                  </button>
 
-                  <div class="sub-btn production" 
+                  <button class="b2-sub-btn" 
                     @click="buy(upgrade.id!, 'production')" 
                     :class="{ 
                       disabled: !canAfford(upgrade.id!, 'production') || isMaxLevel(upgrade.id!, 'production'),
                       max: isMaxLevel(upgrade.id!, 'production')
                     }"
                   >
-                    <div class="sub-label">PRODUCTION</div>
-                    <div class="sub-price" v-if="!isMaxLevel(upgrade.id!, 'production')">✨ {{ formatNumber(getPrice(upgrade.id!, 'production')) }}</div>
-                    <div class="sub-price" v-else>MAX</div>
-                    <div class="level-tag mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'production') }}</div>
-                  </div>
+                    <div class="b2-level-circle mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'production') }}</div>
+                    <span class="b2-sub-label">PRODUCTION</span>
+                    <span class="bonus-val" v-if="!isMaxLevel(upgrade.id!, 'production')">{{ getUpgradeBonus(upgrade.id!, 'production') }} voitures</span>
+                    <span class="b2-sub-price" v-if="!isMaxLevel(upgrade.id!, 'production')">✨ {{ formatNumber(getPrice(upgrade.id!, 'production')) }}</span>
+                    <span class="b2-sub-price" v-else>MAX</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -130,7 +145,10 @@
           <div class="building-card" :class="{ locked: upgradeStore.getLevel(upgrade.id!) === 0 }">
              <div v-if="upgradeStore.getLevel(upgrade.id!) === 0" class="unlock-area" @click="buy(upgrade.id!, 'main')">
                 <div class="unlock-btn" :class="{ disabled: !canAfford(upgrade.id!, 'main') }">
-                  <span class="icon">{{ getIcon(upgrade.category, upgrade.id!) }}</span>
+                  <span class="icon">
+                    <img v-if="upgrade.category === 'BUILDING'" :src="getSpriteUrl(upgrade.id!)" class="b2-sprite-img" />
+                    <template v-else>{{ getIcon(upgrade.category, upgrade.id!) }}</template>
+                  </span>
                   <div class="unlock-text">
                     <span class="label">DÉBLOQUER {{ formatName(upgrade.id!) }}</span>
                     <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
@@ -140,12 +158,13 @@
 
              <template v-else>
                 <div class="b2-content">
-                   <!-- Left Info Area -->
                    <div class="b2-info-area">
                       <div class="b2-level-circle">Lvl {{ upgradeStore.getLevel(upgrade.id!) }}</div>
                       
                       <div class="b2-header">
-                         <div class="b2-icon">{{ getIcon(upgrade.category, upgrade.id!) }}</div>
+                         <div class="b2-icon">
+                            <img :src="getSpriteUrl(upgrade.id!)" class="b2-sprite-img" />
+                         </div>
                          <div class="b2-title">
                             <span class="name">{{ formatName(upgrade.id!) }}</span>
                             <div class="b2-map-pill" :class="{ 'none': getPlacedCount(upgrade.id!) === 0 }">
@@ -173,7 +192,6 @@
                       </div>
                    </div>
 
-                   <!-- Right Sub Area -->
                    <div class="b2-sub-area">
                       <button 
                         class="b2-sub-btn" 
@@ -182,6 +200,7 @@
                       >
                          <div class="b2-level-circle mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'time') }}</div>
                          <span class="b2-sub-label">Vitesse</span>
+                         <span class="bonus-val" v-if="!isMaxLevel(upgrade.id!, 'time')">{{ getUpgradeBonus(upgrade.id!, 'time') }}</span>
                          <span class="b2-sub-price" v-if="!isMaxLevel(upgrade.id!, 'time')">✨ {{ formatNumber(getPrice(upgrade.id!, 'time')) }}</span>
                          <span class="b2-sub-price" v-else>MAX</span>
                       </button>
@@ -195,16 +214,14 @@
                           disabled: isBoostActive(upgrade.id!) || getBoostCooldownRemaining(upgrade.id!) > 0 
                         }"
                       >
-                         <!-- Integrated Progress background -->
                          <div class="b2-progress-fill" :style="{ width: getAutoBonusProgress(upgrade.id!) + '%', opacity: 0.3 }"></div>
                          
                          <div v-if="getBoostCooldownRemaining(upgrade.id!) > 0" class="cooldown-overlay-pill">
-                           <span>{{ formatTime(getBoostCooldownRemaining(upgrade.id!)) }}</span>
+                           <span>{{ formatTime(getBoostCooldownRemaining(upgrade.id!)/1000) }}</span>
                          </div>
                          
-                         <span class="b2-sub-label" style="color: white; z-index: 2;">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</span>
+                         <span v-else class="b2-sub-label" style="color: white; z-index: 2;">{{ isBoostActive(upgrade.id!) ? 'ACTIF' : 'BOOST' }}</span>
                          
-                         <!-- Red Notification Dot -->
                          <div v-if="getReadyCountByType(upgrade.id!) > 0" class="red-dot-badge">
                             {{ getReadyCountByType(upgrade.id!) }}
                          </div>
@@ -241,6 +258,8 @@ const {
     productionSummary,
     formatName,
     getIcon,
+    getSpriteUrl,
+    getUpgradeBonus,
     getUpgradeDesc,
     getAutoBonusProgress,
     isBoostActive,

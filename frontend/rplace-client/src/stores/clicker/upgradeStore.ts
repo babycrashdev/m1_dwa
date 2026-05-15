@@ -58,6 +58,7 @@ export const useUpgradeStore = defineStore('upgrade', () => {
 
     const config = ref<ClickerConfig | null>(null);
     const levels = ref<Record<string, UpgradeStatus>>({});
+    const loadingState = ref(false);
     const currentTime = ref(Date.now());
 
     const cycleProgress = ref<Record<string, number>>({});
@@ -205,7 +206,8 @@ export const useUpgradeStore = defineStore('upgrade', () => {
     }
 
     async function fetchState() {
-        if (!authStore.token) return;
+        if (!authStore.token || loadingState.value) return;
+        loadingState.value = true;
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/clicker/state`, {
                 headers: { Authorization: `Bearer ${authStore.token}` }
@@ -215,6 +217,8 @@ export const useUpgradeStore = defineStore('upgrade', () => {
             console.log("[UpgradeStore] État chargé:", levels.value);
         } catch (error) {
             console.error("Erreur chargement état upgrades", error);
+        } finally {
+            loadingState.value = false;
         }
     }
 

@@ -12,6 +12,7 @@ import com.example.m1dwa.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class SlotService {
     private final WalletRepository walletRepository;
     private final UpgradeRepository upgradeRepository;
     private final GameConfigService gameConfigService;
+    private final ScoreboardService scoreboardService;
 
     @Transactional
     public List<Slot> getSlots(String username) {
@@ -35,22 +37,30 @@ public class SlotService {
         List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         
         if (slots.isEmpty()) {
-            int maxSlots = gameConfigService.getClickerConfig().getMaxSlots();
-            for (int i = 0; i < maxSlots; i++) {
-                Slot slot = new Slot();
-                slot.setUser(user);
-                slot.setSlotIndex(i);
-                slot.setUnlocked(gameConfigService.getClickerConfig().isFirstSlotFree() && i == 0);
-                try {
-                    slotRepository.saveAndFlush(slot);
-                } catch (Exception e) {
-                    log.debug("Le slot {} existe déjà pour {}", i, username);
-                }
-            }
+            initializeSlotsForUser(user);
             slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         }
         
         return slots;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void initializeSlotsForUser(User user) {
+        List<Slot> existing = slotRepository.findByUserOrderBySlotIndexAsc(user);
+        if (!existing.isEmpty()) return;
+
+        int maxSlots = gameConfigService.getClickerConfig().getMaxSlots();
+        for (int i = 0; i < maxSlots; i++) {
+            Slot slot = new Slot();
+            slot.setUser(user);
+            slot.setSlotIndex(i);
+            slot.setUnlocked(gameConfigService.getClickerConfig().isFirstSlotFree() && i == 0);
+            try {
+                slotRepository.saveAndFlush(slot);
+            } catch (Exception e) {
+                log.debug("Le slot {} existe déjà pour {}", i, user.getUsername());
+            }
+        }
     }
 
     @Transactional
@@ -86,6 +96,7 @@ public class SlotService {
         target.setUnlocked(true);
         target.setLastAutoBonusAt(LocalDateTime.now());
         slotRepository.save(target);
+        scoreboardService.pushScoreboard();
 
         log.info("{} a débloqué le slot {} pour {}", username, slotIndex, price);
         return slots;
