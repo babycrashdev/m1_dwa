@@ -9,9 +9,9 @@ import com.example.m1dwa.service.ScoreboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import com.example.m1dwa.dto.UserUpdateDTO;
 
 import java.util.Map;
 
@@ -24,6 +24,30 @@ public class UserController {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@RequestBody UserUpdateDTO updateDTO, Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(404).body("Utilisateur non trouvé");
+        }
+
+        if (updateDTO.password() != null && !updateDTO.password().isEmpty()
+                && !updateDTO.password().equals("********")) {
+            user.setPassword(passwordEncoder.encode(updateDTO.password()));
+        }
+        user.setAge(updateDTO.age());
+        user.setCountry(updateDTO.country());
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Profil mis à jour avec succès");
+    }
 
     @Autowired
     private PixelService pixelService;

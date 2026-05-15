@@ -37,6 +37,12 @@
     </main>
  
 
+    <Transition name="slide-fade">
+      <div v-if="rplaceStore.soldePannelMessage" class="solde_pannel">
+        {{ rplaceStore.soldePannelMessage }}
+      </div>
+    </Transition>
+
     <div v-if="currentView === 'grid' && !showAuth && (authStore.isAuthenticated || rplaceStore.hoveredPixelData)" class="rplace-controls">
       <!-- Infos Pixel à GAUCHE -->
       <InfoPixel />
@@ -109,4 +115,5 @@
 
 <style src="./styles/main.css"></style>
 <style src="./styles/rplace/colorPanel.css" scoped></style>
+<style src="./styles/rplace/solde_pannel.css" scoped></style>
 

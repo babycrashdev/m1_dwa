@@ -5,6 +5,8 @@ import { useAuthStore } from './auth';
 import { useGameStore } from './clicker/game';
 import { useServerStore } from './common/serverStore';
 import { useScoreboardStore } from './rplace/scoreboard';
+ 
+let soldeTimer: any = null;
 
 export interface PixelData {
   x: number;
@@ -26,12 +28,13 @@ export const useRPlaceStore = defineStore('rplace', {
     isInitialLoaded: false,
     initialPrice: 10,
     hoveredPixel: { x: -1, y: -1 },
-    
+
     // État du modal d'achat de couleur centralisé
     showBuyModal: false,
     colorToBuy: '',
     isBuying: false,
-    errorMessage: ''
+    errorMessage: '',
+    soldePannelMessage: ''
   }),
   getters: {
     hoveredPixelData: (state) => {
@@ -115,20 +118,20 @@ export const useRPlaceStore = defineStore('rplace', {
           });
 
           const scoreboardStore = useScoreboardStore();
-            this.stompClient?.subscribe('/topic/scoreboard', (message) => {
-                const update = JSON.parse(message.body);
-                if (update.type === 'full') {
-                    scoreboardStore.entries = update.entries;
-                    scoreboardStore.lastUpdated = new Date();
-                }
-                if (update.type === 'record') {
-                    const entry = scoreboardStore.entries.find(e => e.username === update.username);
-                    if (entry) {
-                        entry.pixelRecord = update.pixelRecord;
-                        scoreboardStore.lastUpdated = new Date();
-                    }
-                }
-            });
+          this.stompClient?.subscribe('/topic/scoreboard', (message) => {
+            const update = JSON.parse(message.body);
+            if (update.type === 'full') {
+              scoreboardStore.entries = update.entries;
+              scoreboardStore.lastUpdated = new Date();
+            }
+            if (update.type === 'record') {
+              const entry = scoreboardStore.entries.find(e => e.username === update.username);
+              if (entry) {
+                entry.pixelRecord = update.pixelRecord;
+                scoreboardStore.lastUpdated = new Date();
+              }
+            }
+          });
         },
         onStompError: (frame) => {
           console.error('[ServerSecurity] Erreur STOMP', frame);
@@ -136,8 +139,8 @@ export const useRPlaceStore = defineStore('rplace', {
         },
         onWebSocketClose: () => {
           if (serverStore.isOnline) {
-             console.warn('[ServerSecurity] WebSocket fermé');
-             serverStore.reportFailure();
+            console.warn('[ServerSecurity] WebSocket fermé');
+            serverStore.reportFailure();
           }
         }
       });
@@ -188,6 +191,7 @@ export const useRPlaceStore = defineStore('rplace', {
       }
 
       if (pixel && gameStore.money < pixel.price) {
+        this.triggerSoldePannel("Solde insuffisant !");
         throw new Error("Solde insuffisant !");
       }
 
@@ -278,6 +282,17 @@ export const useRPlaceStore = defineStore('rplace', {
       } finally {
         this.isBuying = false;
       }
+    },
+
+    triggerSoldePannel(message: string) {
+      if (soldeTimer) clearTimeout(soldeTimer);
+      
+      this.soldePannelMessage = message;
+ 
+      soldeTimer = setTimeout(() => {
+        this.soldePannelMessage = '';
+        soldeTimer = null;
+      }, 3000);
     }
   }
 });
