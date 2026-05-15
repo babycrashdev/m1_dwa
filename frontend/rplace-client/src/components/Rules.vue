@@ -1,7 +1,7 @@
 <template>
   <div class="rules-container">
 
-    <button class="rules-btn" @click="isOpen = true" title="Règles du jeu">
+    <button class="rules-btn" @click="appStore.showRules = true" title="Règles du jeu">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-3"/>
         <rect x="9" y="1" width="6" height="4" rx="1" ry="1"/>
@@ -12,9 +12,9 @@
 
     <Teleport to="body">
       <Transition name="rules-fade">
-        <div v-if="isOpen" class="rules-overlay" @click.self="isOpen = false">
+        <div v-if="appStore.showRules" class="rules-overlay" @click.self="appStore.showRules = false">
           <div class="rules-card">
-            <button class="rules-close-btn" @click="isOpen = false">&times;</button>
+            <button class="rules-close-btn" @click="appStore.showRules = false">&times;</button>
 
             <div class="rules-header">
               <span class="rules-icon">📋</span>
@@ -124,12 +124,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useAppStore } from '../stores/app';
 
 const props = defineProps<{
   defaultTab?: 'rplace' | 'clicker';
 }>();
 
-const isOpen = ref(false);
+const appStore = useAppStore();
 const activeTab = ref<'rplace' | 'clicker'>(props.defaultTab ?? 'rplace');
 </script>
 

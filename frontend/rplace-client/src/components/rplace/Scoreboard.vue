@@ -6,16 +6,24 @@
         <button v-if="isOpen" class="close-btn" @click.stop="$emit('toggle')">✕</button>
       </div>
       
-      <div class="scoreboard__sort" v-if="isOpen">
-        <button
-          v-for="opt in sortOptions"
-          :key="opt.key"
-          class="sort-btn"
-          :class="{ 'sort-btn--active': store.sortKey === opt.key }"
-          @click="store.setSortKey(opt.key)"
-        >
-          {{ opt.icon }} {{ opt.label }}
-        </button>
+      <div class="scoreboard__controls" v-if="isOpen">
+        <div class="scoreboard__sort">
+          <button
+            v-for="opt in sortOptions"
+            :key="opt.key"
+            class="sort-btn"
+            :class="{ 'sort-btn--active': store.sortKey === opt.key }"
+            @click="store.setSortKey(opt.key)"
+          >
+            <span class="sort-btn__icon">{{ opt.icon }}</span>
+            <span class="sort-btn__label">{{ opt.label }}</span>
+          </button>
+        </div>
+
+        <div class="search-wrapper">
+          <input type="text" class="search-input" placeholder="Rechercher un joueur..." />
+          <span class="search-icon">🔍</span>
+        </div>
       </div>
     </div>
 
@@ -25,9 +33,9 @@
           <tr>
             <th class="col-rank">#</th>
             <th>Joueur</th>
-            <th class="col-score">🎨</th>
-            <th class="col-score" v-if="isOpen">💰</th>
-            <th class="col-score" v-if="isOpen">⏱️</th>
+            <th class="col-score">
+              {{ currentSortLabel }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -54,25 +62,27 @@
             </td>
 
             <td class="score-cell">
-              <span class="score-value score-value--quaternary"
-                :class="{ 'score-value--active': store.sortKey === 'totalPixels' }">
-                {{ formatNumber(entry.totalPixels) }}
-              </span>
-              <span class="score-value score-value--quaternary" v-if="isOpen"> ({{ formatPercent(entry.totalPixels) }})</span>
-            </td>
+              <!-- PIXELS VIEW -->
+              <template v-if="store.sortKey === 'totalPixels'">
+                <span class="score-value score-value--quaternary">
+                  {{ formatNumber(entry.totalPixels) }}
+                </span>
+                <span class="score-value score-value--dim" v-if="isOpen"> 
+                  ({{ formatPercent(entry.totalPixels) }})
+                </span>
+              </template>
 
-            <td class="score-cell" v-if="isOpen">
-              <span class="score-value score-value--primary"
-                :class="{ 'score-value--active': store.sortKey === 'moneys' }">
-                {{ formatNumber(entry.moneys) }}
-              </span>
-            </td>
+              <template v-else-if="store.sortKey === 'moneys'">
+                <span class="score-value score-value--primary">
+                  {{ formatNumber(entry.moneys) }}
+                </span>
+              </template>
 
-            <td class="score-cell" v-if="isOpen">
-              <span class="score-value score-value--active"
-                :class="{ 'score-value--active': store.sortKey === 'pixelRecord' }">
-                {{ formatTime(entry.pixelRecord) }}
-              </span>
+              <template v-else-if="store.sortKey === 'pixelRecord'">
+                <span class="score-value score-value--active">
+                  {{ formatTime(entry.pixelRecord) }}
+                </span>
+              </template>
             </td>
 
           </tr>
@@ -113,6 +123,11 @@ const {
 const displayEntries = computed(() => {
   if (props.isOpen) return sorted.value;
   return sorted.value.slice(0, 5);
+});
+
+const currentSortLabel = computed(() => {
+  const opt = sortOptions.find(o => o.key === store.sortKey);
+  return opt ? `${opt.icon} ${opt.label}` : '';
 });
 </script>
 
