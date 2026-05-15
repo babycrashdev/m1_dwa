@@ -149,14 +149,14 @@ public class ClickerService {
     }
 
     /* Fait avec l'IA */
-    private long calculateMaxPossibleGain(User user, long seconds) {
-        Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
+    public double getPassiveIncome(User user) {
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
-        java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
-        
+        return calculatePassiveIncome(upgrades);
+    }
+
+    public double calculatePassiveIncome(java.util.List<Upgrade> upgrades) {
+        Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         double passiveIncomePerSec = 0;
-        long maxCarValue = gameConfigService.getClickerConfig().getBaseCarValue();
-        
         for (Upgrade u : upgrades) {
             UpgradeDefinition def = configMap.get(u.getType());
             if (def == null || !"WORKER".equals(def.getCategory())) continue;
@@ -166,7 +166,18 @@ public class ClickerService {
             if (intervalSec < 0.1) intervalSec = 0.1;
             passiveIncomePerSec += (u.getLevel() * prod) / intervalSec;
         }
+        return passiveIncomePerSec;
+    }
 
+    public long getTotalClickValue(User user) {
+        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
+        return calculateTotalClickValue(upgrades, slots);
+    }
+
+    public long calculateTotalClickValue(java.util.List<Upgrade> upgrades, java.util.List<Slot> slots) {
+        Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
+        long maxCarValue = gameConfigService.getClickerConfig().getBaseCarValue();
         for (Slot slot : slots) {
             if (!slot.isUnlocked() || slot.getBuildingType() == null) continue;
 
@@ -184,6 +195,15 @@ public class ClickerService {
                 maxCarValue += (long) upgrade.getLevel() * def.getBonusValueBonus();
             }
         }
+        return maxCarValue;
+    }
+
+    private long calculateMaxPossibleGain(User user, long seconds) {
+        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
+        
+        double passiveIncomePerSec = calculatePassiveIncome(upgrades);
+        long maxCarValue = calculateTotalClickValue(upgrades, slots);
 
         long maxActiveIncomePerSec = 15 * maxCarValue;
         
