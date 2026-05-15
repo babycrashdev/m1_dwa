@@ -16,6 +16,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final AuthChannelInterceptor authChannelInterceptor;
 
     @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+	      registration.interceptors(authChannelInterceptor);
+    }
+
+    @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
         config.setApplicationDestinationPrefixes("/app");
