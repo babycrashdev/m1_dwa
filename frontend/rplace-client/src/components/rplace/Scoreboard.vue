@@ -21,14 +21,42 @@
         </div>
 
         <div class="search-wrapper">
-          <input type="text" class="search-input" placeholder="Rechercher un joueur..." />
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Rechercher un joueur..." 
+            v-model="searchQuery"
+          />
           <span class="search-icon">🔍</span>
         </div>
       </div>
     </div>
 
     <div class="scoreboard__body">
-      <table class="scoreboard__table" v-if="displayEntries.length > 0">
+      <table class="scoreboard__table" v-if="searchQuery">
+        <tbody>
+          <tr
+            v-for="entry in filteredEntries"
+            :key="'search-' + entry.username"
+            :class="{ 'row--me': entry.username === currentUsername }"
+          >
+            <td class="player-cell-only">
+              <div class="player-cell">
+                <span class="player-name" :class="{ 'player-name--me': entry.username === currentUsername }">
+                  {{ entry.username }}
+                  <span v-if="entry.username === currentUsername && isOpen"> (moi)</span>
+                </span>
+                <span class="player-country" v-if="isOpen">{{ entry.country }}</span>
+              </div>
+            </td>
+          </tr>
+          <tr v-if="filteredEntries.length === 0">
+            <td class="search-empty">Aucun joueur trouvé</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="scoreboard__table" v-else-if="displayEntries.length > 0">
         <thead v-if="isOpen">
           <tr>
             <th class="col-rank">#</th>
@@ -62,7 +90,6 @@
             </td>
 
             <td class="score-cell">
-              <!-- PIXELS VIEW -->
               <template v-if="store.sortKey === 'totalPixels'">
                 <span class="score-value score-value--quaternary">
                   {{ formatNumber(entry.totalPixels) }}
@@ -112,9 +139,11 @@ defineEmits(['toggle']);
 
 const {
   store,
+  searchQuery,
   currentUsername,
   sortOptions,
   sorted,
+  filteredEntries,
   formatPercent,
   formatNumber,
   formatTime

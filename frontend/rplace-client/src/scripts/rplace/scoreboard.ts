@@ -1,4 +1,4 @@
-import { computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useScoreboardStore, type SortKey } from '../../stores/rplace/scoreboard';
 import { useAuthStore } from '../../stores/auth';
 import { useRPlaceStore } from '../../stores/rplace';
@@ -9,6 +9,8 @@ export function useScoreboardLogic() {
     const store = useScoreboardStore();
     const authStore = useAuthStore();
     const rplaceStore = useRPlaceStore();
+
+    const searchQuery = ref('');
 
     const currentUsername = computed(() => authStore.user?.username ?? '');
     const totalCells = computed(() => rplaceStore.gridSize * rplaceStore.gridSize);
@@ -27,14 +29,24 @@ export function useScoreboardLogic() {
 
     const sorted = computed(() => store.getSortedEntries());
 
+    const filteredEntries = computed(() => {
+        if (!searchQuery.value) return [];
+        const query = searchQuery.value.toLowerCase();
+        return store.entries.filter(entry => 
+            entry.username.toLowerCase().includes(query)
+        );
+    });
+
     onMounted(() => store.startPolling());
     onUnmounted(() => store.stopPolling());
 
     return {
         store,
+        searchQuery,
         currentUsername,
         sortOptions,
         sorted,
+        filteredEntries,
         formatPercent,
         formatNumber,
         formatTime
