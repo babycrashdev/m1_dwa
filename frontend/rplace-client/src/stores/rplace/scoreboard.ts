@@ -3,14 +3,13 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../auth';
 
-export type SortKey = 'moneys' | 'totalUpgradeLevels' | 'unlockedSlots' | 'totalPixels' | 'pixelRecord';
+export type SortKey = 'moneys' | 'totalPixels' | 'pixelRecord';
 
 export interface ScoreboardEntry {
     username: string;
     country: string;
+    age: number;
     moneys: number;
-    totalUpgradeLevels: number;
-    unlockedSlots: number;
     totalPixels: number;
     pixelRecord: number;
 }
@@ -18,11 +17,9 @@ export interface ScoreboardEntry {
 export const useScoreboardStore = defineStore('scoreboard', () => {
     const authStore = useAuthStore();
     const entries = ref<ScoreboardEntry[]>([]);
-    const sortKey = ref<SortKey>('moneys');
+    const sortKey = ref<SortKey>('totalPixels');
     const isLoading = ref(false);
     const lastUpdated = ref<Date | null>(null);
-
-    let pollInterval: number | null = null;
 
     async function fetchScoreboard() {
         if (!authStore.token) return;

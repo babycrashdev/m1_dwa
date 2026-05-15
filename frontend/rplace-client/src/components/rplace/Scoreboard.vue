@@ -2,14 +2,16 @@
   <div class="scoreboard" :class="{ 'scoreboard--mini': !isOpen }">
     <div class="scoreboard__header">
       <div class="header-top">
-        <h2 class="scoreboard__title">Classement</h2>
         <Transition name="fade-fast">
-          <button v-if="isOpen" class="close-btn" @click.stop="$emit('toggle')">✕</button>
+          <h2 class="scoreboard__title" v-if="!selectedPlayer">Classement</h2>
+        </Transition>
+        <Transition name="fade-fast">
+          <button v-if="isOpen && !selectedPlayer" class="close-btn" @click.stop="$emit('toggle')">✕</button>
         </Transition>
       </div>
       
       <Transition name="slide-up-fast">
-        <div class="scoreboard__controls" v-if="isOpen">
+        <div class="scoreboard__controls" v-if="isOpen && !selectedPlayer">
           <div class="scoreboard__sort">
             <button
               v-for="opt in sortOptions"
@@ -38,97 +40,126 @@
 
     <div class="scoreboard__body">
       <Transition name="fade-fast" mode="out-in">
-        <!-- SEARCH RESULTS VIEW -->
-        <table class="scoreboard__table" v-if="searchQuery" key="search">
-          <tbody>
-            <tr
-              v-for="entry in filteredEntries"
-              :key="'search-' + entry.username"
-              :class="{ 'row--me': entry.username === currentUsername }"
-            >
-              <td class="player-cell-only">
-                <div class="player-cell">
-                  <span class="player-name" :class="{ 'player-name--me': entry.username === currentUsername }">
-                    {{ entry.username }}
-                    <span v-if="entry.username === currentUsername && isOpen" class="me-tag"> (moi)</span>
-                  </span>
-                  <span class="player-country" v-if="isOpen">{{ entry.country }}</span>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="filteredEntries.length === 0">
-              <td class="search-empty">Aucun résultat</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- PLAYER DETAIL VIEW -->
+        <div v-if="selectedPlayer" class="player-details" key="details">
+          <button class="back-btn" @click="backToList">
+            <span class="back-icon">←</span> Retour
+          </button>
+          
+          <div class="details-content">
+            <div class="details-header">
+              <h3 class="details-name">{{ selectedPlayer.username }}</h3>
+              <div class="details-meta">{{ selectedPlayer.country }}</div>
+              <div class="details-meta">
+                {{ (selectedPlayer.age !== undefined && selectedPlayer.age !== null) ? selectedPlayer.age : '?' }} ans
+              </div>
+            </div>
 
-        <!-- NORMAL RANKING VIEW -->
-        <table class="scoreboard__table" v-else-if="displayEntries.length > 0" key="ranking">
-          <thead>
-            <tr>
-              <th class="col-rank">#</th>
-              <th>Joueur</th>
-              <th class="col-score">
-                {{ currentSortLabel }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(entry, index) in displayEntries"
-              :key="entry.username"
-              :class="{ 'row--me': entry.username === currentUsername }"
-            >
-              <td class="rank-cell">
-                <span class="rank-medal" v-if="index === 0">🥇</span>
-                <span class="rank-medal" v-else-if="index === 1">🥈</span>
-                <span class="rank-medal" v-else-if="index === 2">🥉</span>
-                <span class="rank-number" v-else>{{ index + 1 }}</span>
-              </td>
+            <div class="details-grid">
+              <!-- Back to blank placeholders as requested -->
+              <div v-for="i in 5" :key="i" class="details-field">
+                <span class="field-label">Info {{ i }}</span>
+                <span class="field-value">xxxxxxxxxxxxxx</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              <td>
-                <div class="player-cell">
-                  <span class="player-name" :class="{ 'player-name--me': entry.username === currentUsername }">
-                    {{ entry.username }}
-                    <span v-if="entry.username === currentUsername && isOpen" class="me-tag"> (moi)</span>
-                  </span>
-                  <span class="player-country" v-if="isOpen">{{ entry.country }}</span>
-                </div>
-              </td>
+        <!-- LIST VIEWS -->
+        <div v-else key="list">
+          <!-- SEARCH RESULTS VIEW -->
+          <Transition name="fade-fast" mode="out-in">
+            <table class="scoreboard__table" v-if="searchQuery" key="search">
+              <tbody>
+                <tr
+                  v-for="entry in filteredEntries"
+                  :key="'search-' + entry.username"
+                  :class="{ 'row--me': entry.username === currentUsername }"
+                  @click="selectPlayer(entry)"
+                >
+                  <td class="player-cell-only">
+                    <div class="player-cell">
+                      <span class="player-name" :class="{ 'player-name--me': entry.username === currentUsername }">
+                        {{ entry.username }}
+                        <span v-if="entry.username === currentUsername && isOpen" class="me-tag"> (moi)</span>
+                      </span>
+                      <span class="player-country" v-if="isOpen">{{ entry.country }}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="filteredEntries.length === 0">
+                  <td class="search-empty">Aucun résultat</td>
+                </tr>
+              </tbody>
+            </table>
 
-              <td class="score-cell">
-                <!-- PIXELS -->
-                <div v-if="store.sortKey === 'totalPixels'">
-                  <span class="score-value">
-                    {{ formatNumber(entry.totalPixels) }}
-                  </span>
-                  <span class="score-value score-value--dim" v-if="isOpen"> 
-                    ({{ formatPercent(entry.totalPixels) }})
-                  </span>
-                </div>
+            <!-- NORMAL RANKING VIEW -->
+            <table class="scoreboard__table" v-else-if="displayEntries.length > 0" key="ranking">
+              <thead>
+                <tr>
+                  <th class="col-rank">#</th>
+                  <th>Joueur</th>
+                  <th class="col-score">
+                    {{ currentSortLabel }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(entry, index) in displayEntries"
+                  :key="entry.username"
+                  :class="{ 'row--me': entry.username === currentUsername }"
+                  @click="selectPlayer(entry)"
+                >
+                  <td class="rank-cell">
+                    <span class="rank-medal" v-if="index === 0">🥇</span>
+                    <span class="rank-medal" v-else-if="index === 1">🥈</span>
+                    <span class="rank-medal" v-else-if="index === 2">🥉</span>
+                    <span class="rank-number" v-else>{{ index + 1 }}</span>
+                  </td>
 
-                <!-- CREDITS -->
-                <div v-else-if="store.sortKey === 'moneys'">
-                  <span class="score-value">
-                    {{ formatNumber(entry.moneys) }}
-                  </span>
-                </div>
+                  <td>
+                    <div class="player-cell">
+                      <span class="player-name" :class="{ 'player-name--me': entry.username === currentUsername }">
+                        {{ entry.username }}
+                        <span v-if="entry.username === currentUsername && isOpen" class="me-tag"> (moi)</span>
+                      </span>
+                      <span class="player-country" v-if="isOpen">{{ entry.country }}</span>
+                    </div>
+                  </td>
 
-                <!-- RECORD -->
-                <div v-else-if="store.sortKey === 'pixelRecord'">
-                  <span class="score-value score-value--active">
-                    {{ formatTime(entry.pixelRecord) }}
-                  </span>
-                </div>
-              </td>
+                  <td class="score-cell">
+                    <div v-if="store.sortKey === 'totalPixels'">
+                      <span class="score-value">
+                        {{ formatNumber(entry.totalPixels) }}
+                      </span>
+                      <span class="score-value score-value--dim" v-if="isOpen"> 
+                        ({{ formatPercent(entry.totalPixels) }})
+                      </span>
+                    </div>
 
-            </tr>
-          </tbody>
-        </table>
+                    <div v-else-if="store.sortKey === 'moneys'">
+                      <span class="score-value">
+                        {{ formatNumber(entry.moneys) }}
+                      </span>
+                    </div>
 
-        <!-- EMPTY STATE -->
-        <div class="scoreboard__empty" v-else-if="!store.isLoading" key="empty">
-          Aucun joueur trouvé.
+                    <div v-else-if="store.sortKey === 'pixelRecord'">
+                      <span class="score-value score-value--active">
+                        {{ formatTime(entry.pixelRecord) }}
+                      </span>
+                    </div>
+                  </td>
+
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- EMPTY STATE -->
+            <div class="scoreboard__empty" v-else-if="!store.isLoading" key="empty">
+              Aucun joueur trouvé.
+            </div>
+          </Transition>
         </div>
       </Transition>
     </div>
@@ -152,10 +183,13 @@ defineEmits(['toggle']);
 const {
   store,
   searchQuery,
+  selectedPlayer,
   currentUsername,
   sortOptions,
   sorted,
   filteredEntries,
+  selectPlayer,
+  backToList,
   formatPercent,
   formatNumber,
   formatTime

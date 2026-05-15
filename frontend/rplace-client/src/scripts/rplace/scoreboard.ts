@@ -1,5 +1,5 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useScoreboardStore, type SortKey } from '../../stores/rplace/scoreboard';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { useScoreboardStore, type SortKey, type ScoreboardEntry } from '../../stores/rplace/scoreboard';
 import { useAuthStore } from '../../stores/auth';
 import { useRPlaceStore } from '../../stores/rplace';
 import { formatNumber } from '../common/formatNumber';
@@ -11,6 +11,7 @@ export function useScoreboardLogic() {
     const rplaceStore = useRPlaceStore();
 
     const searchQuery = ref('');
+    const selectedPlayer = ref<ScoreboardEntry | null>(null);
 
     const currentUsername = computed(() => authStore.user?.username ?? '');
     const totalCells = computed(() => rplaceStore.gridSize * rplaceStore.gridSize);
@@ -37,16 +38,32 @@ export function useScoreboardLogic() {
         );
     });
 
+    const selectPlayer = (player: ScoreboardEntry) => {
+        selectedPlayer.value = player;
+    };
+
+    const backToList = () => {
+        selectedPlayer.value = null;
+    };
+
+    // Close detail view when search query changes
+    watch(searchQuery, () => {
+        if (selectedPlayer.value) selectedPlayer.value = null;
+    });
+
     onMounted(() => store.startPolling());
     onUnmounted(() => store.stopPolling());
 
     return {
         store,
         searchQuery,
+        selectedPlayer,
         currentUsername,
         sortOptions,
         sorted,
         filteredEntries,
+        selectPlayer,
+        backToList,
         formatPercent,
         formatNumber,
         formatTime

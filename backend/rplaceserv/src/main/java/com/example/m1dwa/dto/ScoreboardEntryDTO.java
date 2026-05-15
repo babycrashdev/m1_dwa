@@ -3,9 +3,8 @@ package com.example.m1dwa.dto;
 public record ScoreboardEntryDTO(
     String username,
     String country,
+    int age,
     long moneys,
-    int totalUpgradeLevels,
-    int unlockedSlots,
     long totalPixels,
     long pixelRecord
 ) {}

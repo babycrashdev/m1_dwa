@@ -23,8 +23,6 @@ public class ScoreboardService {
 
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
-    private final UpgradeRepository upgradeRepository;
-    private final SlotRepository slotRepository;
     private final PixelRepository pixelRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -44,19 +42,13 @@ public class ScoreboardService {
             long moneys = (wallet != null) ? wallet.getMoneys() : 0L;
             long historicalRecord = (wallet != null) ? wallet.getPixelRecordSeconds() : 0L;
             
-            int totalUpgradeLevels = upgradeRepository.findByUser(user).stream()
-                .mapToInt(u -> u.getLevel() + u.getEfficiencyLevel() + u.getProductionLevel())
-                .sum();
-            int unlockedSlots = (int) slotRepository.findByUser(user).stream()
-                .filter(s -> s.isUnlocked()).count();
             long totalPixels = pixelRepository.countByLastModifiedBy(user);
             
             return new ScoreboardEntryDTO(
                 user.getUsername(),
                 user.getCountry(),
+                user.getAge(),
                 moneys,
-                totalUpgradeLevels,
-                unlockedSlots,
                 totalPixels,
                 getRecord(user, historicalRecord)
             );
