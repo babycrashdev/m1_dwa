@@ -13,6 +13,8 @@ export interface ScoreboardEntry {
     unlockedSlots: number;
     totalPixels: number;
     pixelRecord: number;
+    passiveIncome: number;
+    clickBonus: number;
 }
 
 export const useScoreboardStore = defineStore('scoreboard', () => {

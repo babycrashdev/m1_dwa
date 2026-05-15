@@ -75,7 +75,7 @@
 
                   <div class="b2-footer">
                     <div class="b2-stats">
-                      <span class="prod">{{ formatNumber(upgradeStore.getWorkerProduction(upgrade.id!) * upgradeStore.getLevel(upgrade.id!)) }} voitures / {{ formatTime(upgradeStore.getWorkerInterval(upgrade.id!)/1000) }}</span>
+                      <span class="prod">{{ formatNumber(upgradeStore.getWorkerProduction(upgrade.id!) * upgradeStore.getLevel(upgrade.id!)) }} colis / {{ formatTime(upgradeStore.getWorkerInterval(upgrade.id!)/1000) }}</span>
 
                       <span class="price">✨ {{ formatNumber(getPrice(upgrade.id!, 'main')) }}</span>
                     </div>
@@ -117,7 +117,7 @@
                   >
                     <div class="b2-level-circle mini">Lvl {{ upgradeStore.getLevel(upgrade.id!, 'production') }}</div>
                     <span class="b2-sub-label">PRODUCTION</span>
-                    <span class="bonus-val" v-if="!isMaxLevel(upgrade.id!, 'production')">{{ getUpgradeBonus(upgrade.id!, 'production') }} voitures</span>
+                    <span class="bonus-val" v-if="!isMaxLevel(upgrade.id!, 'production')">{{ getUpgradeBonus(upgrade.id!, 'production') }} colis</span>
                     <span class="b2-sub-price" v-if="!isMaxLevel(upgrade.id!, 'production')">✨ {{ formatNumber(getPrice(upgrade.id!, 'production')) }}</span>
                     <span class="b2-sub-price" v-else>MAX</span>
                   </button>

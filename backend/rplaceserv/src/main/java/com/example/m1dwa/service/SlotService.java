@@ -133,6 +133,7 @@ public class SlotService {
         }
 
         slotRepository.save(slot);
+        scoreboardService.pushScoreboard();
 
         log.info("Utilisateur {} a posé un {} sur le slot {}", username, buildingType, slotIndex);
         return getSlots(username);
@@ -205,6 +206,7 @@ public class SlotService {
         slot.setLastAutoBonusAt(null);
         slot.setParcelPresent(false);
         slotRepository.save(slot);
+        scoreboardService.pushScoreboard();
 
         log.info("Utilisateur {} a détruit le bâtiment sur le slot {}", username, slotIndex);
         return getSlots(username);

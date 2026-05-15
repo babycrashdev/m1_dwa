@@ -28,7 +28,6 @@ import { ref } from 'vue';
 import CityMap from './clicker/CityMap.vue';
 import UpgradePanel from './clicker/UpgradePanel.vue';
 import ManualSpawner from './clicker/ManualSpawner.vue';
-import InventoryBar from './clicker/InventoryBar.vue';
 
 const isPanelOpen = ref(true);
 </script>
