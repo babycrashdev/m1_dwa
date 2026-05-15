@@ -18,11 +18,24 @@ import java.util.stream.Collectors;
 public class LeaderboardService {
 
     private final LeaderboardRepository leaderboardRepository;
+    private final com.example.m1dwa.repository.UserRepository userRepository;
+    private final com.example.m1dwa.repository.PixelRepository pixelRepository;
 
     @Transactional(readOnly = true)
     public List<LeaderboardDTO> getAllEntries() {
         return leaderboardRepository.findAll().stream()
-                .map(lb -> new LeaderboardDTO(
+                .map(lb -> {
+                    long currentOldest = pixelRepository.findOldestPixelDateByUser(lb.getUser())
+                        .map(date -> {
+                            long duration = java.time.Duration.between(date, java.time.LocalDateTime.now()).getSeconds();
+                            log.info("[Leaderboard] User: {}, Oldest: {}, Duration: {}", lb.getUser().getUsername(), date, duration);
+                            return duration;
+                        })
+                        .orElse(0L);
+                    
+                    long finalRecord = Math.max(lb.getPixelRecord(), currentOldest);
+                    
+                    return new LeaderboardDTO(
                         lb.getUser().getUsername(),
                         lb.getUser().getCountry(),
                         lb.getUser().getAge(),
@@ -32,9 +45,9 @@ public class LeaderboardService {
                         lb.getTotalMoneyGenerated(),
                         lb.getPixelsOnMap(),
                         lb.getCurrentMoneys(),
-                        lb.getPixelRecord()
-                ))
-                .collect(Collectors.toList());
+                        finalRecord
+                    );
+                }).collect(Collectors.toList());
     }
 
     @Transactional
@@ -108,6 +121,18 @@ public class LeaderboardService {
     }
 
     private Leaderboard getOrCreateById(Long userId) {
-        return leaderboardRepository.findById(userId).orElse(null);
+        return leaderboardRepository.findById(userId)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId).orElse(null);
+                    if (user == null) return null;
+                    Leaderboard lb = new Leaderboard();
+                    lb.setUser(user);
+                    lb.setUserId(user.getId());
+                    if (user.getWallet() != null) {
+                        lb.setCurrentMoneys(user.getWallet().getMoneys());
+                        lb.setPixelRecord(user.getWallet().getPixelRecordSeconds());
+                    }
+                    return leaderboardRepository.save(lb);
+                });
     }
 }

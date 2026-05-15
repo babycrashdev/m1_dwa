@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.time.LocalDateTime;
 import java.time.Duration;
 import java.util.Collections;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +76,7 @@ public class PixelService {
 
         List<PixelDTO> placedPixels = new ArrayList<>();
         List<Pixel> pixelsToSave = new ArrayList<>();
+        java.util.Set<User> previousOwners = new java.util.HashSet<>();
         long totalCost = 0;
         long estimatedBalance = wallet.getMoneys();
 
@@ -91,6 +90,10 @@ public class PixelService {
             Pixel pixel = pixelMap.getOrDefault(key, new Pixel(request.x(), request.y(), "#FFFFFF"));
 
             User previousUser = pixel.getLastModifiedBy();
+            if (previousUser != null && !previousUser.getId().equals(user.getId())) {
+                previousOwners.add(previousUser);
+            }
+
             LocalDateTime lastModified = pixel.getLastModifiedAt();
 
             long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
@@ -102,11 +105,12 @@ public class PixelService {
             }
             if (previousUser != null && lastModified != null) {
                 long heldSeconds = Duration.between(lastModified, LocalDateTime.now()).getSeconds();
-                if (previousUser.getWallet() != null && heldSeconds > previousUser.getWallet().getPixelRecordSeconds()) {
+                if (previousUser.getWallet() != null
+                        && heldSeconds > previousUser.getWallet().getPixelRecordSeconds()) {
                     previousUser.getWallet().setPixelRecordSeconds(heldSeconds);
                     walletRepository.save(previousUser.getWallet());
-                    // Sync record for previous user
-                    leaderboardService.syncWallet(previousUser.getId(), previousUser.getWallet().getMoneys(), heldSeconds);
+                    leaderboardService.syncWallet(previousUser.getId(), previousUser.getWallet().getMoneys(),
+                            heldSeconds);
                 }
             }
 
@@ -136,13 +140,18 @@ public class PixelService {
                 log.error("Échec de la déduction atomique pour {}: solde insuffisant ou conflit", username);
                 throw new RuntimeException("Solde insuffisant ou erreur de transaction");
             }
-            
+
             pixelRepository.saveAll(pixelsToSave);
 
             // Update Leaderboard stats
             leaderboardService.trackMoneySpent(user.getId(), totalCost);
             leaderboardService.updatePixelsOnMap(user.getId(), pixelRepository.countByLastModifiedBy(user));
             leaderboardService.syncWallet(user.getId(), wallet.getMoneys() - totalCost, wallet.getPixelRecordSeconds());
+
+            for (User prevOwner : previousOwners) {
+                leaderboardService.updatePixelsOnMap(prevOwner.getId(),
+                        pixelRepository.countByLastModifiedBy(prevOwner));
+            }
 
             userRepository.updateLastPixelPlacedAt(username, now);
             log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);

@@ -16,6 +16,8 @@ public class ColorService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final ColorRepository colorRepository;
+    private final LeaderboardService leaderboardService;
+    private final ScoreboardService scoreboardService;
 
     private static final long COLOR_PRICE = 500;
 
@@ -42,8 +44,13 @@ public class ColorService {
             return "Solde insuffisant !";
         }
 
-
         colorRepository.save(new Color(user, hex));
+
+        leaderboardService.trackMoneySpent(user.getId(), COLOR_PRICE);
+        leaderboardService.syncWallet(user.getId(), user.getWallet().getMoneys(),
+                user.getWallet().getPixelRecordSeconds());
+
+        scoreboardService.pushScoreboard();
 
         return "Achat réussi !";
     }

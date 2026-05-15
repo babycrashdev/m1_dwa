@@ -25,7 +25,7 @@ export function useScoreboardLogic() {
     const sortOptions: { key: SortKey; label: string; icon: string }[] = [
         { key: 'pixelsOnMap', label: 'Pixels', icon: '🎨' },
         { key: 'currentMoneys', label: 'Crédits', icon: '💰' },
-        { key: 'pixelRecord', label: 'Record', icon: '⏱️' },
+        { key: 'pixelRecord', label: 'Ancienneté', icon: '⏱️' },
         { key: 'totalClicks', label: 'Clics', icon: '🖱️' },
         { key: 'totalEntitiesGenerated', label: 'Voitures', icon: '🚗' },
         { key: 'totalMoneyGenerated', label: 'Gains', icon: '📈' },
@@ -36,7 +36,7 @@ export function useScoreboardLogic() {
     const filteredEntries = computed(() => {
         if (!searchQuery.value) return [];
         const query = searchQuery.value.toLowerCase();
-        return store.entries.filter(entry => 
+        return store.entries.filter(entry =>
             entry.username.toLowerCase().includes(query)
         );
     });
@@ -53,6 +53,15 @@ export function useScoreboardLogic() {
     watch(searchQuery, () => {
         if (selectedPlayer.value) selectedPlayer.value = null;
     });
+
+    watch(() => store.entries, (newEntries) => {
+        if (selectedPlayer.value) {
+            const updated = newEntries.find(e => e.username === selectedPlayer.value?.username);
+            if (updated) {
+                selectedPlayer.value = updated;
+            }
+        }
+    }, { deep: true });
 
     onMounted(() => store.startPolling());
     onUnmounted(() => store.stopPolling());

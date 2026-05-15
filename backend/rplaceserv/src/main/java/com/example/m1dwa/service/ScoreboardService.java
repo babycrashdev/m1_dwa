@@ -31,9 +31,8 @@ public class ScoreboardService {
         List<com.example.m1dwa.dto.LeaderboardDTO> entries = leaderboardService.getAllEntries();
 
         messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
-            "type", "full",
-            "entries", entries
-        ));
+                "type", "full",
+                "entries", entries));
     }
 
     public List<ScoreboardEntryDTO> getScoreboardEntries() {
@@ -42,26 +41,25 @@ public class ScoreboardService {
             Wallet wallet = user.getWallet();
             long moneys = (wallet != null) ? wallet.getMoneys() : 0L;
             long historicalRecord = (wallet != null) ? wallet.getPixelRecordSeconds() : 0L;
-            
+
             long totalPixels = pixelRepository.countByLastModifiedBy(user);
-            
+
             return new ScoreboardEntryDTO(
-                user.getUsername(),
-                user.getCountry(),
-                user.getAge(),
-                moneys,
-                totalPixels,
-                getRecord(user, historicalRecord)
-            );
+                    user.getUsername(),
+                    user.getCountry(),
+                    user.getAge(),
+                    moneys,
+                    totalPixels,
+                    getRecord(user, historicalRecord));
         }).collect(Collectors.toList());
     }
 
     public long getRecord(User user, long historicalRecord) {
         return pixelRepository.findOldestPixelDateByUser(user)
-            .map(oldestDate -> {
-                long currentSurvival = Duration.between(oldestDate, LocalDateTime.now()).getSeconds();
-                return Math.max(historicalRecord, currentSurvival);
-            })
-            .orElse(historicalRecord);
+                .map(oldestDate -> {
+                    long currentSurvival = Duration.between(oldestDate, LocalDateTime.now()).getSeconds();
+                    return Math.max(historicalRecord, currentSurvival);
+                })
+                .orElse(historicalRecord);
     }
 }

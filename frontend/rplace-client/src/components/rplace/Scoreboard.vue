@@ -80,7 +80,7 @@
                 <span class="field-value">{{ formatNumber(selectedPlayer.pixelsOnMap) }}</span>
               </div>
               <div class="details-field">
-                <span class="field-label">⏱️ Record survie</span>
+                <span class="field-label">⏱️ Durée pixel plus vieux</span>
                 <span class="field-value">{{ formatTime(selectedPlayer.pixelRecord) }}</span>
               </div>
             </div>
