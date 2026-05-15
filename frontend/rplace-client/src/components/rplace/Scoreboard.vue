@@ -83,37 +83,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue';
-import { useScoreboardStore, type SortKey } from '../../stores/scoreboard';
-import { useAuthStore } from '../../stores/auth';
-import { formatNumber } from '../../scripts/common/formatNumber';
-import { formatTime } from '../../scripts/common/formatTime';
-import { useRPlaceStore } from '../../stores/rplace';
+import { useScoreboardLogic } from '../../scripts/rplace/scoreboard.ts';
 
-const rplaceStore = useRPlaceStore();
-const totalCells = computed(() => rplaceStore.gridSize * rplaceStore.gridSize);
-
-function formatPercent(pixels: number): string {
-  if (!totalCells.value) return '';
-  const pct = (pixels / totalCells.value) * 100;
-  return pct < 0.01 ? '<0.01%' : `${pct.toFixed(2)}%`;
-}
-
-const store = useScoreboardStore();
-const authStore = useAuthStore();
-
-const currentUsername = computed(() => authStore.user?.username ?? '');
-
-const sortOptions: { key: SortKey; label: string; icon: string }[] = [
-  { key: 'totalPixels',        label: 'Pixels',   icon: '🎨' },
-  { key: 'moneys',             label: 'Crédits', icon: '💰' },
-  { key: 'pixelRecord',        label: 'Record',   icon: '⏱️' },
-];
-
-const sorted = computed(() => store.getSortedEntries());
-
-onMounted(() => store.startPolling());
-onUnmounted(() => store.stopPolling());
+const {
+  store,
+  currentUsername,
+  sortOptions,
+  sorted,
+  formatPercent,
+  formatNumber,
+  formatTime
+} = useScoreboardLogic();
 </script>
 
 <style src="../../styles/rplace/scoreboard.css" scoped></style>

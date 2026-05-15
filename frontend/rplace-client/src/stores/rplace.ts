@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuthStore } from './auth';
 import { useGameStore } from './clicker/game';
 import { useServerStore } from './common/serverStore';
-import { useScoreboardStore } from './scoreboard';
+import { useScoreboardStore } from './rplace/scoreboard';
 
 export interface PixelData {
   x: number;
