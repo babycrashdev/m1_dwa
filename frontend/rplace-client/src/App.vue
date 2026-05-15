@@ -43,7 +43,7 @@
 
       <div class="main-actions">
         <div class="tools-row">
-          <button class="tool-btn-placeholder" title="Futur outil"></button>
+          <PipetteToggle />
           <button class="tool-btn-placeholder" title="Futur outil"></button>
           <BrushToggle />
         </div>
@@ -55,6 +55,8 @@
 
     <footer class="footer">
     </footer>
+
+    <ColorBuyModal />
   </div>
 </template>
 
@@ -68,6 +70,8 @@
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import BrushPanel from './components/rplace/BrushPanel.vue';
   import InfoPixel from './components/rplace/InfoPixel.vue';
+  import PipetteToggle from './components/rplace/PipetteToggle.vue';
+  import ColorBuyModal from './components/rplace/ColorBuyModal.vue';
   import Rules from './components/Rules.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';

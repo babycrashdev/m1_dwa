@@ -2,11 +2,13 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
 import { useBrushPanelStore } from '../../stores/rplace/brushPanel';
+import { usePipetteStore } from '../../stores/rplace/pipette';
 
 export function useRPlaceBoard() {
   const store = useRPlaceStore();
   const authStore = useAuthStore();
   const brushStore = useBrushPanelStore();
+  const pipetteStore = usePipetteStore();
   const canvasRef = ref<HTMLCanvasElement | null>(null);
   let ctx: CanvasRenderingContext2D | null = null;
   let animationFrame: number;
@@ -108,7 +110,7 @@ export function useRPlaceBoard() {
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvasRef.value.width / dpr, canvasRef.value.height / dpr);
-    
+
     ctx.translate(Math.round(rect.width / 2 + camera.x), Math.round(rect.height / 2 + camera.y));
     ctx.scale(camera.scale, camera.scale);
     ctx.translate(-store.gridSize / 2, -store.gridSize / 2);
@@ -120,7 +122,7 @@ export function useRPlaceBoard() {
 
     for (let i = startCopy; i <= endCopy; i++) {
       const offsetX = i * store.gridSize;
-      
+
       if (camera.scale < 5 && isImageLoaded) {
         ctx.imageSmoothingEnabled = true;
       } else {
@@ -224,14 +226,21 @@ export function useRPlaceBoard() {
     }
   };
 
+  // Réalisé et débuggé grâce à l'IA
   const handleMouseUp = (e: MouseEvent) => {
     //if (camera.isDragging && !camera.dragMoved && camera.scale >= 5) {
     if (camera.isDragging && !camera.dragMoved) {
-      if (!authStore.isAuthenticated) {
-        // TODO : afficher un message à l'utilisateur
-        console.warn('Vous devez être connecté pour dessiner !');
-      } else {
-        const { x, y } = screenToGrid(e.clientX, e.clientY);
+      const { x, y } = screenToGrid(e.clientX, e.clientY);
+
+      if (pipetteStore.isActive) {
+        const index = y * store.gridSize + x;
+        const pixelColor = store.pixels[index]?.color || '#FFFFFF';
+        pipetteStore.pickColor(pixelColor);
+        camera.isDragging = false;
+        return;
+      }
+
+      if (authStore.isAuthenticated) {
         try {
           if (brushStore.isBrushActive) {
             const offset = Math.floor(brushStore.brushSize / 2);
