@@ -64,7 +64,7 @@
 <script setup lang="ts">
   import Register from './components/Register.vue';
   import RPlace from './components/RPlace.vue';
-  import Profile from './components/Profile.vue';
+  import Profile from './components/common/Profile.vue';
   import Clicker from './components/Clicker.vue';
   import LoadingScreen from './components/common/LoadingScreen.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
