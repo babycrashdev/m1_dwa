@@ -56,6 +56,7 @@ public class SecurityConfig {
                     .requestMatchers("/ws/**").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/scoreboard").permitAll()
+                    .requestMatchers("/api/leaderboard").permitAll()
                     .anyRequest().authenticated()
             );
 

@@ -34,6 +34,7 @@ public class PixelService {
     private final WalletRepository walletRepository;
     private final GameConfigService gameConfigService;
     private final ScoreboardService scoreboardService;
+    private final LeaderboardService leaderboardService;
     private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Transactional
@@ -104,6 +105,8 @@ public class PixelService {
                 if (previousUser.getWallet() != null && heldSeconds > previousUser.getWallet().getPixelRecordSeconds()) {
                     previousUser.getWallet().setPixelRecordSeconds(heldSeconds);
                     walletRepository.save(previousUser.getWallet());
+                    // Sync record for previous user
+                    leaderboardService.syncWallet(previousUser.getId(), previousUser.getWallet().getMoneys(), heldSeconds);
                 }
             }
 
@@ -135,9 +138,12 @@ public class PixelService {
             }
             
             pixelRepository.saveAll(pixelsToSave);
-            messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
-                "type", "refresh"
-            ));
+
+            // Update Leaderboard stats
+            leaderboardService.trackMoneySpent(user.getId(), totalCost);
+            leaderboardService.updatePixelsOnMap(user.getId(), pixelRepository.countByLastModifiedBy(user));
+            leaderboardService.syncWallet(user.getId(), wallet.getMoneys() - totalCost, wallet.getPixelRecordSeconds());
+
             userRepository.updateLastPixelPlacedAt(username, now);
             log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);
         }

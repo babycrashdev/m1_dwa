@@ -23,12 +23,15 @@ export function useScoreboardLogic() {
     }
 
     const sortOptions: { key: SortKey; label: string; icon: string }[] = [
-        { key: 'totalPixels', label: 'Pixels', icon: '🎨' },
-        { key: 'moneys', label: 'Crédits', icon: '💰' },
+        { key: 'pixelsOnMap', label: 'Pixels', icon: '🎨' },
+        { key: 'currentMoneys', label: 'Crédits', icon: '💰' },
         { key: 'pixelRecord', label: 'Record', icon: '⏱️' },
+        { key: 'totalClicks', label: 'Clics', icon: '🖱️' },
+        { key: 'totalEntitiesGenerated', label: 'Voitures', icon: '🚗' },
+        { key: 'totalMoneyGenerated', label: 'Gains', icon: '📈' },
     ];
 
-    const sorted = computed(() => store.getSortedEntries());
+    const sorted = computed(() => store.sortedEntries);
 
     const filteredEntries = computed(() => {
         if (!searchQuery.value) return [];

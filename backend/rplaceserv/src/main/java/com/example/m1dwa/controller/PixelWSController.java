@@ -3,6 +3,7 @@ package com.example.m1dwa.controller;
 import com.example.m1dwa.dto.PixelDTO;
 import com.example.m1dwa.dto.PlacePixelRequest;
 import com.example.m1dwa.service.PixelService;
+import com.example.m1dwa.service.ScoreboardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Controller;
 public class PixelWSController {
 
     private final PixelService pixelService;
+    private final ScoreboardService scoreboardService;
     private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/place")
@@ -27,7 +29,12 @@ public class PixelWSController {
         }
 
         String username = authentication.getName();
-        return pixelService.placePixel(request, username);
+        PixelDTO result = pixelService.placePixel(request, username);
+        
+        // On envoie le classement APRÈS que la transaction soit terminée
+        scoreboardService.pushScoreboard();
+        
+        return result;
     }
 
     @MessageMapping("/place-brush")
@@ -42,6 +49,8 @@ public class PixelWSController {
         
         if (!results.isEmpty()) {
             messagingTemplate.convertAndSend("/topic/board", results);
+            // On envoie le classement APRÈS que la transaction soit terminée
+            scoreboardService.pushScoreboard();
         }
     }
 }

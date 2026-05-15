@@ -30,39 +30,39 @@ public class ClickerService {
     private final SlotRepository slotRepository;
     private final GameConfigService gameConfigService;
     private final ScoreboardService scoreboardService;
+    private final LeaderboardService leaderboardService;
 
     public ClickerStateDTO getClickerState(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        
+
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         Map<String, Object> levelsMap = new HashMap<>();
-        
+
         for (Upgrade u : upgrades) {
             Map<String, Object> details = new HashMap<>();
             details.put("level", u.getLevel());
             details.put("efficiency", u.getEfficiencyLevel());
             details.put("production", u.getProductionLevel());
-            
+
             levelsMap.put(u.getType(), details);
         }
-        
+
         return new ClickerStateDTO(
-            user.getWallet().getMoneys(),
-            levelsMap
-        );
+                user.getWallet().getMoneys(),
+                levelsMap);
     }
 
     @Transactional
     public ClickerStateDTO upgrade(String username, String upgradeType, String subType) {
         Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
                 .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
-        
+
         User user = wallet.getUser();
 
-        
         UpgradeDefinition config = gameConfigService.getUpgrades().get(upgradeType.toUpperCase());
-        if (config == null) throw new RuntimeException("Type d'upgrade inconnu: " + upgradeType);
+        if (config == null)
+            throw new RuntimeException("Type d'upgrade inconnu: " + upgradeType);
 
         Upgrade upgrade = getOrCreateUpgrade(user, upgradeType.toUpperCase());
 
@@ -75,8 +75,9 @@ public class ClickerService {
             price = (long) (config.getBasePrice() * Math.pow(config.getPriceMultiplier(), currentLevel));
         } else {
             UpgradeDefinition.SubUpgradeDefinition subConfig = config.getUpgrades().get(subType);
-            if (subConfig == null) throw new RuntimeException("Sous-type d'upgrade inconnu: " + subType);
-            
+            if (subConfig == null)
+                throw new RuntimeException("Sous-type d'upgrade inconnu: " + subType);
+
             if ("efficiency".equals(subType) || "time".equals(subType) || subConfig.getReductionPerLevelMs() != null) {
                 currentLevel = upgrade.getEfficiencyLevel();
             } else if ("production".equals(subType) || subConfig.getIncreasePerLevel() != null) {
@@ -91,12 +92,12 @@ public class ClickerService {
             throw new RuntimeException("Solde insuffisant (concurrence détectée)");
         }
 
-
         if ("main".equals(subType)) {
             upgrade.setLevel(currentLevel + 1);
         } else {
             UpgradeDefinition.SubUpgradeDefinition subConfig = config.getUpgrades().get(subType);
-            if ("efficiency".equals(subType) || "time".equals(subType) || (subConfig != null && subConfig.getReductionPerLevelMs() != null)) {
+            if ("efficiency".equals(subType) || "time".equals(subType)
+                    || (subConfig != null && subConfig.getReductionPerLevelMs() != null)) {
                 upgrade.setEfficiencyLevel(currentLevel + 1);
             } else if ("production".equals(subType) || (subConfig != null && subConfig.getIncreasePerLevel() != null)) {
                 upgrade.setProductionLevel(currentLevel + 1);
@@ -105,46 +106,56 @@ public class ClickerService {
         upgradeRepository.save(upgrade);
         scoreboardService.pushScoreboard();
 
-
         log.info("Utilisateur {} a acheté l'upgrade {}/{} pour {}", username, upgradeType, subType, price);
-        
+
+        leaderboardService.trackMoneySpent(user.getId(), price);
+        leaderboardService.syncWallet(user.getId(), wallet.getMoneys(), wallet.getPixelRecordSeconds());
+
         return getClickerState(username);
     }
 
     /* Fait avec l'IA */
     @Transactional
-    public void syncMoneys(String username, long amount) {
-       Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
-            .orElse(null);
+    public void syncMoneys(String username, long amount, long clicks, long entities) {
+        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+                .orElse(null);
 
         if (wallet == null) {
             log.warn("Sync ignoré pour {} : wallet non encore créé", username);
             return;
         }
-        
+
         User user = wallet.getUser();
 
-        
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastClickerSyncAt() == null) {
-            user.setLastClickerSyncAt(now.minusSeconds(gameConfigService.getClickerConfig().getSyncIntervalMs() / 1000 + 1));
+            user.setLastClickerSyncAt(
+                    now.minusSeconds(gameConfigService.getClickerConfig().getSyncIntervalMs() / 1000 + 1));
         }
-        
+
         long secondsElapsed = java.time.Duration.between(user.getLastClickerSyncAt(), now).toSeconds();
-        if (secondsElapsed <= 0) secondsElapsed = 1;
+        if (secondsElapsed <= 0)
+            secondsElapsed = 1;
 
         // long maxPossible = calculateMaxPossibleGain(user, secondsElapsed);
         long maxPossible = 1_000_000_000_000L;
-        
+
         if (amount > maxPossible * 1.2) {
-            log.warn("Tentative de triche détectée pour {} : {} moneys demandés, max possible {}", username, amount, maxPossible);
+            log.warn("Tentative de triche détectée pour {} : {} moneys demandés, max possible {}", username, amount,
+                    maxPossible);
             throw new RuntimeException("Montant de synchronisation invalide (trop élevé)");
         }
-        
+
         walletRepository.incrementMoneys(user.getId(), amount);
+
+        leaderboardService.trackMoneyGenerated(user.getId(), amount);
+        leaderboardService.trackClicks(user.getId(), clicks);
+        leaderboardService.trackEntities(user.getId(), entities);
+        leaderboardService.syncWallet(user.getId(), wallet.getMoneys() + amount, wallet.getPixelRecordSeconds());
+
         scoreboardService.pushScoreboard();
         userRepository.updateLastClickerSyncAt(username, now);
-        
+
         log.debug("Synchronisation validée de {} moneys pour {} (Max théorique : {})", amount, username, maxPossible);
     }
 
@@ -153,26 +164,37 @@ public class ClickerService {
         Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
-        
+
         double passiveIncomePerSec = 0;
         long maxCarValue = gameConfigService.getClickerConfig().getBaseCarValue();
-        
+
         for (Upgrade u : upgrades) {
             UpgradeDefinition def = configMap.get(u.getType());
-            if (def == null || !"WORKER".equals(def.getCategory())) continue;
+            if (def == null || !"WORKER".equals(def.getCategory()))
+                continue;
 
-            double prod = def.getBaseProduction() + (u.getProductionLevel() * (def.getUpgrades().containsKey("production") ? def.getUpgrades().get("production").getIncreasePerLevel() : 0));
-            double intervalSec = (def.getBaseIntervalMs() - (u.getEfficiencyLevel() * (def.getUpgrades().containsKey("efficiency") ? def.getUpgrades().get("efficiency").getReductionPerLevelMs() : 0))) / 1000.0;
-            if (intervalSec < 0.1) intervalSec = 0.1;
+            double prod = def.getBaseProduction()
+                    + (u.getProductionLevel() * (def.getUpgrades().containsKey("production")
+                            ? def.getUpgrades().get("production").getIncreasePerLevel()
+                            : 0));
+            double intervalSec = (def.getBaseIntervalMs()
+                    - (u.getEfficiencyLevel() * (def.getUpgrades().containsKey("efficiency")
+                            ? def.getUpgrades().get("efficiency").getReductionPerLevelMs()
+                            : 0)))
+                    / 1000.0;
+            if (intervalSec < 0.1)
+                intervalSec = 0.1;
             passiveIncomePerSec += (u.getLevel() * prod) / intervalSec;
         }
 
         for (Slot slot : slots) {
-            if (!slot.isUnlocked() || slot.getBuildingType() == null) continue;
+            if (!slot.isUnlocked() || slot.getBuildingType() == null)
+                continue;
 
             String type = slot.getBuildingType();
             UpgradeDefinition def = configMap.get(type);
-            if (def == null || !"BUILDING".equals(def.getCategory())) continue;
+            if (def == null || !"BUILDING".equals(def.getCategory()))
+                continue;
 
             final String finalType = type;
             Upgrade upgrade = upgrades.stream()
@@ -186,7 +208,7 @@ public class ClickerService {
         }
 
         long maxActiveIncomePerSec = 15 * maxCarValue;
-        
+
         return (long) ((passiveIncomePerSec + maxActiveIncomePerSec) * seconds);
     }
 

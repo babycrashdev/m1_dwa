@@ -6,6 +6,7 @@ export function useManualSpawner() {
 
     const addWeight = () => {
         gameStore.addWeight();
+        gameStore.registerClick();
     };
 
     const currentWeight = computed(() => gameStore.currentWeight);

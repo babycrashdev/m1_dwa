@@ -45,21 +45,43 @@
           <button class="back-btn" @click="backToList">
             <span class="back-icon">←</span> Retour
           </button>
-          
-          <div class="details-content">
+                <div class="details-content">
             <div class="details-header">
               <h3 class="details-name">{{ selectedPlayer.username }}</h3>
               <div class="details-meta">{{ selectedPlayer.country }}</div>
               <div class="details-meta">
-                {{ (selectedPlayer.age !== undefined && selectedPlayer.age !== null) ? selectedPlayer.age : '?' }} ans
+                {{ selectedPlayer.age }} ans
               </div>
             </div>
 
             <div class="details-grid">
-              <!-- Back to blank placeholders as requested -->
-              <div v-for="i in 5" :key="i" class="details-field">
-                <span class="field-label">Info {{ i }}</span>
-                <span class="field-value">xxxxxxxxxxxxxx</span>
+              <div class="details-field">
+                <span class="field-label">💰 Argent actuel</span>
+                <span class="field-value">{{ formatNumber(selectedPlayer.currentMoneys) }}</span>
+              </div>
+              <div class="details-field">
+                <span class="field-label">🖱️ Clics cumulés</span>
+                <span class="field-value">{{ formatNumber(selectedPlayer.totalClicks) }}</span>
+              </div>
+              <div class="details-field">
+                <span class="field-label">🚗 Voitures produites</span>
+                <span class="field-value">{{ formatNumber(selectedPlayer.totalEntitiesGenerated) }}</span>
+              </div>
+              <div class="details-field">
+                <span class="field-label">📈 Gains totaux</span>
+                <span class="field-value">{{ formatNumber(selectedPlayer.totalMoneyGenerated) }}</span>
+              </div>
+              <div class="details-field">
+                <span class="field-label">💸 Dépenses totales</span>
+                <span class="field-value">{{ formatNumber(selectedPlayer.totalMoneySpent) }}</span>
+              </div>
+              <div class="details-field">
+                <span class="field-label">🎨 Pixels sur carte</span>
+                <span class="field-value">{{ formatNumber(selectedPlayer.pixelsOnMap) }}</span>
+              </div>
+              <div class="details-field">
+                <span class="field-label">⏱️ Record survie</span>
+                <span class="field-value">{{ formatTime(selectedPlayer.pixelRecord) }}</span>
               </div>
             </div>
           </div>
@@ -129,24 +151,30 @@
                   </td>
 
                   <td class="score-cell">
-                    <div v-if="store.sortKey === 'totalPixels'">
-                      <span class="score-value">
-                        {{ formatNumber(entry.totalPixels) }}
+                    <div v-if="store.sortKey === 'pixelsOnMap'">
+                      <span class="score-value" :class="{ 'flash': flashingEntries[entry.username + '-pixelsOnMap'] }">
+                        {{ formatNumber(entry.pixelsOnMap) }}
                       </span>
                       <span class="score-value score-value--dim" v-if="isOpen"> 
-                        ({{ formatPercent(entry.totalPixels) }})
+                        ({{ formatPercent(entry.pixelsOnMap) }})
                       </span>
                     </div>
 
-                    <div v-else-if="store.sortKey === 'moneys'">
-                      <span class="score-value">
-                        {{ formatNumber(entry.moneys) }}
+                    <div v-else-if="store.sortKey === 'currentMoneys'">
+                      <span class="score-value" :class="{ 'flash': flashingEntries[entry.username + '-currentMoneys'] }">
+                        {{ formatNumber(entry.currentMoneys) }}
                       </span>
                     </div>
 
                     <div v-else-if="store.sortKey === 'pixelRecord'">
-                      <span class="score-value score-value--active">
+                      <span class="score-value score-value--active" :class="{ 'flash': flashingEntries[entry.username + '-pixelRecord'] }">
                         {{ formatTime(entry.pixelRecord) }}
+                      </span>
+                    </div>
+
+                    <div v-else>
+                      <span class="score-value" :class="{ 'flash': flashingEntries[entry.username + '-' + store.sortKey] }">
+                        {{ formatNumber(entry[store.sortKey]) }}
                       </span>
                     </div>
                   </td>
@@ -194,6 +222,31 @@ const {
   formatNumber,
   formatTime
 } = useScoreboardLogic();
+
+import { watch, reactive } from 'vue';
+
+// Track which entries should flash
+const flashingEntries = reactive<Record<string, boolean>>({});
+
+// Watch for changes in the entries to trigger the flash effect
+watch(() => store.entries, (newEntries, oldEntries) => {
+  if (!oldEntries || oldEntries.length === 0) return;
+
+  newEntries.forEach(newEntry => {
+    const oldEntry = oldEntries.find(e => e.username === newEntry.username);
+    if (oldEntry) {
+      // Compare the value of the currently sorted key
+      const key = store.sortKey;
+      if ((newEntry as any)[key] !== (oldEntry as any)[key]) {
+        const flashKey = `${newEntry.username}-${key}`;
+        flashingEntries[flashKey] = true;
+        setTimeout(() => {
+          flashingEntries[flashKey] = false;
+        }, 1000);
+      }
+    }
+  });
+}, { deep: true });
 
 const displayEntries = computed(() => {
   if (props.isOpen) return sorted.value;

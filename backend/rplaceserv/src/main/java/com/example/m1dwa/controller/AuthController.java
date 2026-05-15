@@ -10,6 +10,7 @@ import com.example.m1dwa.model.Wallet;
 import com.example.m1dwa.repository.WalletRepository;
 import com.example.m1dwa.repository.UserRepository;
 import com.example.m1dwa.service.SlotService;
+import com.example.m1dwa.service.LeaderboardService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class AuthController {
 
     @Autowired
     private WalletRepository walletRepository;
+    
+    @Autowired
+    private LeaderboardService leaderboardService;
 
     @Autowired
     private SlotService slotService;
@@ -91,6 +95,7 @@ public class AuthController {
         walletRepository.save(wallet);
 
         slotService.initializeSlotsForUser(user);
+        leaderboardService.getOrCreate(user);
         
         logger.info("Utilisateur {} enregistré avec succès", user.getUsername());
         return ResponseEntity.ok("Inscription réussie, vous pouvez vous connecter.");

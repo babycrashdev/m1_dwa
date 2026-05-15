@@ -495,3 +495,25 @@
 .scoreboard--mini .expand-hint {
     font-size: 0.55rem;
 }
+
+.score-value {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.score-value.flash {
+    animation: value-flash 1s ease-out;
+}
+
+@keyframes value-flash {
+    0% {
+        color: #ffca28;
+        text-shadow: 0 0 15px rgba(255, 202, 40, 0.8);
+        transform: scale(1.1);
+    }
+    100% {
+        color: inherit;
+        text-shadow: none;
+        transform: scale(1);
+    }
+}

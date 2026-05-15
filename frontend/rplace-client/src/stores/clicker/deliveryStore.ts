@@ -32,6 +32,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
         };
 
         activeDeliveries.value.push(newDelivery);
+        gameStore.pendingEntities += weight;
         console.log(`[Clicker] Drone lance poids: ${newDelivery.weight}`);
 
         setTimeout(() => {

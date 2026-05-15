@@ -26,7 +26,7 @@ export const useRPlaceStore = defineStore('rplace', {
     isInitialLoaded: false,
     initialPrice: 10,
     hoveredPixel: { x: -1, y: -1 },
-    
+
     // État du modal d'achat de couleur centralisé
     showBuyModal: false,
     colorToBuy: '',
@@ -115,20 +115,28 @@ export const useRPlaceStore = defineStore('rplace', {
           });
 
           const scoreboardStore = useScoreboardStore();
-            this.stompClient?.subscribe('/topic/scoreboard', (message) => {
-                const update = JSON.parse(message.body);
-                if (update.type === 'full') {
-                    scoreboardStore.entries = update.entries;
-                    scoreboardStore.lastUpdated = new Date();
-                }
-                if (update.type === 'record') {
-                    const entry = scoreboardStore.entries.find(e => e.username === update.username);
-                    if (entry) {
-                        entry.pixelRecord = update.pixelRecord;
-                        scoreboardStore.lastUpdated = new Date();
-                    }
-                }
-            });
+          this.stompClient?.subscribe('/topic/scoreboard', (message) => {
+            const update = JSON.parse(message.body);
+            console.log("[WS Scoreboard] Message reçu type:", update.type);
+            
+            if (update.type === 'full') {
+              scoreboardStore.$patch({
+                entries: update.entries,
+                lastUpdated: new Date()
+              });
+              console.log("[WS Scoreboard] Données mises à jour avec succès (full)");
+            } else if (update.type === 'record') {
+              const entry = scoreboardStore.entries.find(e => e.username === update.username);
+              if (entry) {
+                entry.pixelRecord = update.pixelRecord;
+                scoreboardStore.lastUpdated = new Date();
+                console.log("[WS Scoreboard] Record mis à jour");
+              }
+            } else if (update.type === 'refresh') {
+              console.log("[WS Scoreboard] Signal refresh reçu, appel API...");
+              scoreboardStore.fetchScoreboard();
+            }
+          });
         },
         onStompError: (frame) => {
           console.error('[ServerSecurity] Erreur STOMP', frame);
@@ -136,8 +144,8 @@ export const useRPlaceStore = defineStore('rplace', {
         },
         onWebSocketClose: () => {
           if (serverStore.isOnline) {
-             console.warn('[ServerSecurity] WebSocket fermé');
-             serverStore.reportFailure();
+            console.warn('[ServerSecurity] WebSocket fermé');
+            serverStore.reportFailure();
           }
         }
       });

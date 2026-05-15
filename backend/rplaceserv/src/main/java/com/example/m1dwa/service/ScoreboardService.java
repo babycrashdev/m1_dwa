@@ -24,10 +24,11 @@ public class ScoreboardService {
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
     private final PixelRepository pixelRepository;
+    private final LeaderboardService leaderboardService;
     private final SimpMessagingTemplate messagingTemplate;
 
     public void pushScoreboard() {
-        List<ScoreboardEntryDTO> entries = getScoreboardEntries();
+        List<com.example.m1dwa.dto.LeaderboardDTO> entries = leaderboardService.getAllEntries();
 
         messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
             "type", "full",

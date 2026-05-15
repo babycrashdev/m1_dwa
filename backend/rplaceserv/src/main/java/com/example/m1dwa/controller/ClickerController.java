@@ -41,8 +41,11 @@ public class ClickerController {
             Authentication authentication) {
         
         Long amount = request.get("amount");
+        Long clicks = request.getOrDefault("clicks", 0L);
+        Long entities = request.getOrDefault("entities", 0L);
+        
         if (amount != null && amount > 0) {
-            clickerService.syncMoneys(authentication.getName(), amount);
+            clickerService.syncMoneys(authentication.getName(), amount, clicks, entities);
         }
         return ResponseEntity.ok().build();
     }
