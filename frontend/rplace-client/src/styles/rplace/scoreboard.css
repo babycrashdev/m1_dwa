@@ -278,9 +278,30 @@
 }
 
 .rank-number {
-    color: rgba(255, 255, 255, 0.15);
-    font-weight: 800;
-    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 900;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+}
+
+/* Styles spéciaux pour le Top 3 sans emojis */
+.rank-number.rank-1 {
+    color: #FFD700; /* Gold */
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    font-size: 1.2rem;
+}
+
+.rank-number.rank-2 {
+    color: #C0C0C0; /* Silver */
+    text-shadow: 0 0 12px rgba(192, 192, 192, 0.4);
+    font-size: 1.1rem;
+}
+
+.rank-number.rank-3 {
+    color: #CD7F32; /* Bronze */
+    text-shadow: 0 0 12px rgba(205, 127, 50, 0.4);
+    font-size: 1.05rem;
 }
 
 .player-name {

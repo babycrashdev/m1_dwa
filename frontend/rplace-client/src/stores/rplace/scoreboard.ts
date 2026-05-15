@@ -8,6 +8,7 @@ export type SortKey = 'currentMoneys' | 'pixelsOnMap' | 'pixelRecord' | 'totalCl
 export interface ScoreboardEntry {
     username: string;
     country: string;
+    age: number;
     totalClicks: number;
     totalEntitiesGenerated: number;
     totalMoneySpent: number;
