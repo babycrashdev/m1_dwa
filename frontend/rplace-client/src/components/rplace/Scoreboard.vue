@@ -87,7 +87,7 @@
 
         <!-- LISTE UNIFIÉE (CLASSEMENT + RECHERCHE) -->
         <div v-else key="list">
-          <table class="scoreboard__table" v-if="displayEntries.length > 0">
+          <table class="scoreboard__table" v-if="visibleEntries.length > 0">
             <thead>
               <tr>
                 <th class="col-rank">#</th>
@@ -99,7 +99,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="entry in displayEntries"
+                v-for="entry in visibleEntries"
                 :key="entry.username"
                 :class="{ 'row--me': entry.username === currentUsername }"
                 @click="selectPlayer(entry)"
@@ -144,9 +144,10 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted, watch, reactive, computed } from 'vue';
 import { useScoreboardLogic } from '../../scripts/rplace/scoreboard.ts';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean
 }>();
 
@@ -166,6 +167,12 @@ const {
   formatNumber,
   formatTime
 } = useScoreboardLogic();
+
+// On filtre pour n'afficher que 3 lignes en mode mini
+const visibleEntries = computed(() => {
+  if (props.isOpen || searchQuery.value) return displayEntries.value;
+  return displayEntries.value.slice(0, 3);
+});
 </script>
 
 <style src="../../styles/rplace/scoreboard.css" scoped></style>
