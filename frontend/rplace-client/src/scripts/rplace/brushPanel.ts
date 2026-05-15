@@ -11,6 +11,7 @@ export function useBrushPanel() {
     isBrushActive, 
     brushTotalPrice, 
     brushSize, 
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,

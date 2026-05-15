@@ -45,7 +45,7 @@
         <div class="main-actions">
           <div class="tools-row">
             <button class="tool-btn-placeholder" title="Futur outil"></button>
-            <button class="tool-btn-placeholder" title="Futur outil"></button>
+            <CircleBrushToggle />
             <BrushToggle />
           </div>
           <ColorPalette />
@@ -68,6 +68,7 @@
   import Clicker from './components/Clicker.vue';
   import LoadingScreen from './components/common/LoadingScreen.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
+  import CircleBrushToggle from './components/rplace/CircleBrushToggle.vue';
   import ColorPalette from './components/rplace/ColorPalette.vue';
   import BrushPanel from './components/rplace/BrushPanel.vue';
   import InfoPixel from './components/rplace/InfoPixel.vue';

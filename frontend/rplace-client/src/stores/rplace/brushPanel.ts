@@ -14,6 +14,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
   const isBrushActive = ref(false);
   const brushSize = ref(0);
+  const brushShape = ref<'square' | 'circle'>('square');
   const ownedBrushes = ref<string[]>([]);
 
   const showBuyModal = ref(false);
@@ -25,11 +26,22 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     "3x3": 500,
     "5x5": 1000,
     "7x7": 2500,
-    "9x9": 5000
+    "9x9": 5000,
+    "C3x": 500,
+    "C5x": 1000,
+    "C7x": 2500,
+    "C9x": 5000
+  };
+
+  const isPixelInBrush = (dx: number, dy: number, size: number) => {
+    if (brushShape.value === 'square') return true;
+    const radius = (size - 1) / 2;
+    // Dynamic threshold: fuller circles for larger sizes
+    return (dx * dx + dy * dy) <= (radius * radius) + (radius * 0.8);
   };
 
   const brushTotalPrice = computed(() => {
-    if (!isBrushActive.value || rplaceStore.hoveredPixel.x === -1 || gridSize.value === 0) return 0;
+    if (!isBrushActive.value || rplaceStore.hoveredPixel.x === -1 || gridSize.value === 0 || brushSize.value === 0) return 0;
 
     let total = 0;
     const offset = Math.floor(brushSize.value / 2);
@@ -38,6 +50,8 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
     for (let dy = -offset; dy <= offset; dy++) {
       for (let dx = -offset; dx <= offset; dx++) {
+        if (!isPixelInBrush(dx, dy, brushSize.value)) continue;
+
         const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
         
@@ -50,18 +64,30 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     return total;
   });
 
-  const isLocked = (size: string) => {
-    return !ownedBrushes.value.includes(size);
+  const isLocked = (size: number) => {
+    const id = brushShape.value === 'square' ? `${size}x${size}` : `C${size}x`;
+    return !ownedBrushes.value.includes(id);
   };
 
   const handleBrushClick = (size: number) => {
-    const sizeStr = `${size}x${size}`;
-    if (isLocked(sizeStr)) {
-      brushToBuy.value = sizeStr;
+    const id = brushShape.value === 'square' ? `${size}x${size}` : `C${size}x`;
+    if (isLocked(size)) {
+      brushToBuy.value = id;
       showBuyModal.value = true;
       errorMessage.value = '';
     } else {
       brushSize.value = size;
+    }
+  };
+
+  const toggleBrush = (shape: 'square' | 'circle') => {
+    if (isBrushActive.value && brushShape.value === shape) {
+      isBrushActive.value = false;
+      brushSize.value = 0;
+    } else {
+      isBrushActive.value = true;
+      brushShape.value = shape;
+      brushSize.value = 0;
     }
   };
 
@@ -71,7 +97,11 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     try {
       await buyBrush(brushToBuy.value);
       showBuyModal.value = false;
-      brushSize.value = parseInt(brushToBuy.value.split('x')[0] || '0');
+      // Extract size from ID (handles both "3x3" and "C3x")
+      const sizeStr = brushToBuy.value.startsWith('C') 
+        ? brushToBuy.value.charAt(1) 
+        : brushToBuy.value.split('x')[0];
+      brushSize.value = parseInt(sizeStr || '0');
     } catch (err: any) {
       errorMessage.value = err.message;
     } finally {
@@ -93,40 +123,32 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
   async function buyBrush(upgrade: string) {
     try {
-      console.log(`[Brush] Tentative d'achat de ${upgrade}...`);
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/rplace/brushes/buy`,
         { upgrade },
         { headers: { Authorization: `Bearer ${authStore.token}` } }
       );
-      console.log(`[Brush] Achat réussi pour ${upgrade}`, response.data);
       ownedBrushes.value.push(upgrade);
       gameStore.money -= prices[upgrade] || 0;
       return true;
     } catch (error: any) {
-      console.error(`[Brush] Échec de l'achat pour ${upgrade}`, error);
       throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
     }
   }
 
   function placeBrushPixels(cx: number, cy: number) {
-    if (cooldownSeconds.value > 0) {
-      throw new Error(`Cooldown actif: encore ${cooldownSeconds.value}s`);
-    }
-
-    if (!stompClient.value || !stompClient.value.connected) {
-      throw new Error("WebSocket non connecté");
-    }
+    if (cooldownSeconds.value > 0) throw new Error(`Cooldown actif: encore ${cooldownSeconds.value}s`);
+    if (!stompClient.value?.connected) throw new Error("WebSocket non connecté");
 
     const totalCost = brushTotalPrice.value;
-    if (gameStore.money < totalCost) {
-      throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
-    }
+    if (gameStore.money < totalCost) throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
 
     const pixelsToPlace = [];
     const offset = Math.floor(brushSize.value / 2);
 
     for (let dy = -offset; dy <= offset; dy++) {
       for (let dx = -offset; dx <= offset; dx++) {
+        if (!isPixelInBrush(dx, dy, brushSize.value)) continue;
+
         const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
         if (ny >= 0 && ny < gridSize.value) {
@@ -139,13 +161,13 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
       destination: '/app/place-brush',
       body: JSON.stringify(pixelsToPlace)
     });
-
     rplaceStore.startCooldown(5);
   }
 
   return {
     isBrushActive,
     brushSize,
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,
@@ -155,6 +177,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     brushTotalPrice,
     isLocked,
     handleBrushClick,
+    toggleBrush,
     confirmPurchase,
     fetchOwnedBrushes,
     buyBrush,

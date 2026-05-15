@@ -24,7 +24,11 @@ public class BrushService {
             "3x3", 500L,
             "5x5", 1000L,
             "7x7", 2500L,
-            "9x9", 5000L);
+            "9x9", 5000L,
+            "C3x", 500L,
+            "C5x", 1000L,
+            "C7x", 2500L,
+            "C9x", 5000L);
 
     @Transactional
     public String buyUpgrade(String username, String upgrade) {

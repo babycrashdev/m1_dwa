@@ -145,6 +145,12 @@ export function useRPlaceBoard() {
             ctx.lineWidth = 0.1;
             for (let dy = -offset; dy <= offset; dy++) {
               for (let dx = -offset; dx <= offset; dx++) {
+                // Circle check
+                if (brushStore.brushShape === 'circle') {
+                  const radius = (brushStore.brushSize - 1) / 2;
+                  if ((dx * dx + dy * dy) > (radius * radius) + 0.1) continue;
+                }
+
                 const nx = ((cx + dx) % store.gridSize + store.gridSize) % store.gridSize;
                 const ny = cy + dy;
                 ctx.fillRect(nx + 0.1, ny + 0.1, 0.8, 0.8);
