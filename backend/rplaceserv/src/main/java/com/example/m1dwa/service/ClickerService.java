@@ -148,12 +148,13 @@ public class ClickerService {
         log.debug("Synchronisation validée de {} moneys pour {} (Max théorique : {})", amount, username, maxPossible);
     }
 
-    /* Fait avec l'IA */
+    /* Fait et debbuger en partie avec l'IA */
     public double getPassiveIncome(User user) {
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         return calculatePassiveIncome(upgrades);
     }
 
+    /* Fait et debbuger en partie avec l'IA */
     public double calculatePassiveIncome(java.util.List<Upgrade> upgrades) {
         Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         double passiveIncomePerSec = 0;
@@ -169,12 +170,14 @@ public class ClickerService {
         return passiveIncomePerSec;
     }
 
+    /* Fait et debbuger en partie avec l'IA */
     public long getTotalClickValue(User user) {
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         return calculateTotalClickValue(upgrades, slots);
     }
 
+    /* Fait et debbuger en partie avec l'IA */
     public long calculateTotalClickValue(java.util.List<Upgrade> upgrades, java.util.List<Slot> slots) {
         Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         long maxCarValue = gameConfigService.getClickerConfig().getBaseCarValue();
@@ -192,12 +195,13 @@ public class ClickerService {
                     .orElse(null);
 
             if (upgrade != null && upgrade.getLevel() > 0) {
-                maxCarValue += (long) upgrade.getLevel() * def.getBonusValueBonus();
+                maxCarValue += def.getBonusValueBonus();
             }
         }
         return maxCarValue;
     }
 
+    /* Fait avec l'IA */
     private long calculateMaxPossibleGain(User user, long seconds) {
         java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
