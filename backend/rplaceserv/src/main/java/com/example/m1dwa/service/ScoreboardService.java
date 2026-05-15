@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ScoreboardService {
 
     private final UserRepository userRepository;
@@ -28,9 +27,24 @@ public class ScoreboardService {
     private final SlotRepository slotRepository;
     private final PixelRepository pixelRepository;
     private final SimpMessagingTemplate messagingTemplate;
-
-    @Lazy
     private final ClickerService clickerService;
+
+    public ScoreboardService(
+            UserRepository userRepository,
+            WalletRepository walletRepository,
+            UpgradeRepository upgradeRepository,
+            SlotRepository slotRepository,
+            PixelRepository pixelRepository,
+            SimpMessagingTemplate messagingTemplate,
+            @Lazy ClickerService clickerService) {
+        this.userRepository = userRepository;
+        this.walletRepository = walletRepository;
+        this.upgradeRepository = upgradeRepository;
+        this.slotRepository = slotRepository;
+        this.pixelRepository = pixelRepository;
+        this.messagingTemplate = messagingTemplate;
+        this.clickerService = clickerService;
+    }
 
     public void pushScoreboard() {
         List<ScoreboardEntryDTO> entries = getScoreboardEntries();
