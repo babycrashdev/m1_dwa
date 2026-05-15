@@ -13,7 +13,6 @@
       <div class="user-header">
         <span class="username">{{ profileData.username }}</span>
         <span class="country" v-if="authStore.isAuthenticated">{{ profileData.country }}</span>
-        <span class="login-text" v-else>Connexion</span>
       </div>
     </div>
 

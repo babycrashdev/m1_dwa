@@ -30,13 +30,18 @@ body {
 
 .nav-container {
   position: fixed;
-  top: 13rem;
+  top: 12.5rem;
   left: 5rem;
   z-index: 1000;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 12px;
+  transition: top 0.4s ease;
+}
+
+.nav-container--guest {
+  top: 7.75rem;
 }
 
 .view-toggle-btn {

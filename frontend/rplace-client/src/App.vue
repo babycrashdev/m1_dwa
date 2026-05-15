@@ -3,7 +3,7 @@
     <LoadingScreen />
     <Profile />
 
-    <div v-if="!showAuth" class="nav-container">
+    <div v-if="!showAuth" class="nav-container" :class="{ 'nav-container--guest': !authStore.isAuthenticated }">
       <div class="nav-controls">
         <button 
           @click="switchView(currentView === 'grid' ? 'clicker' : 'grid')" 
