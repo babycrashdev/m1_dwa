@@ -144,8 +144,14 @@
     padding-right: 4px;
 }
 
-.rules-body::-webkit-scrollbar       { width: 4px; }
-.rules-body::-webkit-scrollbar-track { background: transparent; }
+.rules-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.rules-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .rules-body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
