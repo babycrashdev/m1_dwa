@@ -18,6 +18,7 @@ public class BrushService {
     private final UserRepository userRepository;
     private final BrushRepository brushRepository;
     private final ScoreboardService scoreboardService;
+    private final UserStatsService userStatsService;
 
     private static final Map<String, Long> UPGRADE_PRICES = Map.of(
             "3x3", 500L,
@@ -50,9 +51,8 @@ public class BrushService {
             return "Solde insuffisant !";
         }
 
-
-
         brushRepository.save(new Brush(user, upgrade));
+        userStatsService.addMoneySpent(user, price);
         scoreboardService.pushScoreboard();
 
         return "Achat réussi !";

@@ -60,6 +60,8 @@
             v-for="entry in displayEntries"
             :key="entry.username"
             :class="{ 'row--me': entry.username === currentUsername }"
+            @click="openStats(entry.username)"
+            class="clickable-row"
           >
             <td class="rank-cell">
               <span class="rank-medal" v-if="entry.originalRank === 1">🥇</span>
@@ -108,7 +110,10 @@
 </template>
 
 <script setup lang="ts">
+import { inject } from 'vue';
 import { useScoreboardLogic } from '../../scripts/rplace/scoreboard.ts';
+
+const openStats = inject('openStats') as (username: string) => void;
 
 const emit = defineEmits(['close']);
 

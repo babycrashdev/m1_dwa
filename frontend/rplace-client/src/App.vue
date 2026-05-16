@@ -22,6 +22,18 @@
             <line x1="15" y1="3" x2="15" y2="21"/>
           </svg>
         </button>
+
+        <button 
+          @click="handleStatsClick" 
+          class="view-toggle-btn stats-toggle-btn"
+          title="Mes Statistiques"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
       </div>
       <Rules default-tab="rplace" />
     </div>
@@ -63,6 +75,11 @@
     </footer>
 
     <ColorBuyModal />
+    <StatsModal 
+      v-if="showStatsModal" 
+      :username="statsUsername" 
+      @close="closeStats" 
+    />
   </div>
 </template>
 
@@ -80,12 +97,33 @@
   import PipetteToggle from './components/rplace/PipetteToggle.vue';
   import ColorBuyModal from './components/rplace/ColorBuyModal.vue';
   import Rules from './components/Rules.vue';
+  import StatsModal from './components/common/StatsModal.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
-  import { onMounted, watch } from 'vue';
+  import { useStatsStore } from './stores/stats';
+  import { onMounted, watch, provide } from 'vue';
 
-  const { showAuth, currentView, switchView} = useApp();
+  const { 
+    showAuth, 
+    currentView, 
+    switchView, 
+    showStatsModal, 
+    statsUsername, 
+    openStats, 
+    closeStats 
+  } = useApp();
+
+  provide('openStats', openStats);
+
+  const handleStatsClick = () => {
+    if (!authStore.isAuthenticated) {
+      showAuth.value = true;
+    } else if (authStore.user?.username) {
+      openStats(authStore.user.username);
+    }
+  };
+
   const authStore = useAuthStore();
   const rplaceStore = useRPlaceStore();
 
@@ -93,7 +131,12 @@
     rplaceStore.connectWebSocket();
   });
 
-  watch(() => authStore.isAuthenticated, () => {
+  watch(() => authStore.isAuthenticated, (isAuth) => {
+    if (isAuth) {
+      const statsStore = useStatsStore();
+      statsStore.fetchMyStats();
+    }
+    
     if (rplaceStore.stompClient) {
       rplaceStore.stompClient.deactivate();
       rplaceStore.stompClient = null;

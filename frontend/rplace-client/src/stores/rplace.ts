@@ -5,6 +5,7 @@ import { useAuthStore } from './auth';
 import { useGameStore } from './clicker/game';
 import { useServerStore } from './common/serverStore';
 import { useScoreboardStore } from './rplace/scoreboard';
+import { useStatsStore } from './stats';
  
 let soldeTimer: any = null;
 
@@ -28,8 +29,6 @@ export const useRPlaceStore = defineStore('rplace', {
     isInitialLoaded: false,
     initialPrice: 10,
     hoveredPixel: { x: -1, y: -1 },
-
-    // État du modal d'achat de couleur centralisé
     showBuyModal: false,
     colorToBuy: '',
     isBuying: false,
@@ -132,6 +131,9 @@ export const useRPlaceStore = defineStore('rplace', {
               }
             }
           });
+
+          const statsStore = useStatsStore();
+          statsStore.subscribeToMyStats();
         },
         onStompError: (frame) => {
           console.error('[ServerSecurity] Erreur STOMP', frame);
@@ -216,22 +218,6 @@ export const useRPlaceStore = defineStore('rplace', {
           clearInterval(timer);
         }
       }, 1000);
-    },
-
-    // Temporaire : génère une grille aléatoire pour tester
-    generateTestGrid() {
-      const total = this.gridSize * this.gridSize;
-      for (let i = 0; i < total; i++) {
-        const r = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        const g = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        const b = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        this.pixels[i] = {
-          x: i % this.gridSize,
-          y: Math.floor(i / this.gridSize),
-          color: `#${r}${g}${b}`,
-          price: 10
-        };
-      }
     },
 
     async fetchOwnedColors() {

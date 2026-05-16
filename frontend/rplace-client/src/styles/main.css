@@ -31,17 +31,23 @@ body {
 .nav-container {
   position: fixed;
   top: 12.5rem;
-  left: 5rem;
+  left: 3rem;
   z-index: 1000;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 12px;
-  transition: top 0.4s ease;
+  transition: all 0.4s ease;
 }
 
 .nav-container--guest {
-  top: 7.75rem;
+  top: 6rem;
+}
+
+.nav-controls {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
 }
 
 .view-toggle-btn {

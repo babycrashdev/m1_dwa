@@ -44,4 +44,10 @@ public class User {
     @lombok.EqualsAndHashCode.Exclude
     @JsonIgnore
     private Wallet wallet;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private UserStats userStats;
 }
