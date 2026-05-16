@@ -9,7 +9,8 @@ services:
       MARIADB_USER: ${DB_USER}
       MARIADB_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./rplacedb:/var/lib/mysql
+      - rplace_db_data:/var/lib/mysql
+
     ports:
       - "3306:3306"
     restart: always
@@ -34,4 +35,8 @@ services:
     depends_on:
       - database
     entrypoint: ["java", "-jar", "app.jar"]
+    
+volumes:
+  rplace_db_data:
+
 

@@ -1,8 +1,9 @@
 <template>
   <div class="app-container">
+    <LoadingScreen />
     <Profile />
 
-    <div v-if="!showAuth" class="nav-container">
+    <div v-if="!showAuth" class="nav-container" :class="{ 'nav-container--guest': !authStore.isAuthenticated }">
       <div class="nav-controls">
         <button 
           @click="switchView(currentView === 'grid' ? 'clicker' : 'grid')" 
@@ -21,7 +22,20 @@
             <line x1="15" y1="3" x2="15" y2="21"/>
           </svg>
         </button>
+
+        <button 
+          @click="handleStatsClick" 
+          class="view-toggle-btn stats-toggle-btn"
+          title="Mes Statistiques"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
       </div>
+      <Rules default-tab="rplace" />
     </div>
 
     <main class="content-wrapper">
@@ -33,22 +47,116 @@
         <Clicker />
       </div>
     </main>
+ 
+
+    <Transition name="slide-fade">
+      <div v-if="rplaceStore.soldePannelMessage" class="solde_pannel">
+        {{ rplaceStore.soldePannelMessage }}
+      </div>
+    </Transition>
+
+    <div v-if="currentView === 'grid' && !showAuth && (authStore.isAuthenticated || rplaceStore.hoveredPixelData)" class="rplace-controls">
+      <InfoPixel />
+
+      <template v-if="authStore.isAuthenticated">
+        <div class="main-actions">
+          <div class="tools-row">
+            <PipetteToggle />
+            <CircleBrushToggle />
+            <BrushToggle />
+          </div>
+          <ColorPalette />
+        </div>
+        <BrushPanel />
+      </template>
+    </div>
 
     <footer class="footer">
     </footer>
+
+    <ColorBuyModal />
+    <StatsModal 
+      v-if="showStatsModal" 
+      :username="statsUsername" 
+      @close="closeStats" 
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import Register from './components/Register.vue';
   import RPlace from './components/RPlace.vue';
-  import Profile from './components/Profile.vue';
+  import Profile from './components/common/Profile.vue';
   import Clicker from './components/Clicker.vue';
+  import LoadingScreen from './components/common/LoadingScreen.vue';
+  import BrushToggle from './components/rplace/BrushToggle.vue';
+  import CircleBrushToggle from './components/rplace/CircleBrushToggle.vue';
+  import ColorPalette from './components/rplace/ColorPalette.vue';
+  import BrushPanel from './components/rplace/BrushPanel.vue';
+  import InfoPixel from './components/rplace/InfoPixel.vue';
+  import PipetteToggle from './components/rplace/PipetteToggle.vue';
+  import ColorBuyModal from './components/rplace/ColorBuyModal.vue';
+  import Rules from './components/Rules.vue';
+  import StatsModal from './components/common/StatsModal.vue';
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
+  import { useRPlaceStore } from './stores/rplace';
+  import { useStatsStore } from './stores/stats';
+  import { onMounted, watch, provide } from 'vue';
 
-  const { showAuth, currentView, switchView} = useApp();
+  const { 
+    showAuth, 
+    currentView, 
+    switchView, 
+    showStatsModal, 
+    statsUsername, 
+    openStats, 
+    closeStats 
+  } = useApp();
+
+  provide('openStats', openStats);
+
+  const handleStatsClick = () => {
+    if (!authStore.isAuthenticated) {
+      showAuth.value = true;
+    } else if (authStore.user?.username) {
+      openStats(authStore.user.username);
+    }
+  };
+
   const authStore = useAuthStore();
+  const rplaceStore = useRPlaceStore();
+
+  onMounted(() => {
+    rplaceStore.connectWebSocket();
+  });
+
+  watch(() => authStore.isAuthenticated, (isAuth) => {
+    if (isAuth) {
+      const statsStore = useStatsStore();
+      statsStore.fetchMyStats();
+    }
+    
+    if (rplaceStore.stompClient) {
+      rplaceStore.stompClient.deactivate();
+      rplaceStore.stompClient = null;
+    }
+    rplaceStore.connectWebSocket();
+  });
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit'
+    });
+  };
 </script>
 
 <style src="./styles/main.css"></style>
+<style src="./styles/rplace/colorPanel.css" scoped></style>
+<style src="./styles/rplace/solde_pannel.css" scoped></style>
+

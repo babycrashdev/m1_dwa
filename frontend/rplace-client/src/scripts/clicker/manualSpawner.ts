@@ -1,4 +1,4 @@
-import { useGameStore } from '../../stores/game';
+import { useGameStore } from '../../stores/clicker/game';
 import { computed, onMounted } from 'vue';
 
 export function useManualSpawner() {

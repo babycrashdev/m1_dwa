@@ -14,7 +14,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.time.LocalDateTime;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,66 +32,122 @@ public class PixelService {
     private final PixelRepository pixelRepository;
     private final UserRepository userRepository;
     private final WalletRepository walletRepository;
-
-    @Value("${rplace.grid.size}")
-    private int gridSize;
-
-    @Value("${rplace.pixel.initial-price}")
-    private long initialPrice;
-
-    @Value("${rplace.pixel.price-increment}")
-    private long priceIncrement;
+    private final GameConfigService gameConfigService;
+    private final ScoreboardService scoreboardService;
+    private final UserStatsService userStatsService;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public PixelDTO placePixel(PlacePixelRequest request, String username) {
+        return placePixels(List.of(request), username).stream().findFirst().orElse(null);
+    }
+
+    @Transactional
+    public List<PixelDTO> placePixels(List<PlacePixelRequest> requests, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + username));
 
-        if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
-            log.error("Coordonnées invalides pour {}: {}, {}", username, request.x(), request.y());
-            return null;
-        }
+        int gridSize = gameConfigService.getRplaceConfig().getGridSize();
+        long initialPrice = gameConfigService.getRplaceConfig().getInitialPrice();
+        long priceIncrement = gameConfigService.getRplaceConfig().getPixelPriceIncrement();
 
         LocalDateTime now = LocalDateTime.now();
         if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {
             log.warn("Cooldown actif pour l'utilisateur {}", username);
-            return null;
+            return Collections.emptyList();
         }
 
-        Pixel pixel = pixelRepository.findByXAndY(request.x(), request.y())
-                .orElseGet(() -> new Pixel(request.x(), request.y(), "#FFFFFF"));
+        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
+                .orElseThrow(() -> new RuntimeException("Wallet non trouvé"));
 
-        long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
-
-        Wallet wallet = walletRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Wallet non trouvé pour l'utilisateur " + username));
-
-        if (wallet.getMoneys() < currentPrice) {
-            log.warn("Solde insuffisant pour {}: {} < {}", username, wallet.getMoneys(), currentPrice);
-            return null;
+        int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
+        int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
+        for (PlacePixelRequest r : requests) {
+            minX = Math.min(minX, r.x());
+            maxX = Math.max(maxX, r.x());
+            minY = Math.min(minY, r.y());
+            maxY = Math.max(maxY, r.y());
         }
 
-        wallet.setMoneys(wallet.getMoneys() - currentPrice);
-        walletRepository.save(wallet);
+        List<Pixel> existingPixels = pixelRepository.findAllInAreaWithLock(minX, maxX, minY, maxY);
 
-        pixel.setColor(request.color());
-        pixel.setLastModifiedBy(user);
-        pixel.setLastModifiedAt(now);
-        pixel.setPrice(currentPrice + priceIncrement);
-        pixelRepository.save(pixel);
+        Map<String, Pixel> pixelMap = new HashMap<>();
+        for (Pixel p : existingPixels) {
+            pixelMap.put(p.getX() + "," + p.getY(), p);
+        }
 
-        user.setLastPixelPlacedAt(now);
-        userRepository.save(user);
+        List<PixelDTO> placedPixels = new ArrayList<>();
+        List<Pixel> pixelsToSave = new ArrayList<>();
+        long totalCost = 0;
+        long maxPricePlaced = 0;
+        long estimatedBalance = wallet.getMoneys();
 
-        log.info("Pixel ({}, {}) acheté {} par {} (nouveau prix: {})", pixel.getX(), pixel.getY(), currentPrice, username, pixel.getPrice());
+        for (PlacePixelRequest request : requests) {
+            if (request.x() < 0 || request.x() >= gridSize || request.y() < 0 || request.y() >= gridSize) {
+                log.error("Coordonnées invalides pour {}: {}, {}", username, request.x(), request.y());
+                continue;
+            }
 
-        return new PixelDTO(
-                pixel.getX(), 
-                pixel.getY(), 
-                pixel.getColor(), 
-                pixel.getPrice(), 
-                user.getUsername(), 
-                pixel.getLastModifiedAt()
-        );
+            String key = request.x() + "," + request.y();
+            Pixel pixel = pixelMap.getOrDefault(key, new Pixel(request.x(), request.y(), "#FFFFFF"));
+
+            User previousUser = pixel.getLastModifiedBy();
+            LocalDateTime lastModified = pixel.getLastModifiedAt();
+
+            long currentPrice = (pixel.getPrice() > 0) ? pixel.getPrice() : initialPrice;
+
+            if (estimatedBalance < currentPrice) {
+                log.warn("Solde insuffisant pour {} au pixel ({}, {}): {} < {}", username, request.x(), request.y(),
+                        estimatedBalance, currentPrice);
+                break;
+            }
+            if (previousUser != null && lastModified != null) {
+                long heldSeconds = Duration.between(lastModified, LocalDateTime.now()).getSeconds();
+                if (previousUser.getWallet() != null && heldSeconds > previousUser.getWallet().getPixelRecordSeconds()) {
+                    previousUser.getWallet().setPixelRecordSeconds(heldSeconds);
+                    walletRepository.save(previousUser.getWallet());
+                }
+                userStatsService.addTimesOverwritten(previousUser, 1);
+            }
+
+            estimatedBalance -= currentPrice;
+            totalCost += currentPrice;
+            if (currentPrice > maxPricePlaced) maxPricePlaced = currentPrice;
+
+            pixel.setColor(request.color());
+            pixel.setLastModifiedBy(user);
+            pixel.setLastModifiedAt(now);
+            pixel.setPrice(currentPrice + priceIncrement);
+
+            pixelsToSave.add(pixel);
+
+            placedPixels.add(new PixelDTO(
+                    pixel.getX(),
+                    pixel.getY(),
+                    pixel.getColor(),
+                    pixel.getPrice(),
+                    user.getUsername(),
+                    pixel.getLastModifiedAt()));
+        }
+
+        if (!placedPixels.isEmpty()) {
+            int updated = walletRepository.decrementMoneys(user.getId(), totalCost);
+            if (updated == 0) {
+                log.error("Échec de la déduction atomique pour {}: solde insuffisant ou conflit", username);
+                throw new RuntimeException("Solde insuffisant ou erreur de transaction");
+            }
+            
+            pixelRepository.saveAll(pixelsToSave);
+            userStatsService.addPixelsPlaced(user, placedPixels.size(), totalCost, maxPricePlaced);
+            messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
+                "type", "refresh"
+            ));
+            userRepository.updateLastPixelPlacedAt(username, now);
+            log.info("{} pixels placés par {} (total déduit: {})", placedPixels.size(), username, totalCost);
+        }
+
+        scoreboardService.pushScoreboard();
+
+        return placedPixels;
     }
 }

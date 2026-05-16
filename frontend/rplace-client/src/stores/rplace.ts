@@ -2,7 +2,12 @@ import { defineStore } from 'pinia';
 import { Client } from '@stomp/stompjs';
 import axios from 'axios';
 import { useAuthStore } from './auth';
-import { useGameStore } from './game';
+import { useGameStore } from './clicker/game';
+import { useServerStore } from './common/serverStore';
+import { useScoreboardStore } from './rplace/scoreboard';
+import { useStatsStore } from './stats';
+ 
+let soldeTimer: any = null;
 
 export interface PixelData {
   x: number;
@@ -16,15 +21,30 @@ export interface PixelData {
 export const useRPlaceStore = defineStore('rplace', {
   state: () => ({
     pixels: [] as PixelData[],
+    ownedColors: [] as string[],
     gridSize: 0,
     selectedColor: '#FF4500',
     cooldownSeconds: 0,
     stompClient: null as Client | null,
     isInitialLoaded: false,
-    initialPrice: 10
+    initialPrice: 10,
+    hoveredPixel: { x: -1, y: -1 },
+    showBuyModal: false,
+    colorToBuy: '',
+    isBuying: false,
+    errorMessage: '',
+    soldePannelMessage: ''
   }),
+  getters: {
+    hoveredPixelData: (state) => {
+      if (state.hoveredPixel.x === -1 || state.gridSize === 0) return null;
+      const index = state.hoveredPixel.y * state.gridSize + state.hoveredPixel.x;
+      return state.pixels[index] || null;
+    }
+  },
   actions: {
     async fetchConfig() {
+      if (this.gridSize > 0) return;
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/config/rplace`);
         this.gridSize = response.data.gridSize;
@@ -48,8 +68,9 @@ export const useRPlaceStore = defineStore('rplace', {
     },
 
     async fetchInitialBoard() {
+      if (this.isInitialLoaded) return;
       if (this.gridSize === 0) await this.fetchConfig();
-      
+
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/pixels`);
         if (Array.isArray(response.data)) {
@@ -60,7 +81,7 @@ export const useRPlaceStore = defineStore('rplace', {
                 x: pixel.x,
                 y: pixel.y,
                 color: pixel.color,
-                price: pixel.price,
+                price: pixel.price > 0 ? pixel.price : this.initialPrice,
                 ownerName: pixel.ownerName,
                 lastModifiedAt: pixel.lastModifiedAt
               };
@@ -82,18 +103,47 @@ export const useRPlaceStore = defineStore('rplace', {
         connectHeaders['Authorization'] = `Bearer ${authStore.token}`;
       }
 
+      const serverStore = useServerStore();
+
       this.stompClient = new Client({
         brokerURL: import.meta.env.VITE_WS_URL,
         connectHeaders: connectHeaders,
         onConnect: () => {
           console.log(authStore.token ? 'Connecté au WebSocket (Authentifié)' : 'Connecté au WebSocket (Anonyme)');
+          serverStore.reportSuccess();
           this.stompClient?.subscribe('/topic/board', (message) => {
             const pixelData = JSON.parse(message.body);
             this.updatePixelFromWS(pixelData);
           });
+
+          const scoreboardStore = useScoreboardStore();
+          this.stompClient?.subscribe('/topic/scoreboard', (message) => {
+            const update = JSON.parse(message.body);
+            if (update.type === 'full') {
+              scoreboardStore.entries = update.entries;
+              scoreboardStore.lastUpdated = new Date();
+            }
+            if (update.type === 'record') {
+              const entry = scoreboardStore.entries.find(e => e.username === update.username);
+              if (entry) {
+                entry.pixelRecord = update.pixelRecord;
+                scoreboardStore.lastUpdated = new Date();
+              }
+            }
+          });
+
+          const statsStore = useStatsStore();
+          statsStore.subscribeToMyStats();
         },
         onStompError: (frame) => {
-          console.error('Erreur STOMP', frame);
+          console.error('[ServerSecurity] Erreur STOMP', frame);
+          serverStore.reportFailure();
+        },
+        onWebSocketClose: () => {
+          if (serverStore.isOnline) {
+            console.warn('[ServerSecurity] WebSocket fermé');
+            serverStore.reportFailure();
+          }
         }
       });
 
@@ -108,19 +158,28 @@ export const useRPlaceStore = defineStore('rplace', {
       }
     },
 
-    updatePixelFromWS(pixelData: PixelData) {
+    updatePixelFromWS(data: PixelData | PixelData[]) {
       const authStore = useAuthStore();
       const gameStore = useGameStore();
-      const index = pixelData.y * this.gridSize + pixelData.x;
-      
-      if (pixelData.ownerName === authStore.user?.username) {
-        const oldPixel = this.pixels[index];
-        const pricePaid = oldPixel ? oldPixel.price : 10;
-        gameStore.money -= pricePaid;
-        console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
-      }
 
-      this.pixels[index] = pixelData;
+      const processSinglePixel = (pixelData: PixelData) => {
+        const index = pixelData.y * this.gridSize + pixelData.x;
+
+        if (pixelData.ownerName === authStore.user?.username) {
+          const oldPixel = this.pixels[index];
+          const pricePaid = oldPixel ? oldPixel.price : 10;
+          gameStore.money -= pricePaid;
+          console.log(`Déduction locale : -${pricePaid} moneys. Nouveau solde : ${gameStore.money}`);
+        }
+
+        this.pixels[index] = pixelData;
+      };
+
+      if (Array.isArray(data)) {
+        data.forEach(processSinglePixel);
+      } else {
+        processSinglePixel(data);
+      }
     },
 
     placePixel(x: number, y: number) {
@@ -132,8 +191,9 @@ export const useRPlaceStore = defineStore('rplace', {
       if (this.cooldownSeconds > 0) {
         throw new Error(`Cooldown actif: encore ${this.cooldownSeconds}s`);
       }
-      
+
       if (pixel && gameStore.money < pixel.price) {
+        this.triggerSoldePannel("Solde insuffisant !");
         throw new Error("Solde insuffisant !");
       }
 
@@ -160,20 +220,65 @@ export const useRPlaceStore = defineStore('rplace', {
       }, 1000);
     },
 
-    // Temporaire : génère une grille aléatoire pour tester
-    generateTestGrid() {
-      const total = this.gridSize * this.gridSize;
-      for (let i = 0; i < total; i++) {
-        const r = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        const g = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        const b = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        this.pixels[i] = {
-          x: i % this.gridSize,
-          y: Math.floor(i / this.gridSize),
-          color: `#${r}${g}${b}`,
-          price: 10
-        };
+    async fetchOwnedColors() {
+      const authStore = useAuthStore();
+      if (!authStore.isAuthenticated) return;
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/owned`, {
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        });
+        this.ownedColors = response.data;
+      } catch (error) {
+        console.error('Erreur lors de la récupération des couleurs possédées', error);
       }
+    },
+
+    async buyColor(color: string) {
+      const authStore = useAuthStore();
+      const gameStore = useGameStore();
+      try {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/user/rplace/colors/buy`,
+          { color },
+          { headers: { Authorization: `Bearer ${authStore.token}` } }
+        );
+        this.ownedColors.push(color);
+        gameStore.money -= 500;
+        return true;
+      } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
+      }
+    },
+
+    openBuyModal(color: string) {
+      this.colorToBuy = color.toUpperCase();
+      this.errorMessage = '';
+      this.showBuyModal = true;
+    },
+
+    async confirmColorPurchase() {
+      if (!this.colorToBuy) return;
+      this.isBuying = true;
+      this.errorMessage = '';
+      try {
+        await this.buyColor(this.colorToBuy);
+        this.selectedColor = this.colorToBuy;
+        this.showBuyModal = false;
+      } catch (err: any) {
+        this.errorMessage = err.message;
+      } finally {
+        this.isBuying = false;
+      }
+    },
+
+    triggerSoldePannel(message: string) {
+      if (soldeTimer) clearTimeout(soldeTimer);
+      
+      this.soldePannelMessage = message;
+ 
+      soldeTimer = setTimeout(() => {
+        this.soldePannelMessage = '';
+        soldeTimer = null;
+      }, 3000);
     }
   }
 });

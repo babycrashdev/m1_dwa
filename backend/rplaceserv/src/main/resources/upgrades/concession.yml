@@ -1,0 +1,16 @@
+concession:
+  category: BUILDING
+  sprite: "centre-commercial.png"
+  basePrice: 5000000
+  priceMultiplier: 1.4
+  bonusValueBonus: 5000
+  baseIntervalMs: 40000
+  upgrades:
+    time:
+      basePrice: 2500000
+      priceMultiplier: 1.5
+      reductionPerLevelMs: 2000
+  boosts:
+    durationMs: 15000
+    cooldownMs: 120000
+    increaseDurationMs: 2000

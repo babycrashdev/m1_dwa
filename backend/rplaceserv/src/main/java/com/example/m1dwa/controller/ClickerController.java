@@ -1,49 +1,49 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 package com.example.m1dwa.controller;
 
-import com.example.m1dwa.repository.WalletRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.m1dwa.dto.ClickerStateDTO;
+import com.example.m1dwa.dto.ClickerSyncRequest;
+import com.example.m1dwa.service.ClickerService;
+import com.example.m1dwa.service.GameConfigService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user/clicker")
+@RequiredArgsConstructor
 public class ClickerController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClickerController.class);
+    private final ClickerService clickerService;
+    private final GameConfigService gameConfigService;
 
-    @Autowired
-    private WalletRepository walletRepository;
+    @GetMapping("/state")
+    public ResponseEntity<ClickerStateDTO> getPlayerState(Authentication authentication) {
+        return ResponseEntity.ok(clickerService.getClickerState(authentication.getName()));
+    }
+
+    @PostMapping("/upgrade")
+    public ResponseEntity<ClickerStateDTO> upgrade(
+            @RequestBody Map<String, String> request,
+            Authentication authentication) {
+        
+        String type = request.get("type");
+        String subType = request.get("subType");
+        
+        return ResponseEntity.ok(clickerService.upgrade(authentication.getName(), type, subType));
+    }
 
     @PostMapping("/sync")
-    /* Aider par l'IA pour faire fonctionner correctement */
-    public ResponseEntity<?> syncClickerData(@RequestBody Map<String, Long> payload, Authentication authentication) {
-        String username = authentication.getName();
-        Long increment = payload.get("increment");
-
-        if (increment == null || increment < 0) {
-            return ResponseEntity.badRequest().body("Argument d'increment invalide");
+    public ResponseEntity<?> syncMoneys(
+            @RequestBody ClickerSyncRequest request,
+            Authentication authentication) {
+        
+        if (request.amount() > 0 || request.clicks() > 0 || request.parcels() > 0) {
+            clickerService.syncMoneys(authentication.getName(), request);
         }
-
-        logger.debug("Synchronisation pour {}: +{} moneys", username, increment);
-
-        int updated = walletRepository.incrementMoneys(username, increment);
-
-        if (updated == 0) {
-            return ResponseEntity.status(404).body("Utilisateur ou portefeuille introuvable");
-        }
-
-        long currentMoneys = walletRepository.findByUserUsername(username)
-                .map(wallet -> wallet.getMoneys())
-                .orElse(0L);
-
-        return ResponseEntity.ok(Map.of("moneys", currentMoneys));
+        return ResponseEntity.ok().build();
     }
 }

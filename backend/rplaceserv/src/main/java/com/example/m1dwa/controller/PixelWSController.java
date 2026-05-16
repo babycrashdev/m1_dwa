@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 public class PixelWSController {
 
     private final PixelService pixelService;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/place")
     @SendTo("/topic/board")
@@ -27,5 +28,20 @@ public class PixelWSController {
 
         String username = authentication.getName();
         return pixelService.placePixel(request, username);
+    }
+
+    @MessageMapping("/place-brush")
+    public void handlePlaceBrush(java.util.List<PlacePixelRequest> requests, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            log.error("Utilisateur non authentifié");
+            return;
+        }
+
+        String username = authentication.getName();
+        java.util.List<PixelDTO> results = pixelService.placePixels(requests, username);
+        
+        if (!results.isEmpty()) {
+            messagingTemplate.convertAndSend("/topic/board", results);
+        }
     }
 }

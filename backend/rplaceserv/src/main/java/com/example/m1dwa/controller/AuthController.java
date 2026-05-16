@@ -7,8 +7,11 @@ package com.example.m1dwa.controller;
 import com.example.m1dwa.config.JwtUtils;
 import com.example.m1dwa.model.User;
 import com.example.m1dwa.model.Wallet;
-import com.example.m1dwa.repository.WalletRepository;
+import com.example.m1dwa.model.UserStats;
 import com.example.m1dwa.repository.UserRepository;
+import com.example.m1dwa.repository.WalletRepository;
+import com.example.m1dwa.repository.UserStatsRepository;
+import com.example.m1dwa.service.SlotService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,12 @@ public class AuthController {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private SlotService slotService;
+
+    @Autowired
+    private UserStatsRepository userStatsRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody User loginRequest) {
@@ -85,6 +94,11 @@ public class AuthController {
         wallet.setUser(user);
         wallet.setMoneys(0);
         walletRepository.save(wallet);
+
+        UserStats stats = new UserStats(user);
+        userStatsRepository.save(stats);
+
+        slotService.initializeSlotsForUser(user);
         
         logger.info("Utilisateur {} enregistré avec succès", user.getUsername());
         return ResponseEntity.ok("Inscription réussie, vous pouvez vous connecter.");

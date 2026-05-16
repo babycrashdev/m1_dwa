@@ -2,6 +2,7 @@ package com.example.m1dwa.controller;
 
 import com.example.m1dwa.dto.PixelDTO;
 import com.example.m1dwa.repository.PixelRepository;
+import com.example.m1dwa.service.GameConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,17 +18,12 @@ import java.util.Map;
 public class PixelController {
 
     private final PixelRepository pixelRepository;
-
-    @Value("${rplace.grid.size}")
-    private int gridSize;
+    private final GameConfigService gameConfigService;
 
     @GetMapping("/pixels")
     public List<PixelDTO> getAllPixels() {
+        int gridSize = gameConfigService.getRplaceConfig().getGridSize();
         return pixelRepository.findAllSimplified(gridSize);
     }
 
-    @GetMapping("/config/rplace")
-    public Map<String, Object> getRPlaceConfig() {
-        return Map.of("gridSize", gridSize);
-    }
 }

@@ -1,0 +1,15 @@
+worker:
+  category: WORKER
+  basePrice: 0
+  priceMultiplier: 1.15
+  baseIntervalMs: 4000
+  baseProduction: 1
+  upgrades:
+    efficiency:
+      basePrice: 100
+      priceMultiplier: 1.3
+      reductionPerLevelMs: 200
+    production:
+      basePrice: 150
+      priceMultiplier: 1.4
+      increasePerLevel: 1

@@ -1,0 +1,15 @@
+deliverer:
+  category: WORKER
+  basePrice: 350
+  priceMultiplier: 1.18
+  baseIntervalMs: 5000
+  baseProduction: 8
+  upgrades:
+    efficiency:
+      basePrice: 500
+      priceMultiplier: 1.32
+      reductionPerLevelMs: 250
+    production:
+      basePrice: 800
+      priceMultiplier: 1.38
+      increasePerLevel: 4
