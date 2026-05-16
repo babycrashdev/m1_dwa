@@ -175,6 +175,10 @@
     transform: scale(1.01);
 }
 
+.clickable-row {
+    cursor: pointer;
+}
+
 .row--me {
     background: rgba(255, 215, 0, 0.1) !important;
     position: relative;
