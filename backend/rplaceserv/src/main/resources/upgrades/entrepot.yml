@@ -1,0 +1,16 @@
+entrepot:
+  category: BUILDING
+  sprite: "entrepot.png"
+  basePrice: 12000
+  priceMultiplier: 1.32
+  bonusValueBonus: 35
+  baseIntervalMs: 20000
+  upgrades:
+    time:
+      basePrice: 6000
+      priceMultiplier: 1.42
+      reductionPerLevelMs: 1200
+  boosts:
+    durationMs: 11000
+    cooldownMs: 70000
+    increaseDurationMs: 1200

@@ -1,0 +1,15 @@
+teleporter:
+  category: WORKER
+  basePrice: 20000000
+  priceMultiplier: 1.32
+  baseIntervalMs: 15000
+  baseProduction: 500000
+  upgrades:
+    efficiency:
+      basePrice: 30000000
+      priceMultiplier: 1.45
+      reductionPerLevelMs: 700
+    production:
+      basePrice: 45000000
+      priceMultiplier: 1.5
+      increasePerLevel: 100000

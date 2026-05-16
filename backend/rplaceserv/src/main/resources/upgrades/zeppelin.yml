@@ -1,0 +1,15 @@
+zeppelin:
+  category: WORKER
+  basePrice: 300000
+  priceMultiplier: 1.28
+  baseIntervalMs: 10000
+  baseProduction: 10000
+  upgrades:
+    efficiency:
+      basePrice: 450000
+      priceMultiplier: 1.4
+      reductionPerLevelMs: 500
+    production:
+      basePrice: 600000
+      priceMultiplier: 1.45
+      increasePerLevel: 2500

@@ -1,0 +1,15 @@
+truck:
+  category: WORKER
+  basePrice: 10000
+  priceMultiplier: 1.24
+  baseIntervalMs: 7000
+  baseProduction: 300
+  upgrades:
+    efficiency:
+      basePrice: 15000
+      priceMultiplier: 1.35
+      reductionPerLevelMs: 350
+    production:
+      basePrice: 22000
+      priceMultiplier: 1.4
+      increasePerLevel: 150

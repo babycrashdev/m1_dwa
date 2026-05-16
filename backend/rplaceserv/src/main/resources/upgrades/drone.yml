@@ -1,0 +1,15 @@
+drone:
+  category: WORKER
+  basePrice: 2000
+  priceMultiplier: 1.22
+  baseIntervalMs: 6000
+  baseProduction: 50
+  upgrades:
+    efficiency:
+      basePrice: 3500
+      priceMultiplier: 1.34
+      reductionPerLevelMs: 300
+    production:
+      basePrice: 5000
+      priceMultiplier: 1.39
+      increasePerLevel: 25

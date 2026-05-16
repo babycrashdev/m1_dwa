@@ -166,8 +166,12 @@ onBeforeUnmount(() => {
 const formatBuildingName = (id: string): string => {
   const mapping: Record<string, string> = {
     'GARAGE': 'Garage automobile',
+    'ENTREPOT': 'Centre logistique',
     'CARROSSIER': 'Atelier carrosserie',
-    'CONCESSION': 'Concessionnaire'
+    'FACTORY': 'Usine d\'assemblage',
+    'CONCESSION': 'Concessionnaire',
+    'AFFAIRES': 'Centre d\'affaires',
+    'EXPEDITION': 'Port spatial de livraison'
   };
   return mapping[id.toUpperCase()] || id.charAt(0).toUpperCase() + id.slice(1).toLowerCase();
 };

@@ -68,8 +68,10 @@ export function useUpgradePanel() {
     }, { immediate: true });
 
     const currentUpgrades = computed(() => {
-        return upgradeStore.groupedUpgrades[activeTab.value] || [];
+        const list = upgradeStore.groupedUpgrades[activeTab.value] || [];
+        return [...list].sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
     });
+
 
     const productionSummary = computed(() => {
         if (!upgradeStore.config) return "Chargement...";
@@ -91,7 +93,21 @@ export function useUpgradePanel() {
 
     const formatName = (name: string): string => {
         const mapping: Record<string, string> = {
-            'WORKER': 'Ouvrier',
+            'WORKER': 'Stagiaire',
+            'DELIVERER': 'Livreur à vélo',
+            'DRONE': 'Drone livreur',
+            'TRUCK': 'Camionnette',
+            'ROBOT': 'Robot industriel',
+            'ZEPPELIN': 'Cargo aérien',
+            'HYPERLOOP': 'Réseau hyperloop',
+            'TELEPORTER': 'Téléporteur quantique',
+            'GARAGE': 'Garage automobile',
+            'ENTREPOT': 'Centre logistique',
+            'CARROSSIER': 'Atelier carrosserie',
+            'FACTORY': 'Usine d\'assemblage',
+            'CONCESSION': 'Concessionnaire',
+            'AFFAIRES': 'Centre d\'affaires',
+            'EXPEDITION': 'Port spatial de livraison',
             'BUILDING': 'Bâtiment',
             'efficiency': 'Efficacité',
             'production': 'Productivité',
@@ -108,7 +124,15 @@ export function useUpgradePanel() {
 
     const getIcon = (category: string, id: string): string => {
         if (category === 'WORKER') {
-            if (id === 'WORKER') return '👷';
+            const upperId = id.toUpperCase();
+            if (upperId === 'WORKER') return '👷';
+            if (upperId === 'DELIVERER') return '🚲';
+            if (upperId === 'DRONE') return '🛸';
+            if (upperId === 'TRUCK') return '🚚';
+            if (upperId === 'ROBOT') return '🤖';
+            if (upperId === 'ZEPPELIN') return '✈️';
+            if (upperId === 'HYPERLOOP') return '🚇';
+            if (upperId === 'TELEPORTER') return '🌀';
             return '👷';
         }
         return '🏢';

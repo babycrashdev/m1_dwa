@@ -1,0 +1,15 @@
+hyperloop:
+  category: WORKER
+  basePrice: 2500000
+  priceMultiplier: 1.3
+  baseIntervalMs: 12000
+  baseProduction: 75000
+  upgrades:
+    efficiency:
+      basePrice: 3500000
+      priceMultiplier: 1.42
+      reductionPerLevelMs: 600
+    production:
+      basePrice: 5000000
+      priceMultiplier: 1.48
+      increasePerLevel: 15000

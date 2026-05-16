@@ -1,0 +1,16 @@
+factory:
+  category: BUILDING
+  sprite: "factory.png"
+  basePrice: 1000000
+  priceMultiplier: 1.36
+  bonusValueBonus: 800
+  baseIntervalMs: 30000
+  upgrades:
+    time:
+      basePrice: 500000
+      priceMultiplier: 1.46
+      reductionPerLevelMs: 1800
+  boosts:
+    durationMs: 13000
+    cooldownMs: 100000
+    increaseDurationMs: 1800
