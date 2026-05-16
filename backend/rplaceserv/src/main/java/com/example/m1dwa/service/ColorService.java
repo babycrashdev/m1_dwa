@@ -16,6 +16,7 @@ public class ColorService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final ColorRepository colorRepository;
+    private final UserStatsService userStatsService;
 
     private static final long COLOR_PRICE = 500;
 
@@ -44,6 +45,7 @@ public class ColorService {
 
 
         colorRepository.save(new Color(user, hex));
+        userStatsService.addMoneySpent(user, COLOR_PRICE);
 
         return "Achat réussi !";
     }

@@ -6,6 +6,7 @@ import com.example.m1dwa.repository.WalletRepository;
 import com.example.m1dwa.repository.UserRepository;
 import com.example.m1dwa.service.PixelService;
 import com.example.m1dwa.service.ScoreboardService;
+import com.example.m1dwa.service.UserStatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -54,6 +55,18 @@ public class UserController {
 
     @Autowired
     private ScoreboardService scoreboardService;
+
+    @Autowired
+    private UserStatsService userStatsService;
+
+    @GetMapping("/{username}/stats")
+    public ResponseEntity<?> getUserStats(@PathVariable String username) {
+        try {
+            return ResponseEntity.ok(userStatsService.getStatsDTO(username));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Utilisateur non trouvé");
+        }
+    }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {

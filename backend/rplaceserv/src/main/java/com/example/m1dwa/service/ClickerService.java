@@ -2,6 +2,7 @@ package com.example.m1dwa.service;
 
 import com.example.m1dwa.config.UpgradeDefinition;
 import com.example.m1dwa.dto.ClickerStateDTO;
+import com.example.m1dwa.dto.ClickerSyncRequest;
 import com.example.m1dwa.model.Upgrade;
 import com.example.m1dwa.model.User;
 import com.example.m1dwa.model.Wallet;
@@ -30,6 +31,7 @@ public class ClickerService {
     private final SlotRepository slotRepository;
     private final GameConfigService gameConfigService;
     private final ScoreboardService scoreboardService;
+    private final UserStatsService userStatsService;
 
     public ClickerStateDTO getClickerState(String username) {
         User user = userRepository.findByUsername(username)
@@ -103,6 +105,7 @@ public class ClickerService {
             }
         }
         upgradeRepository.save(upgrade);
+        userStatsService.addMoneySpent(user, price);
         scoreboardService.pushScoreboard();
 
 
@@ -113,9 +116,9 @@ public class ClickerService {
 
     /* Fait avec l'IA */
     @Transactional
-    public void syncMoneys(String username, long amount) {
+    public void syncMoneys(String username, ClickerSyncRequest request) {
        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
-            .orElse(null);
+             .orElse(null);
 
         if (wallet == null) {
             log.warn("Sync ignoré pour {} : wallet non encore créé", username);
@@ -123,6 +126,7 @@ public class ClickerService {
         }
         
         User user = wallet.getUser();
+        long amount = request.amount();
 
         
         LocalDateTime now = LocalDateTime.now();
@@ -142,6 +146,7 @@ public class ClickerService {
         }
         
         walletRepository.incrementMoneys(user.getId(), amount);
+        userStatsService.addClickerStats(user, amount, request.clicks(), request.parcels());
         scoreboardService.pushScoreboard();
         userRepository.updateLastClickerSyncAt(username, now);
         
