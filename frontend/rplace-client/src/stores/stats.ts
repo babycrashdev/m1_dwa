@@ -40,9 +40,13 @@ export const useStatsStore = defineStore('stats', () => {
 
     async function fetchUserStats(username: string): Promise<UserStats | null> {
         try {
+            const headers: any = {};
+            if (authStore.token) {
+                headers.Authorization = `Bearer ${authStore.token}`;
+            }
             const response = await axios.get(
                 `${import.meta.env.VITE_API_URL}/api/user/${username}/stats`,
-                { headers: { Authorization: `Bearer ${authStore.token}` } }
+                { headers }
             );
             return response.data;
         } catch (error) {
