@@ -14,14 +14,9 @@ export function useMapSlot(slotIndex: number) {
     const showMenu = ref(false);
 
     const handleMouseEnter = () => {
-        if (slotData.value?.unlocked && !slotData.value.buildingType) {
-            showPicker.value = true;
-        }
     };
 
     const handleMouseLeave = () => {
-        showPicker.value = false;
-        showMenu.value = false;
     };
 
     const slotData = computed(() => mapStore.slots.find(s => s.slotIndex === slotIndex));
@@ -67,8 +62,11 @@ export function useMapSlot(slotIndex: number) {
 
         if (slotData.value.buildingType) {
             showMenu.value = true;
+        } else {
+            showPicker.value = true;
         }
     }
+
 
     async function placeBuilding(type: string) {
         await mapStore.placeBuilding(slotIndex, type);
