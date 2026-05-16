@@ -50,7 +50,7 @@
       <template v-if="authStore.isAuthenticated">
         <div class="main-actions">
           <div class="tools-row">
-            <button class="tool-btn-placeholder" title="Futur outil"></button>
+            <PipetteToggle />
             <button class="tool-btn-placeholder" title="Futur outil"></button>
             <BrushToggle />
           </div>
