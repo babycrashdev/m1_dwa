@@ -23,7 +23,11 @@ public class BrushService {
             "3x3", 500L,
             "5x5", 1000L,
             "7x7", 2500L,
-            "9x9", 5000L
+            "9x9", 5000L,
+            "C3x3", 750L,
+            "C5x5", 1500L,
+            "C7x7", 3500L,
+            "C9x9", 7500L
     );
 
     @Transactional

@@ -11,6 +11,7 @@ export function useBrushPanel() {
     isBrushActive, 
     brushTotalPrice, 
     brushSize, 
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,
@@ -18,7 +19,7 @@ export function useBrushPanel() {
     errorMessage
   } = storeToRefs(brushStore);
 
-  const { handleBrushClick, confirmPurchase, isLocked, prices } = brushStore;
+  const { handleBrushClick, handleShapeChange, confirmPurchase, isLocked, prices } = brushStore;
 
   onMounted(() => {
     if (authStore.isAuthenticated) {
@@ -29,7 +30,8 @@ export function useBrushPanel() {
   const brushToBuySizeNum = computed(() => {
     const val = brushToBuy.value;
     if (!val) return 3;
-    const firstPart = val.split('x')[0];
+    const cleanVal = val.replace('C', '');
+    const firstPart = cleanVal.split('x')[0];
     if (firstPart === undefined) return 3;
     return parseInt(firstPart) || 3;
   });
@@ -40,20 +42,40 @@ export function useBrushPanel() {
     return prices[val] ?? 0;
   });
 
+  const formatBrushName = (size: number, shape: string) => {
+    if (shape === 'circle') {
+      return `Ø ${size} px`;
+    }
+    return `${size}x${size}`;
+  };
+
+  const formatUpgradeId = (id: string) => {
+    if (!id) return '';
+    if (id.startsWith('C')) {
+      const size = id.substring(1).split('x')[0];
+      return `Ø ${size} px`;
+    }
+    return id;
+  };
+
   return {
     isBrushActive,
     brushTotalPrice,
     brushSize,
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,
     isBuying,
     errorMessage,
+    brushToBuySizeNum,
+    brushToBuyPrice,
     prices,
     handleBrushClick,
+    handleShapeChange,
     confirmPurchase,
     isLocked,
-    brushToBuySizeNum,
-    brushToBuyPrice
+    formatBrushName,
+    formatUpgradeId
   };
 }
