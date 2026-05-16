@@ -1,4 +1,4 @@
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useScoreboardStore, type SortKey } from '../../stores/rplace/scoreboard';
 import { useAuthStore } from '../../stores/auth';
 import { useRPlaceStore } from '../../stores/rplace';
@@ -25,7 +25,21 @@ export function useScoreboardLogic() {
         { key: 'pixelRecord', label: 'Record', icon: '⏱️' },
     ];
 
-    const sorted = computed(() => store.getSortedEntries());
+    const searchQuery = ref('');
+
+    const displayEntries = computed(() => {
+        const query = searchQuery.value.toLowerCase().trim();
+        const sorted = store.getSortedEntries();
+        
+        return sorted
+            .map((entry, index) => ({
+                ...entry,
+                originalRank: index + 1
+            }))
+            .filter(entry => 
+                !query || entry.username.toLowerCase().includes(query)
+            );
+    });
 
     onMounted(() => store.startPolling());
     onUnmounted(() => store.stopPolling());
@@ -34,7 +48,8 @@ export function useScoreboardLogic() {
         store,
         currentUsername,
         sortOptions,
-        sorted,
+        displayEntries,
+        searchQuery,
         formatPercent,
         formatNumber,
         formatTime

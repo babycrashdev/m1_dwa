@@ -6,7 +6,7 @@
     </div>
 
     <div class="area-scoreboard" :class="{ 'is-open': isScoreboardOpen }">
-        <Scoreboard />
+        <Scoreboard @close="isScoreboardOpen = false" />
         <button class="panel-toggle panel-toggle--scoreboard" @click="isScoreboardOpen = !isScoreboardOpen" :title="isScoreboardOpen ? 'Fermer' : 'Classement'">
           <span class="toggle-icon">{{ isScoreboardOpen ? '🏆' : '🏆' }}</span>
         </button>
