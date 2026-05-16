@@ -14,6 +14,8 @@ export interface UserStats {
     mostExpensivePixelPrice: number;
     totalGameTimeSeconds: number;
     oldestActivePixelDate: string | null;
+    activePixelsCount: number;
+    pixelRecordSeconds: number;
 }
 
 export const useStatsStore = defineStore('stats', () => {

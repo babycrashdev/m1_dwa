@@ -11,5 +11,7 @@ public record StatsDTO(
     long totalMoneySpent,
     long mostExpensivePixelPrice,
     long totalGameTimeSeconds,
-    LocalDateTime oldestActivePixelDate
+    LocalDateTime oldestActivePixelDate,
+    long activePixelsCount,
+    long pixelRecordSeconds
 ) {}

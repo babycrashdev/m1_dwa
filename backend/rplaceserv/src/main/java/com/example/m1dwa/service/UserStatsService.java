@@ -21,6 +21,7 @@ public class UserStatsService {
     private final UserStatsRepository userStatsRepository;
     private final com.example.m1dwa.repository.PixelRepository pixelRepository;
     private final com.example.m1dwa.repository.UserRepository userRepository;
+    private final com.example.m1dwa.repository.WalletRepository walletRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     public com.example.m1dwa.dto.StatsDTO getStatsDTO(String username) {
@@ -29,6 +30,10 @@ public class UserStatsService {
         
         UserStats stats = getOrCreateStats(user);
         java.time.LocalDateTime oldestPixel = pixelRepository.findOldestPixelDateByUser(user).orElse(null);
+        long activePixels = pixelRepository.countByLastModifiedBy(user);
+        long recordSeconds = walletRepository.findByUserUsername(username)
+                .map(com.example.m1dwa.model.Wallet::getPixelRecordSeconds)
+                .orElse(0L);
 
         return new com.example.m1dwa.dto.StatsDTO(
             stats.getTotalPixelsPlaced(),
@@ -39,7 +44,9 @@ public class UserStatsService {
             stats.getTotalMoneySpent(),
             stats.getMostExpensivePixelPrice(),
             stats.getTotalGameTimeSeconds(),
-            oldestPixel
+            oldestPixel,
+            activePixels,
+            recordSeconds
         );
     }
 
@@ -53,7 +60,7 @@ public class UserStatsService {
         }
         updateGameTime(user, stats);
         userStatsRepository.save(stats);
-        pushStats(user.getUsername(), stats);
+        pushStats(user);
     }
 
     @Transactional
@@ -61,7 +68,7 @@ public class UserStatsService {
         UserStats stats = getOrCreateStats(user);
         stats.setTimesOverwritten(stats.getTimesOverwritten() + count);
         userStatsRepository.save(stats);
-        pushStats(user.getUsername(), stats);
+        pushStats(user);
     }
 
     @Transactional
@@ -72,7 +79,7 @@ public class UserStatsService {
         stats.setTotalParcelsGenerated(stats.getTotalParcelsGenerated() + parcels);
         updateGameTime(user, stats);
         userStatsRepository.save(stats);
-        pushStats(user.getUsername(), stats);
+        pushStats(user);
     }
 
     @Transactional
@@ -80,7 +87,7 @@ public class UserStatsService {
         UserStats stats = getOrCreateStats(user);
         stats.setTotalMoneySpent(stats.getTotalMoneySpent() + amount);
         userStatsRepository.save(stats);
-        pushStats(user.getUsername(), stats);
+        pushStats(user);
     }
 
     private void updateGameTime(User user, UserStats stats) {
@@ -110,7 +117,12 @@ public class UserStatsService {
                 .orElseGet(() -> userStatsRepository.save(new UserStats(user)));
     }
 
-    private void pushStats(String username, UserStats stats) {
-        messagingTemplate.convertAndSend("/topic/stats/" + username, stats);
+    private void pushStats(User user) {
+        try {
+            com.example.m1dwa.dto.StatsDTO dto = getStatsDTO(user.getUsername());
+            messagingTemplate.convertAndSend("/topic/stats/" + user.getUsername(), dto);
+        } catch (Exception e) {
+            log.error("Erreur lors du push des stats pour {}", user.getUsername(), e);
+        }
     }
 }

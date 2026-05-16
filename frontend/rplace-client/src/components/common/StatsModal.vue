@@ -39,8 +39,15 @@
             <div class="stat-card">
               <div class="stat-icon">🎨</div>
               <div class="stat-content">
-                <span class="stat-label">Pixels posés</span>
+                <span class="stat-label">Total pixels posés</span>
                 <span class="stat-value">{{ formatNumber(stats.totalPixelsPlaced) }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📍</div>
+              <div class="stat-content">
+                <span class="stat-label">Pixels actifs</span>
+                <span class="stat-value">{{ formatNumber(stats.activePixelsCount) }}</span>
               </div>
             </div>
             <div class="stat-card">
@@ -53,8 +60,15 @@
             <div class="stat-card">
               <div class="stat-icon">⏱️</div>
               <div class="stat-content">
-                <span class="stat-label">Survie record</span>
+                <span class="stat-label">Survie actuelle</span>
                 <span class="stat-value">{{ survivalTime }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🏆</div>
+              <div class="stat-content">
+                <span class="stat-label">Record de survie</span>
+                <span class="stat-value">{{ formatTime(stats.pixelRecordSeconds) }}</span>
               </div>
             </div>
             <div class="stat-card">
