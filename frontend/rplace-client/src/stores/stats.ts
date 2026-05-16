@@ -16,6 +16,8 @@ export interface UserStats {
     oldestActivePixelDate: string | null;
     activePixelsCount: number;
     pixelRecordSeconds: number;
+    totalUpgradeLevels: number;
+    unlockedSlots: number;
 }
 
 export const useStatsStore = defineStore('stats', () => {

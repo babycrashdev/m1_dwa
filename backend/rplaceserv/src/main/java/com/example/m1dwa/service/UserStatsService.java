@@ -2,7 +2,15 @@ package com.example.m1dwa.service;
 
 import com.example.m1dwa.model.User;
 import com.example.m1dwa.model.UserStats;
+import com.example.m1dwa.model.Wallet;
+import com.example.m1dwa.model.Slot;
+import com.example.m1dwa.dto.StatsDTO;
 import com.example.m1dwa.repository.UserStatsRepository;
+import com.example.m1dwa.repository.PixelRepository;
+import com.example.m1dwa.repository.UserRepository;
+import com.example.m1dwa.repository.WalletRepository;
+import com.example.m1dwa.repository.UpgradeRepository;
+import com.example.m1dwa.repository.SlotRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,12 +27,14 @@ import java.util.Map;
 public class UserStatsService {
 
     private final UserStatsRepository userStatsRepository;
-    private final com.example.m1dwa.repository.PixelRepository pixelRepository;
-    private final com.example.m1dwa.repository.UserRepository userRepository;
-    private final com.example.m1dwa.repository.WalletRepository walletRepository;
+    private final PixelRepository pixelRepository;
+    private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
+    private final UpgradeRepository upgradeRepository;
+    private final SlotRepository slotRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public com.example.m1dwa.dto.StatsDTO getStatsDTO(String username) {
+    public StatsDTO getStatsDTO(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
@@ -32,10 +42,19 @@ public class UserStatsService {
         java.time.LocalDateTime oldestPixel = pixelRepository.findOldestPixelDateByUser(user).orElse(null);
         long activePixels = pixelRepository.countByLastModifiedBy(user);
         long recordSeconds = walletRepository.findByUserUsername(username)
-                .map(com.example.m1dwa.model.Wallet::getPixelRecordSeconds)
+                .map(Wallet::getPixelRecordSeconds)
                 .orElse(0L);
 
-        return new com.example.m1dwa.dto.StatsDTO(
+        var upgrades = upgradeRepository.findByUser(user);
+        int totalUpgradeLevels = upgrades.stream()
+                .mapToInt(u -> u.getLevel() + u.getEfficiencyLevel() + u.getProductionLevel())
+                .sum();
+        
+        int unlockedSlots = (int) slotRepository.findByUserOrderBySlotIndexAsc(user).stream()
+                .filter(Slot::isUnlocked)
+                .count();
+
+        return new StatsDTO(
             stats.getTotalPixelsPlaced(),
             stats.getTimesOverwritten(),
             stats.getTotalClicks(),
@@ -46,7 +65,9 @@ public class UserStatsService {
             stats.getTotalGameTimeSeconds(),
             oldestPixel,
             activePixels,
-            recordSeconds
+            recordSeconds,
+            totalUpgradeLevels,
+            unlockedSlots
         );
     }
 
@@ -119,7 +140,7 @@ public class UserStatsService {
 
     private void pushStats(User user) {
         try {
-            com.example.m1dwa.dto.StatsDTO dto = getStatsDTO(user.getUsername());
+            StatsDTO dto = getStatsDTO(user.getUsername());
             messagingTemplate.convertAndSend("/topic/stats/" + user.getUsername(), dto);
         } catch (Exception e) {
             log.error("Erreur lors du push des stats pour {}", user.getUsername(), e);

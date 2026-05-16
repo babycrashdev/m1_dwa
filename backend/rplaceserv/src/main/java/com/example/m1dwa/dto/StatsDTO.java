@@ -13,5 +13,7 @@ public record StatsDTO(
     long totalGameTimeSeconds,
     LocalDateTime oldestActivePixelDate,
     long activePixelsCount,
-    long pixelRecordSeconds
+    long pixelRecordSeconds,
+    int totalUpgradeLevels,
+    int unlockedSlots
 ) {}

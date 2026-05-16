@@ -13,17 +13,17 @@
 }
 
 .stats-modal {
-    background: rgba(30, 30, 30, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 30, 30, 0.7);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 28px;
     width: 90%;
     max-width: 500px;
     color: white;
     font-family: 'Outfit', sans-serif;
     overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
 }
 
 .stats-modal__header {

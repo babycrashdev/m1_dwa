@@ -109,6 +109,20 @@
                 <span class="stat-value">{{ formatNumber(stats.totalMoneySpent) }} ✨</span>
               </div>
             </div>
+            <div class="stat-card">
+              <div class="stat-icon">🏗️</div>
+              <div class="stat-content">
+                <span class="stat-label">Améliorations</span>
+                <span class="stat-value">Niv. {{ formatNumber(stats.totalUpgradeLevels) }}</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🔓</div>
+              <div class="stat-content">
+                <span class="stat-label">Slots débloqués</span>
+                <span class="stat-value">{{ stats.unlockedSlots }} / 12</span>
+              </div>
+            </div>
           </template>
         </div>
 
