@@ -25,7 +25,6 @@ export const useScoreboardStore = defineStore('scoreboard', () => {
     let pollInterval: number | null = null;
 
     async function fetchScoreboard() {
-        if (!authStore.token) return;
         isLoading.value = true;
         try {
             const response = await axios.get(
