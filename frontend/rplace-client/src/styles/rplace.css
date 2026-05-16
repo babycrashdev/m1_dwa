@@ -24,45 +24,13 @@
 .area-scoreboard {
     position: fixed;
     top: 25px;
-    bottom: 25px;
     right: 25px;
-    height: auto;
-    width: 450px;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    grid-column: unset;
-    grid-row: unset;
-    margin: 0;
-    border-radius: 25px;
+    z-index: 1000;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .area-scoreboard.is-open {
-    transform: translateX(0);
+    bottom: 25px;
+    width: 450px;
 }
 
-.panel-toggle--scoreboard {
-    position: absolute;
-    top: 50%;
-    left: -50px;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 80px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    border-right: none;
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
-}
-
-.panel-toggle--scoreboard:hover {
-    background: rgba(0, 0, 0, 0.7);
-    transform: translateY(-53%);
-}
