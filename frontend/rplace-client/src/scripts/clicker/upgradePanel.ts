@@ -86,7 +86,7 @@ export function useUpgradePanel() {
         });
 
         if (totalPerSec === 0) return "Aucun ouvrier";
-        return `+${totalPerSec.toFixed(1)} voitures /s`;
+        return `+${totalPerSec.toFixed(1)} colis /s`;
     });
 
     const formatName = (name: string): string => {
@@ -143,7 +143,7 @@ export function useUpgradePanel() {
         }
         if (subType === 'efficiency') return 'Réduit le temps de cycle';
         if (subType === 'time') return 'Charge le bonus passif plus vite';
-        if (subType === 'production') return 'Plus de voitures par cycle';
+        if (subType === 'production') return 'Plus de colis par cycle';
         return 'Bonus spécial';
     };
 

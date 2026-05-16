@@ -1,0 +1,169 @@
+.profile-card-mini {
+  position: fixed;
+  top: 1.5rem;
+  left: 2rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 1100;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+}
+
+.profile-card-mini:hover {
+  background: rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.profile-card-mini__header {
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 5px;
+}
+
+.profile-card-mini__avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-circle {
+  width: 54px;
+  height: 54px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.user-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.rank-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: #ffd700;
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 12px;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.username {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: white;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+}
+
+.country {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.login-text {
+  font-size: 0.9rem;
+  color: #4facfe;
+  font-weight: 600;
+}
+
+.stats-row {
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-icon {
+  font-size: 0.9rem;
+  width: 16px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+
+.stat--money .stat-value {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.stat--pixels .stat-value {
+  color: white;
+}
+
+.stat--domination .stat-value {
+  color: white;
+}
+
+.stat--income .stat-value {
+  color: white;
+}
+
+.stat--bonus .stat-value {
+  color: white;
+}
+
+.stats-row {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 768px) {
+  .profile-card-mini {
+    left: 1rem;
+    top: 1rem;
+    padding: 8px 14px;
+  }
+}

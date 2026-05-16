@@ -3,7 +3,7 @@
     <LoadingScreen />
     <Profile />
 
-    <div v-if="!showAuth" class="nav-container">
+    <div v-if="!showAuth" class="nav-container" :class="{ 'nav-container--guest': !authStore.isAuthenticated }">
       <div class="nav-controls">
         <button 
           @click="switchView(currentView === 'grid' ? 'clicker' : 'grid')" 
@@ -37,6 +37,12 @@
     </main>
  
 
+    <Transition name="slide-fade">
+      <div v-if="rplaceStore.soldePannelMessage" class="solde_pannel">
+        {{ rplaceStore.soldePannelMessage }}
+      </div>
+    </Transition>
+
     <div v-if="currentView === 'grid' && !showAuth && (authStore.isAuthenticated || rplaceStore.hoveredPixelData)" class="rplace-controls">
       <!-- Infos Pixel à GAUCHE -->
       <InfoPixel />
@@ -64,7 +70,7 @@
 <script setup lang="ts">
   import Register from './components/Register.vue';
   import RPlace from './components/RPlace.vue';
-  import Profile from './components/Profile.vue';
+  import Profile from './components/common/Profile.vue';
   import Clicker from './components/Clicker.vue';
   import LoadingScreen from './components/common/LoadingScreen.vue';
   import BrushToggle from './components/rplace/BrushToggle.vue';
@@ -77,10 +83,23 @@
   import { useApp } from './scripts/app';
   import { useAuthStore } from './stores/auth';
   import { useRPlaceStore } from './stores/rplace';
+  import { onMounted, watch } from 'vue';
 
   const { showAuth, currentView, switchView} = useApp();
   const authStore = useAuthStore();
   const rplaceStore = useRPlaceStore();
+
+  onMounted(() => {
+    rplaceStore.connectWebSocket();
+  });
+
+  watch(() => authStore.isAuthenticated, () => {
+    if (rplaceStore.stompClient) {
+      rplaceStore.stompClient.deactivate();
+      rplaceStore.stompClient = null;
+    }
+    rplaceStore.connectWebSocket();
+  });
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -96,4 +115,5 @@
 
 <style src="./styles/main.css"></style>
 <style src="./styles/rplace/colorPanel.css" scoped></style>
+<style src="./styles/rplace/solde_pannel.css" scoped></style>
 

@@ -40,7 +40,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
       for (let dx = -offset; dx <= offset; dx++) {
         const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
-        
+
         if (ny >= 0 && ny < gridSize.value) {
           const index = ny * gridSize.value + nx;
           total += pixels.value[index]?.price || initialPrice.value;
@@ -119,6 +119,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
     const totalCost = brushTotalPrice.value;
     if (gameStore.money < totalCost) {
+      rplaceStore.triggerSoldePannel("Solde insuffisant !");
       throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
     }
 

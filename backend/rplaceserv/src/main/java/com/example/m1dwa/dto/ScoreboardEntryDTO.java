@@ -6,5 +6,7 @@ public record ScoreboardEntryDTO(
     int age,
     long moneys,
     long totalPixels,
-    long pixelRecord
+    long pixelRecord,
+    double passiveIncome,
+    long clickBonus
 ) {}

@@ -30,15 +30,21 @@ body {
 
 .nav-container {
   position: fixed;
-  top: 5.5rem;
-  left: 3.5rem;
-  transform: translateX(-50%);
+  top: 12.5rem;
+  left: 5rem;
   z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  transition: top 0.4s ease;
+}
+
+.nav-container--guest {
+  top: 7.75rem;
 }
 
 .view-toggle-btn {
-  margin-top: 25px;
-  margin-left: 75px;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);

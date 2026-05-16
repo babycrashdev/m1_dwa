@@ -12,6 +12,8 @@ export interface ScoreboardEntry {
     moneys: number;
     totalPixels: number;
     pixelRecord: number;
+    passiveIncome: number;
+    clickBonus: number;
 }
 
 export const useScoreboardStore = defineStore('scoreboard', () => {
