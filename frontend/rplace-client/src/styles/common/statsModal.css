@@ -13,17 +13,18 @@
 }
 
 .stats-modal {
-    background: rgba(30, 30, 30, 0.7);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 28px;
     width: 90%;
     max-width: 500px;
     color: white;
     font-family: 'Outfit', sans-serif;
     overflow: hidden;
-    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .stats-modal__header {
