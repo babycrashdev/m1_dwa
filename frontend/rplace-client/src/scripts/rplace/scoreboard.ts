@@ -41,6 +41,16 @@ export function useScoreboardLogic() {
             );
     });
 
+    const topFivePixels = computed(() => {
+        return [...store.entries]
+            .sort((a, b) => b.totalPixels - a.totalPixels)
+            .slice(0, 5)
+            .map((entry, index) => ({
+                ...entry,
+                originalRank: index + 1
+            }));
+    });
+
     onMounted(() => store.startPolling());
     onUnmounted(() => store.stopPolling());
 
@@ -49,6 +59,7 @@ export function useScoreboardLogic() {
         currentUsername,
         sortOptions,
         displayEntries,
+        topFivePixels,
         searchQuery,
         formatPercent,
         formatNumber,

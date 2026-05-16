@@ -6,12 +6,10 @@
     </div>
 
     <div class="area-scoreboard" :class="{ 'is-open': isScoreboardOpen }">
-        <Scoreboard @close="isScoreboardOpen = false" />
-        <button class="panel-toggle panel-toggle--scoreboard" @click="isScoreboardOpen = !isScoreboardOpen" :title="isScoreboardOpen ? 'Fermer' : 'Classement'">
-          <span class="toggle-icon">{{ isScoreboardOpen ? '🏆' : '🏆' }}</span>
-        </button>
-      </div>
+        <Scoreboard v-if="isScoreboardOpen" @close="isScoreboardOpen = false" />
+        <ScoreboardPreview v-else @open="isScoreboardOpen = true" />
     </div>
+  </div>
 </template>
 
 
@@ -21,9 +19,10 @@ import { useRPlace } from '../scripts/rplace';
 import RPlaceBoard from './rplace/RPlaceBoard.vue';
 import CooldownTimer from './rplace/CooldownTimer.vue';
 import Scoreboard from './rplace/Scoreboard.vue';
+import ScoreboardPreview from './rplace/ScoreboardPreview.vue';
 
 const { store } = useRPlace();
-const isScoreboardOpen = ref(true);
+const isScoreboardOpen = ref(false);
 </script>
 
 <style src="../styles/rplace.css" scoped></style>
