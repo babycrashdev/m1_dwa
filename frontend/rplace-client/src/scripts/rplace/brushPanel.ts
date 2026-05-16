@@ -11,6 +11,7 @@ export function useBrushPanel() {
     isBrushActive, 
     brushTotalPrice, 
     brushSize, 
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,
@@ -18,7 +19,7 @@ export function useBrushPanel() {
     errorMessage
   } = storeToRefs(brushStore);
 
-  const { handleBrushClick, confirmPurchase, isLocked, prices } = brushStore;
+  const { handleBrushClick, handleShapeChange, confirmPurchase, isLocked, prices } = brushStore;
 
   onMounted(() => {
     if (authStore.isAuthenticated) {
@@ -29,7 +30,8 @@ export function useBrushPanel() {
   const brushToBuySizeNum = computed(() => {
     const val = brushToBuy.value;
     if (!val) return 3;
-    const firstPart = val.split('x')[0];
+    const cleanVal = val.replace('C', '');
+    const firstPart = cleanVal.split('x')[0];
     if (firstPart === undefined) return 3;
     return parseInt(firstPart) || 3;
   });
@@ -44,6 +46,7 @@ export function useBrushPanel() {
     isBrushActive,
     brushTotalPrice,
     brushSize,
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,
@@ -51,6 +54,7 @@ export function useBrushPanel() {
     errorMessage,
     prices,
     handleBrushClick,
+    handleShapeChange,
     confirmPurchase,
     isLocked,
     brushToBuySizeNum,

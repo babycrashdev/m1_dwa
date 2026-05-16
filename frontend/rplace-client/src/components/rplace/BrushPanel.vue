@@ -6,6 +6,7 @@
       <div class="brush-header">
         <span class="brush-title">Prix : {{ brushTotalPrice }} ✨</span>
       </div>
+      
       <div class="brush-options">
         <button 
           v-for="size in [3, 5, 7, 9]"
@@ -13,13 +14,13 @@
           class="brush-opt-btn" 
           :class="{ 
             active: brushSize === size, 
-            locked: isLocked(`${size}x${size}`) 
+            locked: isLocked(size, brushShape) 
           }"
           @click="handleBrushClick(size)"
           :title="`${size}x${size}`"
         >
           <span class="btn-text">{{ size }}x{{ size }}</span>
-          <span v-if="isLocked(`${size}x${size}`)" class="lock-icon">🔒</span>
+          <span v-if="isLocked(size, brushShape)" class="lock-icon">🔒</span>
         </button>
       </div>
       
@@ -30,16 +31,22 @@
             
             <div class="brush-preview-icon">
               <svg :width="60" :height="60" viewBox="0 0 100 100" class="brush-grid-svg">
-                <rect 
-                  v-for="i in (brushToBuySizeNum * brushToBuySizeNum)" 
-                  :key="i"
-                  :x="((i-1) % brushToBuySizeNum) * (100 / brushToBuySizeNum) + 2"
-                  :y="Math.floor((i-1) / brushToBuySizeNum) * (100 / brushToBuySizeNum) + 2"
-                  :width="(100 / brushToBuySizeNum) - 4"
-                  :height="(100 / brushToBuySizeNum) - 4"
-                  rx="2"
-                  fill="currentColor"
-                />
+                <template v-for="y in brushToBuySizeNum">
+                  <template v-for="x in brushToBuySizeNum">
+                    <rect 
+                      v-if="brushToBuy.startsWith('C') ? 
+                        (Math.pow(x - 1 - (brushToBuySizeNum-1)/2, 2) + Math.pow(y - 1 - (brushToBuySizeNum-1)/2, 2) <= Math.pow((brushToBuySizeNum-0.5)/2, 2)) : 
+                        true"
+                      :key="`${x}-${y}`"
+                      :x="(x-1) * (100 / brushToBuySizeNum) + 2"
+                      :y="(y-1) * (100 / brushToBuySizeNum) + 2"
+                      :width="(100 / brushToBuySizeNum) - 4"
+                      :height="(100 / brushToBuySizeNum) - 4"
+                      :rx="brushToBuy.startsWith('C') ? '100' : '2'"
+                      fill="currentColor"
+                    />
+                  </template>
+                </template>
               </svg>
               <span class="btn-text">{{ brushToBuy }}</span>
             </div>
@@ -74,6 +81,8 @@ const {
   handleBrushClick,
   confirmPurchase,
   isLocked,
+  brushShape,
+  handleShapeChange,
   brushToBuySizeNum,
   brushToBuyPrice
 } = useBrushPanel();

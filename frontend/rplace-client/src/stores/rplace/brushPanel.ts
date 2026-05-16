@@ -14,6 +14,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
   const isBrushActive = ref(false);
   const brushSize = ref(0);
+  const brushShape = ref<'square' | 'circle'>('square');
   const ownedBrushes = ref<string[]>([]);
 
   const showBuyModal = ref(false);
@@ -25,7 +26,11 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     "3x3": 500,
     "5x5": 1000,
     "7x7": 2500,
-    "9x9": 5000
+    "9x9": 5000,
+    "C3x3": 750,
+    "C5x5": 1500,
+    "C7x7": 3500,
+    "C9x9": 7500
   };
 
   const brushTotalPrice = computed(() => {
@@ -36,8 +41,15 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     const cx = rplaceStore.hoveredPixel.x;
     const cy = Math.max(offset, Math.min(rplaceStore.hoveredPixel.y, gridSize.value - 1 - offset));
 
+    const radiusSq = Math.pow((brushSize.value - 0.5) / 2, 2);
+
     for (let dy = -offset; dy <= offset; dy++) {
       for (let dx = -offset; dx <= offset; dx++) {
+        if (brushShape.value === 'circle') {
+          const distSq = dx * dx + dy * dy;
+          if (distSq > radiusSq) continue;
+        }
+
         const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
 
@@ -50,18 +62,26 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     return total;
   });
 
-  const isLocked = (size: string) => {
-    return !ownedBrushes.value.includes(size);
+  const isLocked = (size: number, shape: 'square' | 'circle') => {
+    const key = shape === 'circle' ? `C${size}x${size}` : `${size}x${size}`;
+    return !ownedBrushes.value.includes(key);
   };
 
   const handleBrushClick = (size: number) => {
-    const sizeStr = `${size}x${size}`;
-    if (isLocked(sizeStr)) {
+    const sizeStr = brushShape.value === 'circle' ? `C${size}x${size}` : `${size}x${size}`;
+    if (isLocked(size, brushShape.value)) {
       brushToBuy.value = sizeStr;
       showBuyModal.value = true;
       errorMessage.value = '';
     } else {
       brushSize.value = size;
+    }
+  };
+
+  const handleShapeChange = (shape: 'square' | 'circle') => {
+    brushShape.value = shape;
+    if (brushSize.value > 0 && isLocked(brushSize.value, shape)) {
+      brushSize.value = 0;
     }
   };
 
@@ -71,7 +91,8 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     try {
       await buyBrush(brushToBuy.value);
       showBuyModal.value = false;
-      brushSize.value = parseInt(brushToBuy.value.split('x')[0] || '0');
+      const cleanSize = brushToBuy.value.replace('C', '').split('x')[0];
+      brushSize.value = parseInt(cleanSize || '0');
     } catch (err: any) {
       errorMessage.value = err.message;
     } finally {
@@ -125,9 +146,15 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
 
     const pixelsToPlace = [];
     const offset = Math.floor(brushSize.value / 2);
+    const radiusSq = Math.pow((brushSize.value - 0.5) / 2, 2);
 
     for (let dy = -offset; dy <= offset; dy++) {
       for (let dx = -offset; dx <= offset; dx++) {
+        if (brushShape.value === 'circle') {
+          const distSq = dx * dx + dy * dy;
+          if (distSq > radiusSq) continue;
+        }
+
         const nx = ((cx + dx) % gridSize.value + gridSize.value) % gridSize.value;
         const ny = cy + dy;
         if (ny >= 0 && ny < gridSize.value) {
@@ -147,6 +174,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
   return {
     isBrushActive,
     brushSize,
+    brushShape,
     ownedBrushes,
     showBuyModal,
     brushToBuy,
@@ -156,6 +184,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
     brushTotalPrice,
     isLocked,
     handleBrushClick,
+    handleShapeChange,
     confirmPurchase,
     fetchOwnedBrushes,
     buyBrush,

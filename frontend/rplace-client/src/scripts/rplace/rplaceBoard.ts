@@ -134,12 +134,19 @@ export function useRPlaceBoard() {
             const offset = Math.floor(brushStore.brushSize / 2);
             const cx = store.hoveredPixel.x;
             const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
+            
+            const radiusSq = Math.pow((brushStore.brushSize - 0.5) / 2, 2);
 
             ctx.save();
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 0.1;
             for (let dy = -offset; dy <= offset; dy++) {
               for (let dx = -offset; dx <= offset; dx++) {
+                if (brushStore.brushShape === 'circle') {
+                  const distSq = dx * dx + dy * dy;
+                  if (distSq > radiusSq) continue;
+                }
+
                 const nx = ((cx + dx) % store.gridSize + store.gridSize) % store.gridSize;
                 const ny = cy + dy;
                 ctx.fillRect(nx + 0.1, ny + 0.1, 0.8, 0.8);
