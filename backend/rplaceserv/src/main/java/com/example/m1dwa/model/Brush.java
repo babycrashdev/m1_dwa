@@ -24,7 +24,7 @@ public class Brush {
     @JsonIgnore
     private User user;
 
-    @Column(nullable = false, length = 3)
+    @Column(nullable = false, length = 20)
     private String brushUpgrade;
 
     public Brush(User user, String brushUpgrade) {

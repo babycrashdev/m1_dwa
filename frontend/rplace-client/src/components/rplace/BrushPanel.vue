@@ -17,9 +17,9 @@
             locked: isLocked(size, brushShape) 
           }"
           @click="handleBrushClick(size)"
-          :title="`${size}x${size}`"
+          :title="formatBrushName(size, brushShape)"
         >
-          <span class="btn-text">{{ size }}x{{ size }}</span>
+          <span class="btn-text">{{ formatBrushName(size, brushShape) }}</span>
           <span v-if="isLocked(size, brushShape)" class="lock-icon">🔒</span>
         </button>
       </div>
@@ -48,7 +48,7 @@
                   </template>
                 </template>
               </svg>
-              <span class="btn-text">{{ brushToBuy }}</span>
+              <span class="btn-text">{{ formatUpgradeId(brushToBuy) }}</span>
             </div>
             
             <div class="modal-actions">
@@ -84,7 +84,9 @@ const {
   brushShape,
   handleShapeChange,
   brushToBuySizeNum,
-  brushToBuyPrice
+  brushToBuyPrice,
+  formatBrushName,
+  formatUpgradeId
 } = useBrushPanel();
 </script>
 

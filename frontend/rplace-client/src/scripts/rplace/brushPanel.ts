@@ -42,6 +42,22 @@ export function useBrushPanel() {
     return prices[val] ?? 0;
   });
 
+  const formatBrushName = (size: number, shape: string) => {
+    if (shape === 'circle') {
+      return `Ø ${size} px`;
+    }
+    return `${size}x${size}`;
+  };
+
+  const formatUpgradeId = (id: string) => {
+    if (!id) return '';
+    if (id.startsWith('C')) {
+      const size = id.substring(1).split('x')[0];
+      return `Ø ${size} px`;
+    }
+    return id;
+  };
+
   return {
     isBrushActive,
     brushTotalPrice,
@@ -52,12 +68,14 @@ export function useBrushPanel() {
     brushToBuy,
     isBuying,
     errorMessage,
+    brushToBuySizeNum,
+    brushToBuyPrice,
     prices,
     handleBrushClick,
     handleShapeChange,
     confirmPurchase,
     isLocked,
-    brushToBuySizeNum,
-    brushToBuyPrice
+    formatBrushName,
+    formatUpgradeId
   };
 }
