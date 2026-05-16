@@ -40,7 +40,6 @@
 
     <div class="scoreboard__body">
       <Transition name="fade-fast" mode="out-in">
-        <!-- PLAYER DETAIL VIEW -->
         <div v-if="selectedPlayer" class="player-details" key="details">
           <button class="back-btn" @click="backToList">
             <span class="back-icon">←</span> Retour
@@ -56,7 +55,6 @@
             </div>
 
             <div class="details-grid">
-              <!-- Back to blank placeholders as requested -->
               <div v-for="i in 5" :key="i" class="details-field">
                 <span class="field-label">Info {{ i }}</span>
                 <span class="field-value">xxxxxxxxxxxxxx</span>
@@ -65,9 +63,7 @@
           </div>
         </div>
 
-        <!-- LIST VIEWS -->
         <div v-else key="list">
-          <!-- SEARCH RESULTS VIEW -->
           <Transition name="fade-fast" mode="out-in">
             <table class="scoreboard__table" v-if="searchQuery" key="search">
               <tbody>
@@ -93,7 +89,6 @@
               </tbody>
             </table>
 
-            <!-- NORMAL RANKING VIEW -->
             <table class="scoreboard__table" v-else-if="displayEntries.length > 0" key="ranking">
               <thead>
                 <tr>
@@ -155,7 +150,6 @@
               </tbody>
             </table>
 
-            <!-- EMPTY STATE -->
             <div class="scoreboard__empty" v-else-if="!store.isLoading" key="empty">
               Aucun joueur trouvé.
             </div>
