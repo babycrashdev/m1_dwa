@@ -7,7 +7,7 @@
 
 .rplace-ui {
   position: absolute;
-  bottom: 280px;
+  bottom: 180px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
