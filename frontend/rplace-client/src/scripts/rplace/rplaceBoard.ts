@@ -134,7 +134,7 @@ export function useRPlaceBoard() {
             const offset = Math.floor(brushStore.brushSize / 2);
             const cx = store.hoveredPixel.x;
             const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
-            
+
             const radiusSq = Math.pow((brushStore.brushSize - 0.5) / 2, 2);
 
             ctx.save();
@@ -255,6 +255,8 @@ export function useRPlaceBoard() {
         } catch (error: any) {
           console.warn(error.message);
         }
+      } else {
+        store.triggerSoldePannel("Veuillez vous connecter pour placer un pixel");
       }
     }
     camera.isDragging = false;
