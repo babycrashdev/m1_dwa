@@ -1,6 +1,6 @@
 .solde_pannel {
   position: fixed;
-  bottom: 12rem;
+  bottom: 9.5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
