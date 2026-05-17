@@ -1,4 +1,4 @@
-/* --- STRUCTURE GLOBALE DU PANNEAU --- */
+/* Utilistaion de L'IA pour le style, mais le thème le design et le reste est entièrement de moi (Damien)*/
 .upgrade-panel {
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -20,7 +20,6 @@
     box-sizing: border-box;
 }
 
-/* --- ONGLETS --- */
 .tabs-container {
   display: flex;
   gap: 8px;
@@ -50,7 +49,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* --- LISTE D'AMÉLIORATIONS --- */
 .upgrade-list {
   display: flex;
   flex-direction: column;
@@ -101,7 +99,7 @@
 
 .unlock-btn {
   display: flex;
-  flex-direction: row; /* Horizontal */
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -111,7 +109,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px; /* Aligné sur worker-card */
+  border-radius: 20px;
   transition: all 0.3s ease;
 }
 

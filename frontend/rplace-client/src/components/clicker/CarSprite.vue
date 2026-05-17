@@ -1,4 +1,4 @@
-<!-- Generer par IA -->
+<!-- Utilisation en partie de l'IA -->
 <template>
   <g>
     <g 

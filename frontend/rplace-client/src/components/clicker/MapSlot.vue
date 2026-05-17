@@ -1,3 +1,4 @@
+<!-- Utilisation en partie de l'IA -->
 <template>
   <div 
     class="map-slot" 

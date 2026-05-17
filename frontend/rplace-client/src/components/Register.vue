@@ -1,3 +1,4 @@
+<!-- Utilisation en partie de l'IA nottament pour les svg -->
 <template>
   <div class="auth-container">
     <div class="auth-card">

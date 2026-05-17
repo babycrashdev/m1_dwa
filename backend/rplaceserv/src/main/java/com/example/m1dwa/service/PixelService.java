@@ -43,6 +43,7 @@ public class PixelService {
     }
 
     @Transactional
+    /* Utilisation de l'IA lors de debbugage */
     public List<PixelDTO> placePixels(List<PlacePixelRequest> requests, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé: " + username));

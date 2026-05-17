@@ -1,3 +1,4 @@
+<!-- Utilisation en partie de l'IA nottament pour les svg -->
 <template>
   <div class="upgrade-panel">
     <div class="tabs-container" v-if="categories.length > 1">
@@ -15,7 +16,6 @@
     <div class="upgrade-list" v-if="upgradeStore.config">
       <div v-for="upgrade in currentUpgrades" :key="upgrade.id" class="upgrade-entry">
         
-        <!-- Generer par IA -->
         <template v-if="upgrade.category === 'WORKER'">
           <div class="worker-card" :class="{ locked: upgradeStore.getLevel(upgrade.id!) === 0 }">
             <div class="progress-border-container">

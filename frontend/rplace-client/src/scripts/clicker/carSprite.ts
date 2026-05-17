@@ -12,7 +12,7 @@ interface DeliveryProp {
     startTime: number;
 }
 
-/*Fait par IA*/
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 export function useCarSprite(delivery: DeliveryProp) {
     const mapStore = useMapStore();
     const upgradeStore = useUpgradeStore();

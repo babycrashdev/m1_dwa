@@ -1,6 +1,6 @@
 /*Source: https://towardsdev.com/securing-websocket-connections-with-jwt-in-spring-boot-db6a9a03f882
 
-Debug par IA*/
+Debug en partie par IA*/
 package com.example.m1dwa.config;
 
 import lombok.RequiredArgsConstructor;

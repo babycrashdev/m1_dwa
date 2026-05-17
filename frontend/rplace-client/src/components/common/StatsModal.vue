@@ -1,3 +1,4 @@
+<!-- Utilisation en partie de l'IA , pour faire appliquer le style et autre-->
 <template>
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="stats-modal">

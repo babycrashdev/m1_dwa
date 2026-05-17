@@ -17,6 +17,7 @@ public class UserStats {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /*Aide de l'IA pour cette liaison*/
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     @lombok.ToString.Exclude

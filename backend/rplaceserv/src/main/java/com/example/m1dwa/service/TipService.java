@@ -20,9 +20,10 @@ import java.util.Map;
 public class TipService {
 
     private final List<GameTip> tips = new ArrayList<>();
-    private int defaultTime = 2000;
+    private int defaultTime = 2000; /* Temps minimum en millisecondes de l'affichage de la page de chargement*/
 
     @PostConstruct
+    /* Utilisation de l'IA pour l'aide à la realisation et surtout le debbugage */
     public void loadTips() {
         Yaml yaml = new Yaml();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("tips.yml")) {

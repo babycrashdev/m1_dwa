@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 import { ref, computed } from 'vue';
 import { useMapStore } from '../../stores/clicker/mapStore';
 import { useUpgradeStore } from '../../stores/clicker/upgradeStore';

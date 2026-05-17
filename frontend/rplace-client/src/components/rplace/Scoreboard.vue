@@ -1,3 +1,4 @@
+<!-- Utilisation en partie de l'IA nottament pour les svg -->
 <template>
   <div class="scoreboard">
     <div class="scoreboard__header">

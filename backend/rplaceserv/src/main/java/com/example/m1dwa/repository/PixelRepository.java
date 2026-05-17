@@ -19,17 +19,17 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 
     List<Pixel> findByLastModifiedBy(User user);
 
-    /*Requête SQL faite avec l'aide de l'IA (Désolé madame Lacayrelle) */
+    /*Requête SQL optimisée et refaite avec l'aide de l'IA (Désolé madame Lacayrelle) */
     @Query("SELECT new com.example.m1dwa.dto.PixelDTO(p.x, p.y, p.color, p.price, u.username, p.lastModifiedAt) " +
            "FROM Pixel p LEFT JOIN p.lastModifiedBy u " +
            "WHERE p.x < :size AND p.y < :size")
     List<PixelDTO> findAllSimplified(int size);
 
-    /*Requête SQL faite avec l'aide de l'IA */
+    /*Requête SQL optimisée et refaite avec l'aide de l'IA */
     @Query("SELECT p FROM Pixel p WHERE p.x >= :minX AND p.x <= :maxX AND p.y >= :minY AND p.y <= :maxY")
     List<Pixel> findAllInArea(@Param("minX") int minX, @Param("maxX") int maxX, @Param("minY") int minY, @Param("maxY") int maxY);
     
-    /*Requête SQL faite avec l'aide de l'IA */
+    /*Requête SQL optimisée et refaite avec l'aide de l'IA */
     @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Pixel p WHERE p.x >= :minX AND p.x <= :maxX AND p.y >= :minY AND p.y <= :maxY")
     List<Pixel> findAllInAreaWithLock(@Param("minX") int minX, @Param("maxX") int maxX, @Param("minY") int minY, @Param("maxY") int maxY);
@@ -37,7 +37,7 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
     boolean existsByXAndY(int x, int y);
     long countByLastModifiedBy(User user);
     
-    /*Requête SQL faite avec l'aide de l'IA */
+    /*Requête SQL optimisée et refaite avec l'aide de l'IA */
     @Query("SELECT MIN(p.lastModifiedAt) FROM Pixel p WHERE p.lastModifiedBy = :user")
     Optional<LocalDateTime> findOldestPixelDateByUser(@Param("user") User user);
 }
