@@ -144,6 +144,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
       throw new Error(`Solde insuffisant ! Besoin de ${totalCost} moneys.`);
     }
 
+    // GENERE PAR L'IA EN BAS
     const pixelsToPlace = [];
     const offset = Math.floor(brushSize.value / 2);
     const radiusSq = Math.pow((brushSize.value - 0.5) / 2, 2);
@@ -162,6 +163,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
         }
       }
     }
+    /* GENERE PAR L'IA EN HAUT */
 
     stompClient.value.publish({
       destination: '/app/place-brush',

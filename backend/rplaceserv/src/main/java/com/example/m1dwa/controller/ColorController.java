@@ -22,11 +22,13 @@ public class ColorController {
 
         String result = colorService.buyColor(username, colorHex);
 
+        /* GENERE PAR IA EN BAS */
         if (result.equals("Achat réussi !")) {
             return ResponseEntity.ok(Map.of("message", result));
         } else {
             return ResponseEntity.badRequest().body(Map.of("message", result));
         }
+        /* GENERE PAR IA EN HAUT */
     }
 
     @GetMapping("/owned")

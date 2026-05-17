@@ -4,7 +4,7 @@ import { useRPlaceStore } from '../rplace';
 
 export const usePipetteStore = defineStore('pipette', () => {
   const rplaceStore = useRPlaceStore();
-  
+
   const isActive = ref(false);
   const previousColor = ref('');
 
@@ -19,8 +19,7 @@ export const usePipetteStore = defineStore('pipette', () => {
 
   async function pickColor(color: string) {
     const colorUpper = color.toUpperCase();
-    
-    // Liste des couleurs gratuites de base
+
     const freeColors = [
       '#FF4500', '#FFA800', '#FFD635', '#00A368',
       '#3690EA', '#FFFFFF', '#811E9F', '#000000'

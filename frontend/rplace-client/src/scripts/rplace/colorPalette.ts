@@ -80,7 +80,6 @@ export function useColorPalette() {
     const walk = dist * 1.5;
     scrollContainer.value.scrollLeft = scrollLeftStart.value - walk;
   };
-
   //Genere par ia au dessus
 
   const handleScroll = (e: Event) => {
