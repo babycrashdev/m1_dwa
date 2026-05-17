@@ -22,6 +22,38 @@
   white-space: nowrap;
 }
 
+.brush-shape-selector {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.shape-btn {
+  flex: 1;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.shape-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffd700;
+}
+
+.shape-icon {
+  font-size: 1.2rem;
+}
+
 .brush-options {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

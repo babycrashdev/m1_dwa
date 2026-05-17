@@ -1,15 +1,15 @@
 robot:
   category: WORKER
-  basePrice: 100
-  priceMultiplier: 1.5
-  baseIntervalMs: 100000000
-  baseProduction: 1000000
+  basePrice: 50000
+  priceMultiplier: 1.26
+  baseIntervalMs: 8000
+  baseProduction: 1800
   upgrades:
     efficiency:
-      basePrice: 25000
-      priceMultiplier: 1.8
-      reductionPerLevelMs: 100000000
+      basePrice: 75000
+      priceMultiplier: 1.38
+      reductionPerLevelMs: 400
     production:
-      basePrice: 500000000
-      priceMultiplier: 2.0
-      increasePerLevel: 100000000
+      basePrice: 90000
+      priceMultiplier: 1.42
+      increasePerLevel: 900

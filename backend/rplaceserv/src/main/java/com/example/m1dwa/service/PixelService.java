@@ -34,6 +34,7 @@ public class PixelService {
     private final WalletRepository walletRepository;
     private final GameConfigService gameConfigService;
     private final ScoreboardService scoreboardService;
+    private final UserStatsService userStatsService;
     private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Transactional
@@ -51,7 +52,7 @@ public class PixelService {
         long priceIncrement = gameConfigService.getRplaceConfig().getPixelPriceIncrement();
 
         LocalDateTime now = LocalDateTime.now();
-        if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {
+        if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(1).isAfter(now)) {
             log.warn("Cooldown actif pour l'utilisateur {}", username);
             return Collections.emptyList();
         }
@@ -78,6 +79,7 @@ public class PixelService {
         List<PixelDTO> placedPixels = new ArrayList<>();
         List<Pixel> pixelsToSave = new ArrayList<>();
         long totalCost = 0;
+        long maxPricePlaced = 0;
         long estimatedBalance = wallet.getMoneys();
 
         for (PlacePixelRequest request : requests) {
@@ -105,10 +107,12 @@ public class PixelService {
                     previousUser.getWallet().setPixelRecordSeconds(heldSeconds);
                     walletRepository.save(previousUser.getWallet());
                 }
+                userStatsService.addTimesOverwritten(previousUser, 1);
             }
 
             estimatedBalance -= currentPrice;
             totalCost += currentPrice;
+            if (currentPrice > maxPricePlaced) maxPricePlaced = currentPrice;
 
             pixel.setColor(request.color());
             pixel.setLastModifiedBy(user);
@@ -129,12 +133,12 @@ public class PixelService {
         if (!placedPixels.isEmpty()) {
             int updated = walletRepository.decrementMoneys(user.getId(), totalCost);
             if (updated == 0) {
-
                 log.error("Échec de la déduction atomique pour {}: solde insuffisant ou conflit", username);
                 throw new RuntimeException("Solde insuffisant ou erreur de transaction");
             }
             
             pixelRepository.saveAll(pixelsToSave);
+            userStatsService.addPixelsPlaced(user, placedPixels.size(), totalCost, maxPricePlaced);
             messagingTemplate.convertAndSend("/topic/scoreboard", Map.of(
                 "type", "refresh"
             ));

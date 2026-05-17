@@ -14,14 +14,9 @@ export function useMapSlot(slotIndex: number) {
     const showMenu = ref(false);
 
     const handleMouseEnter = () => {
-        if (slotData.value?.unlocked && !slotData.value.buildingType) {
-            showPicker.value = true;
-        }
     };
 
     const handleMouseLeave = () => {
-        showPicker.value = false;
-        showMenu.value = false;
     };
 
     const slotData = computed(() => mapStore.slots.find(s => s.slotIndex === slotIndex));
@@ -54,7 +49,8 @@ export function useMapSlot(slotIndex: number) {
         if (!upgradeStore.config) return [];
         return Object.entries(upgradeStore.config.upgrades)
             .filter(([id, u]) => u.category === 'BUILDING' && upgradeStore.getLevel(id) > 0)
-            .map(([id, u]) => ({ ...u, id }));
+            .map(([id, u]) => ({ ...u, id }))
+            .sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
     });
 
     function handleClick() {
@@ -67,8 +63,11 @@ export function useMapSlot(slotIndex: number) {
 
         if (slotData.value.buildingType) {
             showMenu.value = true;
+        } else {
+            showPicker.value = true;
         }
     }
+
 
     async function placeBuilding(type: string) {
         await mapStore.placeBuilding(slotIndex, type);
@@ -87,8 +86,16 @@ export function useMapSlot(slotIndex: number) {
     }
 
     function getIcon(type: string) {
-        const mapping: any = { 'GARAGE': '🚗', 'CARROSSIER': '🎨', 'CONCESSION': '🏢' };
-        return mapping[type] || '🏭';
+        const mapping: any = { 
+            'GARAGE': '🚗', 
+            'ENTREPOT': '📦',
+            'CARROSSIER': '🎨', 
+            'FACTORY': '🏭',
+            'CONCESSION': '🏢', 
+            'AFFAIRES': '🏙️',
+            'EXPEDITION': '🚀'
+        };
+        return mapping[type.toUpperCase()] || '🏭';
     }
 
     function getSpriteUrl(type: string) {

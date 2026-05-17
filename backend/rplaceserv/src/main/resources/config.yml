@@ -6,8 +6,8 @@ rplace:
 
 clicker:
   syncIntervalMs: 10000
-  baseCarValue: 10
+  baseCarValue: 1
   maxSlots: 12
   firstSlotFree: true
   slotBasePrice: 1000
-  slotPriceMultiplier: 2.5
+  slotPriceMultiplier: 5

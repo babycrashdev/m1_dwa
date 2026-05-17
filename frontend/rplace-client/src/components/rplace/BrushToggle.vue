@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { useBrushToggle } from '../../scripts/rplace/brushToggle.ts';
 
-const { isActive, toggle } = useBrushToggle();
+const { isActive, toggle } = useBrushToggle('square');
 </script>
 
 <style src="../../styles/rplace/brushToggle.css" scoped></style>

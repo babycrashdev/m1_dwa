@@ -1,0 +1,38 @@
+.solde_pannel {
+  position: fixed;
+  bottom: 12rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  
+  /* Style calqué sur le panneau de contrôle (gris foncé flouté) */
+  background: rgba(0, 0, 0, 0.6); 
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 12px 28px;
+  
+  color: #ff4d4d;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+/* Animation pour le toast */
+.slide-fade-enter-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s ease-in;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translate(-50%, 30px) scale(0.9);
+  opacity: 0;
+}

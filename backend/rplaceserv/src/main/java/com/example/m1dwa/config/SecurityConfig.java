@@ -53,6 +53,7 @@ public class SecurityConfig {
                 auth.requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/pixels").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/config/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/user/*/stats").permitAll()
                     .requestMatchers("/ws/**").permitAll()
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/scoreboard").permitAll()

@@ -2,6 +2,7 @@
 package com.example.m1dwa.controller;
 
 import com.example.m1dwa.dto.ClickerStateDTO;
+import com.example.m1dwa.dto.ClickerSyncRequest;
 import com.example.m1dwa.service.ClickerService;
 import com.example.m1dwa.service.GameConfigService;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +38,11 @@ public class ClickerController {
 
     @PostMapping("/sync")
     public ResponseEntity<?> syncMoneys(
-            @RequestBody Map<String, Long> request,
+            @RequestBody ClickerSyncRequest request,
             Authentication authentication) {
         
-        Long amount = request.get("amount");
-        if (amount != null && amount > 0) {
-            clickerService.syncMoneys(authentication.getName(), amount);
+        if (request.amount() > 0 || request.clicks() > 0 || request.parcels() > 0) {
+            clickerService.syncMoneys(authentication.getName(), request);
         }
         return ResponseEntity.ok().build();
     }

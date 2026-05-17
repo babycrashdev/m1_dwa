@@ -1,0 +1,16 @@
+expedition:
+  category: BUILDING
+  sprite: "expedition.png"
+  basePrice: 500000000
+  priceMultiplier: 1.42
+  bonusValueBonus: 400000
+  baseIntervalMs: 60000
+  upgrades:
+    time:
+      basePrice: 250000000
+      priceMultiplier: 1.52
+      reductionPerLevelMs: 3000
+  boosts:
+    durationMs: 20000
+    cooldownMs: 150000
+    increaseDurationMs: 3000

@@ -7,6 +7,8 @@ import { useDeliveryStore } from './deliveryStore';
 export const useGameStore = defineStore('game', () => {
     const money = ref(0);
     const pendingSync = ref(0);
+    const pendingClicks = ref(0);
+    const pendingParcels = ref(0);
     const currentWeight = ref(0);
     const spawnProgress = ref(0);
     
@@ -18,23 +20,34 @@ export const useGameStore = defineStore('game', () => {
 
     function addWeight(amount: number = 1) {
         currentWeight.value += amount;
+        pendingClicks.value += 1;
     }
 
     async function syncToBackend() {
-        if (pendingSync.value === 0) return;
+        if (pendingSync.value === 0 && pendingClicks.value === 0 && pendingParcels.value === 0) return;
 
         const token = localStorage.getItem('token');
         if (!token) return;
 
         const amountToSync = pendingSync.value;
+        const clicksToSync = pendingClicks.value;
+        const parcelsToSync = pendingParcels.value;
+
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/sync`,
-                { amount: amountToSync },
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/user/clicker/sync`,
+                { 
+                    amount: amountToSync,
+                    clicks: clicksToSync,
+                    parcels: parcelsToSync
+                },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             pendingSync.value -= amountToSync;
-            console.log("[Game] Synchronisation réussie");
+            pendingClicks.value -= clicksToSync;
+            pendingParcels.value -= parcelsToSync;
+            
+            console.log(`[Game] Sync réussie: ✨${amountToSync}, 👆${clicksToSync}, 📦${parcelsToSync}`);
         } catch (error) {
             console.error("[Game] Échec de la synchronisation:", error);
         }
@@ -42,6 +55,7 @@ export const useGameStore = defineStore('game', () => {
 
     function spawnGroupedCar() {
         if (currentWeight.value > 0) {
+            pendingParcels.value += currentWeight.value;
             deliveryStore.startDelivery(currentWeight.value);
             currentWeight.value = 0;
         }

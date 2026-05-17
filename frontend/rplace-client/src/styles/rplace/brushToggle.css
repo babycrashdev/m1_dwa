@@ -70,3 +70,9 @@
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
+
+.pixel--hidden {
+  width: 6px;
+  height: 6px;
+  visibility: hidden;
+}

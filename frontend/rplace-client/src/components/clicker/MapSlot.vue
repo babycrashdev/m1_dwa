@@ -5,12 +5,13 @@
       locked: !slotData?.unlocked, 
       empty: slotData?.unlocked && !slotData?.buildingType,
       occupied: slotData?.buildingType,
-      'picker-open': showPicker
+      'picker-open': showPicker || showMenu
     }"
     @click="handleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+
 
     <div v-if="!slotData?.unlocked" class="slot-content locked-content">
       <div class="lock-icon">🔒</div>
@@ -61,41 +62,60 @@
 
     </div>
 
-    <div v-if="showPicker" class="building-picker-overlay" @click.stop="showPicker = false">
+    <div v-if="showPicker" class="building-picker-overlay" :class="{ 'bottom-position': slotIndex >= 7 }" @click.stop="showPicker = false">
       <div class="picker-card" @click.stop>
-        <h3>Choisir un bâtiment</h3>
-        <div class="picker-grid">
+        <div class="picker-header">
+          <h3>Choisir un bâtiment</h3>
+        </div>
+        
+        <div v-if="availableBuildings.length > 0" class="picker-grid">
           <div 
             v-for="b in availableBuildings" 
             :key="b.id" 
             class="picker-item"
             @click="placeBuilding(b.id)"
           >
-            <span class="p-icon">
-              <img :src="getSpriteUrl(b.id)" :alt="b.id" />
-            </span>
-            <span class="p-name">{{ b.id }}</span>
+            <div class="p-icon-wrapper">
+              <img :src="getSpriteUrl(b.id)" :alt="b.id" class="p-img" />
+            </div>
+            <div class="p-info">
+              <span class="p-name">{{ formatBuildingName(b.id) }}</span>
+              <span class="p-stat">{{ getBuildingStats(b.id) }}</span>
+            </div>
           </div>
+        </div>
+
+        <div v-else class="picker-empty-state">
+          <div class="empty-icon">🚧</div>
+          <p class="empty-title">Aucun bâtiment disponible</p>
+          <p class="empty-desc">Débloquez-les d'abord dans le panneau d'améliorations !</p>
         </div>
       </div>
     </div>
 
-    <div v-if="showMenu" class="slot-menu-overlay" @click.stop="showMenu = false">
+    <div v-if="showMenu" class="slot-menu-overlay" :class="{ 'bottom-position': slotIndex >= 7 }" @click.stop="showMenu = false">
       <div class="menu-card" @click.stop>
         <button 
           class="menu-btn boost" 
-          :class="{ disabled: isBoosting || cooldown > 0 }"
+          :class="{ 
+            disabled: isBoosting || cooldown > 0,
+            'active-boost': isBoosting,
+            'cooldown-boost': cooldown > 0
+          }"
           @click="boost"
         >
-          {{ isBoosting ? 'Boost Actif' : (cooldown > 0 ? formatTime(cooldown/1000) : '🚀 BOOST') }}
+          {{ isBoosting ? '🚀 Boost Actif' : (cooldown > 0 ? `⏳ ${formatTime(cooldown/1000)}` : '🚀 BOOST PRODUCTION') }}
         </button>
-        <button class="menu-btn destroy" @click="destroy">🗑️ Détruire</button>
+        <button class="menu-btn destroy" @click="destroy">🗑️ Détruire le bâtiment</button>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
+import { watch, onBeforeUnmount } from 'vue';
+
 import { useMapSlot } from '../../scripts/clicker/mapSlot';
 
 const props = defineProps<{
@@ -104,6 +124,7 @@ const props = defineProps<{
 
 const {
   mapStore,
+  upgradeStore,
   showPicker,
   showMenu,
   handleMouseEnter,
@@ -122,6 +143,48 @@ const {
   getIcon,
   getSpriteUrl
 } = useMapSlot(props.slotIndex);
+
+const closeAll = () => {
+  showPicker.value = false;
+  showMenu.value = false;
+};
+
+watch([showPicker, showMenu], ([newPicker, newMenu]) => {
+  if (newPicker || newMenu) {
+    setTimeout(() => {
+      window.addEventListener('click', closeAll);
+    }, 0);
+  } else {
+    window.removeEventListener('click', closeAll);
+  }
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', closeAll);
+});
+
+const formatBuildingName = (id: string): string => {
+  const mapping: Record<string, string> = {
+    'GARAGE': 'Garage automobile',
+    'ENTREPOT': 'Centre logistique',
+    'CARROSSIER': 'Atelier carrosserie',
+    'FACTORY': 'Usine d\'assemblage',
+    'CONCESSION': 'Concessionnaire',
+    'AFFAIRES': 'Centre d\'affaires',
+    'EXPEDITION': 'Port spatial de livraison'
+  };
+  return mapping[id.toUpperCase()] || id.charAt(0).toUpperCase() + id.slice(1).toLowerCase();
+};
+
+const getBuildingStats = (id: string): string => {
+  const upperId = id.toUpperCase();
+  const upg = upgradeStore.config?.upgrades[upperId];
+  if (!upg) return '';
+  const bonus = upg.bonusValueBonus || 0;
+  const interval = upgradeStore.getBuildingInterval(upperId) / 1000;
+  return `+${bonus} ✨ / ${interval.toFixed(0)}s`;
+};
 </script>
+
 
 <style src="../../styles/clicker/mapSlot.css" scoped></style>

@@ -17,6 +17,46 @@
             <p class="welcome-text">Connecté en tant que</p>
             <p class="username-display">{{ authStore.user?.username }}</p>
           </div>
+          <div class="profile-details-form">
+            <div class="form-group">
+              <div class="input-wrapper">
+                <input 
+                  type="password" 
+                  v-model="user.password" 
+                  placeholder="Nouveau mot de passe" 
+                  @focus="user.password === '********' && (user.password = '')" 
+                />
+                <span class="input-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <input type="number" v-model.number="user.age" placeholder="Âge" />
+                  <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  </span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="input-wrapper">
+                  <input type="text" v-model="user.country" placeholder="Pays" />
+                  <span class="input-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button @click="handleUpdate(() => $emit('close'))" class="submit-btn confirm-btn" :disabled="loading">
+              <span v-if="loading" class="spinner"></span>
+              Confirmer les changements
+            </button>
+          </div>
           
           <div class="logout-actions">
             <button @click="handleLogout(() => $emit('close'))" class="submit-btn">
@@ -29,7 +69,7 @@
         </div>
 
         <!-- Déconnecté -->
-        <form v-else @submit.prevent="handleSubmit">
+        <form v-else @submit.prevent="handleSubmit(() => $emit('close'))">
           <div class="form-group">
             <div class="input-wrapper">
               <input 
@@ -123,12 +163,13 @@
 import { onMounted } from 'vue';
 import { useAuth } from '../scripts/auth';
 
-const { mode, loading, message, messageType, user, handleSubmit, handleLogout, authStore } = useAuth();
+const { mode, loading, message, messageType, user, handleSubmit, handleLogout, authStore, fetchProfile, handleUpdate } = useAuth();
 const emit = defineEmits(['close']);
 
 onMounted(() => {
   if (authStore.isAuthenticated) {
     mode.value = 'logout';
+    fetchProfile();
   }
 });
 </script>

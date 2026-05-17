@@ -1,39 +1,25 @@
-import { onMounted, onUnmounted, watch } from 'vue';
+import { watch, computed } from 'vue';
 import { useBrushPanelStore } from '../../stores/rplace/brushPanel.ts';
 import { storeToRefs } from 'pinia';
 
-export function useBrushToggle() {
+export function useBrushToggle(shape: 'square' | 'circle' = 'square') {
   const brushStore = useBrushPanelStore();
-  const { isBrushActive: isActive } = storeToRefs(brushStore);
-  let intervalId: number | null = null;
+  const { isBrushActive, brushShape } = storeToRefs(brushStore);
 
-  onMounted(() => {
-    isActive.value = false;
-  });
+  const isActive = computed(() => isBrushActive.value && brushShape.value === shape);
 
   const toggle = () => {
-    isActive.value = !isActive.value;
+    if (isBrushActive.value && brushShape.value === shape) {
+      isBrushActive.value = false;
+    } else {
+      isBrushActive.value = true;
+      brushStore.handleShapeChange(shape);
+    }
   };
 
-  watch(isActive, (newValue) => {
-    if (newValue) {
-      console.log("Pinceau activé");
-      intervalId = window.setInterval(() => {
-        console.log("activé");
-      }, 1000);
-    } else {
-      console.log("Pinceau désactivé");
+  watch(isBrushActive, (newValue) => {
+    if (!newValue) {
       brushStore.brushSize = 0;
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-    }
-  });
-
-  onUnmounted(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
     }
   });
 

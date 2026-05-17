@@ -1,0 +1,16 @@
+affaires:
+  category: BUILDING
+  sprite: "centre-daffaires.png"
+  basePrice: 50000000
+  priceMultiplier: 1.38
+  bonusValueBonus: 45000
+  baseIntervalMs: 50000
+  upgrades:
+    time:
+      basePrice: 25000000
+      priceMultiplier: 1.48
+      reductionPerLevelMs: 2500
+  boosts:
+    durationMs: 16000
+    cooldownMs: 130000
+    increaseDurationMs: 2500

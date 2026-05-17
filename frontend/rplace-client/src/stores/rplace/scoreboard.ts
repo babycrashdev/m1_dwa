@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import axios from 'axios';
-import { useAuthStore } from './auth';
+import { useAuthStore } from '../auth';
 
 export type SortKey = 'moneys' | 'totalUpgradeLevels' | 'unlockedSlots' | 'totalPixels' | 'pixelRecord';
 
@@ -13,6 +13,8 @@ export interface ScoreboardEntry {
     unlockedSlots: number;
     totalPixels: number;
     pixelRecord: number;
+    passiveIncome: number;
+    clickBonus: number;
 }
 
 export const useScoreboardStore = defineStore('scoreboard', () => {

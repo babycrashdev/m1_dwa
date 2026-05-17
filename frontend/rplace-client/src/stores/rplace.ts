@@ -4,7 +4,10 @@ import axios from 'axios';
 import { useAuthStore } from './auth';
 import { useGameStore } from './clicker/game';
 import { useServerStore } from './common/serverStore';
-import { useScoreboardStore } from './scoreboard';
+import { useScoreboardStore } from './rplace/scoreboard';
+import { useStatsStore } from './stats';
+ 
+let soldeTimer: any = null;
 
 export interface PixelData {
   x: number;
@@ -25,7 +28,12 @@ export const useRPlaceStore = defineStore('rplace', {
     stompClient: null as Client | null,
     isInitialLoaded: false,
     initialPrice: 10,
-    hoveredPixel: { x: -1, y: -1 }
+    hoveredPixel: { x: -1, y: -1 },
+    showBuyModal: false,
+    colorToBuy: '',
+    isBuying: false,
+    errorMessage: '',
+    soldePannelMessage: ''
   }),
   getters: {
     hoveredPixelData: (state) => {
@@ -109,20 +117,23 @@ export const useRPlaceStore = defineStore('rplace', {
           });
 
           const scoreboardStore = useScoreboardStore();
-            this.stompClient?.subscribe('/topic/scoreboard', (message) => {
-                const update = JSON.parse(message.body);
-                if (update.type === 'full') {
-                    scoreboardStore.entries = update.entries;
-                    scoreboardStore.lastUpdated = new Date();
-                }
-                if (update.type === 'record') {
-                    const entry = scoreboardStore.entries.find(e => e.username === update.username);
-                    if (entry) {
-                        entry.pixelRecord = update.pixelRecord;
-                        scoreboardStore.lastUpdated = new Date();
-                    }
-                }
-            });
+          this.stompClient?.subscribe('/topic/scoreboard', (message) => {
+            const update = JSON.parse(message.body);
+            if (update.type === 'full') {
+              scoreboardStore.entries = update.entries;
+              scoreboardStore.lastUpdated = new Date();
+            }
+            if (update.type === 'record') {
+              const entry = scoreboardStore.entries.find(e => e.username === update.username);
+              if (entry) {
+                entry.pixelRecord = update.pixelRecord;
+                scoreboardStore.lastUpdated = new Date();
+              }
+            }
+          });
+
+          const statsStore = useStatsStore();
+          statsStore.subscribeToMyStats();
         },
         onStompError: (frame) => {
           console.error('[ServerSecurity] Erreur STOMP', frame);
@@ -130,8 +141,8 @@ export const useRPlaceStore = defineStore('rplace', {
         },
         onWebSocketClose: () => {
           if (serverStore.isOnline) {
-             console.warn('[ServerSecurity] WebSocket fermé');
-             serverStore.reportFailure();
+            console.warn('[ServerSecurity] WebSocket fermé');
+            serverStore.reportFailure();
           }
         }
       });
@@ -182,6 +193,7 @@ export const useRPlaceStore = defineStore('rplace', {
       }
 
       if (pixel && gameStore.money < pixel.price) {
+        this.triggerSoldePannel("Solde insuffisant !");
         throw new Error("Solde insuffisant !");
       }
 
@@ -195,7 +207,7 @@ export const useRPlaceStore = defineStore('rplace', {
         body: JSON.stringify(payload)
       });
 
-      this.startCooldown(5);
+      this.startCooldown(1);
     },
 
     startCooldown(seconds: number) {
@@ -206,22 +218,6 @@ export const useRPlaceStore = defineStore('rplace', {
           clearInterval(timer);
         }
       }, 1000);
-    },
-
-    // Temporaire : génère une grille aléatoire pour tester
-    generateTestGrid() {
-      const total = this.gridSize * this.gridSize;
-      for (let i = 0; i < total; i++) {
-        const r = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        const g = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        const b = Math.floor(Math.random() * 255).toString(16).padStart(2, '0');
-        this.pixels[i] = {
-          x: i % this.gridSize,
-          y: Math.floor(i / this.gridSize),
-          color: `#${r}${g}${b}`,
-          price: 10
-        };
-      }
     },
 
     async fetchOwnedColors() {
@@ -251,6 +247,38 @@ export const useRPlaceStore = defineStore('rplace', {
       } catch (error: any) {
         throw new Error(error.response?.data?.message || "Erreur lors de l'achat");
       }
+    },
+
+    openBuyModal(color: string) {
+      this.colorToBuy = color.toUpperCase();
+      this.errorMessage = '';
+      this.showBuyModal = true;
+    },
+
+    async confirmColorPurchase() {
+      if (!this.colorToBuy) return;
+      this.isBuying = true;
+      this.errorMessage = '';
+      try {
+        await this.buyColor(this.colorToBuy);
+        this.selectedColor = this.colorToBuy;
+        this.showBuyModal = false;
+      } catch (err: any) {
+        this.errorMessage = err.message;
+      } finally {
+        this.isBuying = false;
+      }
+    },
+
+    triggerSoldePannel(message: string) {
+      if (soldeTimer) clearTimeout(soldeTimer);
+      
+      this.soldePannelMessage = message;
+ 
+      soldeTimer = setTimeout(() => {
+        this.soldePannelMessage = '';
+        soldeTimer = null;
+      }, 3000);
     }
   }
 });

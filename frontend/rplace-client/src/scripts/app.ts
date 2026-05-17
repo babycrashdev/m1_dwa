@@ -1,4 +1,4 @@
-import { watch, onMounted } from 'vue';
+import { watch, onMounted, ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useAppStore } from '../stores/app';
 import { useGameStore } from '../stores/clicker/game';
@@ -90,10 +90,26 @@ export function useApp() {
     showAuth.value = !showAuth.value;
   };
 
+  const showStatsModal = ref(false);
+  const statsUsername = ref('');
+
+  const openStats = (username: string) => {
+    statsUsername.value = username;
+    showStatsModal.value = true;
+  };
+
+  const closeStats = () => {
+    showStatsModal.value = false;
+  };
+
   return {
     showAuth,
     currentView,
     switchView,
-    toggleAuth
+    toggleAuth,
+    showStatsModal,
+    statsUsername,
+    openStats,
+    closeStats
   };
 }

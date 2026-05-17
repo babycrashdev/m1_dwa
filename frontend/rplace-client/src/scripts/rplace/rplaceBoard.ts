@@ -2,11 +2,13 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';
 import { useBrushPanelStore } from '../../stores/rplace/brushPanel';
+import { usePipetteStore } from '../../stores/rplace/pipette';
 
 export function useRPlaceBoard() {
   const store = useRPlaceStore();
   const authStore = useAuthStore();
   const brushStore = useBrushPanelStore();
+  const pipetteStore = usePipetteStore();
   const canvasRef = ref<HTMLCanvasElement | null>(null);
   let ctx: CanvasRenderingContext2D | null = null;
   let animationFrame: number;
@@ -47,11 +49,6 @@ export function useRPlaceBoard() {
     if (loaded) updateBuffer();
   });
 
-  watch(() => authStore.token, () => {
-    console.log('Mise à jour WebSocket');
-    store.disconnectWebSocket();
-    store.connectWebSocket();
-  });
 
   store.$onAction(({ name, args, after }) => {
     if (name === 'placePixel') {
@@ -108,7 +105,7 @@ export function useRPlaceBoard() {
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvasRef.value.width / dpr, canvasRef.value.height / dpr);
-    
+
     ctx.translate(Math.round(rect.width / 2 + camera.x), Math.round(rect.height / 2 + camera.y));
     ctx.scale(camera.scale, camera.scale);
     ctx.translate(-store.gridSize / 2, -store.gridSize / 2);
@@ -120,7 +117,7 @@ export function useRPlaceBoard() {
 
     for (let i = startCopy; i <= endCopy; i++) {
       const offsetX = i * store.gridSize;
-      
+
       if (camera.scale < 5 && isImageLoaded) {
         ctx.imageSmoothingEnabled = true;
       } else {
@@ -138,11 +135,18 @@ export function useRPlaceBoard() {
             const cx = store.hoveredPixel.x;
             const cy = Math.max(offset, Math.min(store.hoveredPixel.y, store.gridSize - 1 - offset));
 
+            const radiusSq = Math.pow((brushStore.brushSize - 0.5) / 2, 2);
+
             ctx.save();
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 0.1;
             for (let dy = -offset; dy <= offset; dy++) {
               for (let dx = -offset; dx <= offset; dx++) {
+                if (brushStore.brushShape === 'circle') {
+                  const distSq = dx * dx + dy * dy;
+                  if (distSq > radiusSq) continue;
+                }
+
                 const nx = ((cx + dx) % store.gridSize + store.gridSize) % store.gridSize;
                 const ny = cy + dy;
                 ctx.fillRect(nx + 0.1, ny + 0.1, 0.8, 0.8);
@@ -224,14 +228,21 @@ export function useRPlaceBoard() {
     }
   };
 
+  // Réalisé et débuggé grâce à l'IA
   const handleMouseUp = (e: MouseEvent) => {
     //if (camera.isDragging && !camera.dragMoved && camera.scale >= 5) {
     if (camera.isDragging && !camera.dragMoved) {
-      if (!authStore.isAuthenticated) {
-        // TODO : afficher un message à l'utilisateur
-        console.warn('Vous devez être connecté pour dessiner !');
-      } else {
-        const { x, y } = screenToGrid(e.clientX, e.clientY);
+      const { x, y } = screenToGrid(e.clientX, e.clientY);
+
+      if (pipetteStore.isActive) {
+        const index = y * store.gridSize + x;
+        const pixelColor = store.pixels[index]?.color || '#FFFFFF';
+        pipetteStore.pickColor(pixelColor);
+        camera.isDragging = false;
+        return;
+      }
+
+      if (authStore.isAuthenticated) {
         try {
           if (brushStore.isBrushActive) {
             const offset = Math.floor(brushStore.brushSize / 2);
@@ -244,6 +255,8 @@ export function useRPlaceBoard() {
         } catch (error: any) {
           console.warn(error.message);
         }
+      } else {
+        store.triggerSoldePannel("Veuillez vous connecter pour placer un pixel");
       }
     }
     camera.isDragging = false;
@@ -314,7 +327,6 @@ export function useRPlaceBoard() {
 
       await store.fetchInitialBoard();
 
-      store.connectWebSocket();
 
       //store.generateTestGrid();
       updateBuffer();
@@ -327,7 +339,6 @@ export function useRPlaceBoard() {
     window.removeEventListener('resize', handleResize);
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
-    store.disconnectWebSocket();
     cancelAnimationFrame(animationFrame);
   });
 
