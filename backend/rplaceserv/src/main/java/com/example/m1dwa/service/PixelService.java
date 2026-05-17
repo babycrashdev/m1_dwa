@@ -52,7 +52,7 @@ public class PixelService {
         long priceIncrement = gameConfigService.getRplaceConfig().getPixelPriceIncrement();
 
         LocalDateTime now = LocalDateTime.now();
-        if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(5).isAfter(now)) {
+        if (user.getLastPixelPlacedAt() != null && user.getLastPixelPlacedAt().plusSeconds(1).isAfter(now)) {
             log.warn("Cooldown actif pour l'utilisateur {}", username);
             return Collections.emptyList();
         }

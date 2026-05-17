@@ -207,7 +207,7 @@ export const useRPlaceStore = defineStore('rplace', {
         body: JSON.stringify(payload)
       });
 
-      this.startCooldown(5);
+      this.startCooldown(1);
     },
 
     startCooldown(seconds: number) {
