@@ -51,7 +51,7 @@
                   <span class="rule-number">02</span>
                   <div class="rule-content">
                     <h3>Cooldown</h3>
-                    <p>Après avoir placé un pixel, vous devez attendre quelques secondes avant de pouvoir en placer un nouveau. Attention, le prix d'un pixel augmente après avoir été acheté !</p>
+                    <p>Après avoir placé un pixel, vous devez attendre une seconde avant de pouvoir en placer un nouveau. Attention, le prix d'un pixel augmente après avoir été acheté !</p>
                   </div>
                 </div>
                 <div class="rules-rule">
