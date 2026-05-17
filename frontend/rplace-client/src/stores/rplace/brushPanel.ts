@@ -168,7 +168,7 @@ export const useBrushPanelStore = defineStore('brushPanel', () => {
       body: JSON.stringify(pixelsToPlace)
     });
 
-    rplaceStore.startCooldown(5);
+    rplaceStore.startCooldown(1);
   }
 
   return {
