@@ -44,9 +44,7 @@ public class UserController {
         }
         user.setAge(updateDTO.age());
         user.setCountry(updateDTO.country());
-
         userRepository.save(user);
-
         return ResponseEntity.ok("Profil mis à jour avec succès");
     }
 
@@ -77,7 +75,8 @@ public class UserController {
             return ResponseEntity.status(404).body("Utilisateur non trouvé");
         }
 
-        // TODO: Securieter pour la phase de developpement (Initialisation d'un wallet pour les user deja creer)
+        // TODO: Securieter pour la phase de developpement (Initialisation d'un wallet
+        // pour les user deja creer)
         Wallet wallet = walletRepository.findByUserUsername(username).orElseGet(() -> {
             Wallet newWallet = new Wallet();
             newWallet.setUser(user);
@@ -86,11 +85,10 @@ public class UserController {
         });
 
         return ResponseEntity.ok(Map.of(
-            "username", user.getUsername(),
-            "age", user.getAge(),
-            "country", user.getCountry(),
-            "moneys", wallet.getMoneys(),
-            "pixelRecord", scoreboardService.getRecord(user, wallet.getPixelRecordSeconds())
-        ));
+                "username", user.getUsername(),
+                "age", user.getAge(),
+                "country", user.getCountry(),
+                "moneys", wallet.getMoneys(),
+                "pixelRecord", scoreboardService.getRecord(user, wallet.getPixelRecordSeconds())));
     }
 }
