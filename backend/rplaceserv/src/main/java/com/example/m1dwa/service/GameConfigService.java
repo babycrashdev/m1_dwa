@@ -31,6 +31,7 @@ public class GameConfigService {
     private final Map<String, UpgradeDefinition> upgrades = new HashMap<>();
 
     @PostConstruct
+    /* Une partie provien de mes plugin minecraft, mais adapter avec l'aide de l'IA */
     public void loadConfigs() {
         Yaml yaml = new Yaml();
         

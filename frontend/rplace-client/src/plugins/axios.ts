@@ -1,4 +1,4 @@
-
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 import axios from 'axios';
 import { useServerStore } from '../stores/common/serverStore';
 

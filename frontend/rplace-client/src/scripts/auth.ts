@@ -1,4 +1,4 @@
-
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 import { ref, reactive, watch } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth';

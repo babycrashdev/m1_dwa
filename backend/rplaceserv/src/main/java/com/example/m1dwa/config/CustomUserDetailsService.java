@@ -1,3 +1,6 @@
+/*Source: https://github.com/bezkoder/spring-boot-spring-security-jwt-authentication/tree/master
+
+Debug en partie par IA*/
 package com.example.m1dwa.config;
 
 import com.example.m1dwa.repository.UserRepository;

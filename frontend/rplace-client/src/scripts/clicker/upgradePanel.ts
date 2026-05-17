@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement (j'en ai fait beaucoup moi meme mais des bug incompréhensible)*/
 import { computed, ref, watch } from 'vue';
 import { useUpgradeStore } from '../../stores/clicker/upgradeStore';
 import { useGameStore } from '../../stores/clicker/game';

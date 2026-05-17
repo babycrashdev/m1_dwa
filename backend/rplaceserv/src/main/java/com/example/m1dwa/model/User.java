@@ -39,12 +39,14 @@ public class User {
     @Column(nullable = true)
     private LocalDateTime lastClickerSyncAt;
 
+    /*Aide de l'IA pour cette liaison*/
     @OneToOne(mappedBy = "user")
     @lombok.ToString.Exclude
     @lombok.EqualsAndHashCode.Exclude
     @JsonIgnore
     private Wallet wallet;
 
+    /*Aide de l'IA pour cette liaison*/
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @lombok.ToString.Exclude
     @lombok.EqualsAndHashCode.Exclude

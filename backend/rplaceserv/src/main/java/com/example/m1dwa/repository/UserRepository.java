@@ -14,11 +14,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     @Modifying
     @Transactional
+    /*Requête SQL optimisée et refaite avec l'aide de l'IA */
     @Query("UPDATE User u SET u.lastPixelPlacedAt = :now WHERE u.username = :username")
     void updateLastPixelPlacedAt(@Param("username") String username, @Param("now") LocalDateTime now);
 
     @Modifying
     @Transactional
+    /*Requête SQL optimisée et refaite avec l'aide de l'IA */
     @Query("UPDATE User u SET u.lastClickerSyncAt = :now WHERE u.username = :username")
     void updateLastClickerSyncAt(@Param("username") String username, @Param("now") LocalDateTime now);
 }

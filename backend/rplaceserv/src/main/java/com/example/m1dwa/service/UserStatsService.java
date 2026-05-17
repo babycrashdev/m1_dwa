@@ -34,12 +34,13 @@ public class UserStatsService {
     private final SlotRepository slotRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
+    /* Utilisation de l'IA pour l'aide à la realisation et surtout le debbugage */
     public StatsDTO getStatsDTO(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
         UserStats stats = getOrCreateStats(user);
-        java.time.LocalDateTime oldestPixel = pixelRepository.findOldestPixelDateByUser(user).orElse(null);
+        LocalDateTime oldestPixel = pixelRepository.findOldestPixelDateByUser(user).orElse(null);
         long activePixels = pixelRepository.countByLastModifiedBy(user);
         long recordSeconds = walletRepository.findByUserUsername(username)
                 .map(Wallet::getPixelRecordSeconds)
@@ -85,6 +86,7 @@ public class UserStatsService {
     }
 
     @Transactional
+    /* Utilisation de l'IA pour l'aide à la realisation et surtout le debbugage */
     public void addTimesOverwritten(User user, int count) {
         UserStats stats = getOrCreateStats(user);
         stats.setTimesOverwritten(stats.getTimesOverwritten() + count);
@@ -111,6 +113,7 @@ public class UserStatsService {
         pushStats(user);
     }
 
+    /* Utilisation de l'IA pour l'aide à la realisation et surtout le debbugage */
     private void updateGameTime(User user, UserStats stats) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime lastPixel = user.getLastPixelPlacedAt();

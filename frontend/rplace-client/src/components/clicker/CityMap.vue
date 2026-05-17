@@ -1,4 +1,4 @@
-<!-- Generer par IA-->
+<!-- Utilisation en partie de l'IA -->
 
 <template>
   <div class="city-map-container">

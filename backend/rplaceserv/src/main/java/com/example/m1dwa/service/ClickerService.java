@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +35,12 @@ public class ClickerService {
     private final ScoreboardService scoreboardService;
     private final UserStatsService userStatsService;
 
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
     public ClickerStateDTO getClickerState(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
-        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         Map<String, Object> levelsMap = new HashMap<>();
         
         for (Upgrade u : upgrades) {
@@ -114,7 +117,7 @@ public class ClickerService {
         return getClickerState(username);
     }
 
-    /* Fait avec l'IA */
+    /* Utilistaion de l'IA pour l'aide a la realisation et surtout le debbugage */
     @Transactional
     public void syncMoneys(String username, ClickerSyncRequest request) {
        Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
@@ -134,7 +137,7 @@ public class ClickerService {
             user.setLastClickerSyncAt(now.minusSeconds(gameConfigService.getClickerConfig().getSyncIntervalMs() / 1000 + 1));
         }
         
-        long secondsElapsed = java.time.Duration.between(user.getLastClickerSyncAt(), now).toSeconds();
+        long secondsElapsed = Duration.between(user.getLastClickerSyncAt(), now).toSeconds();
         if (secondsElapsed <= 0) secondsElapsed = 1;
 
         // long maxPossible = calculateMaxPossibleGain(user, secondsElapsed);
@@ -153,14 +156,13 @@ public class ClickerService {
         log.debug("Synchronisation validée de {} moneys pour {} (Max théorique : {})", amount, username, maxPossible);
     }
 
-    /* Fait et debbuger en partie avec l'IA */
     public double getPassiveIncome(User user) {
-        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        List<Upgrade> upgrades = upgradeRepository.findByUser(user);
         return calculatePassiveIncome(upgrades);
     }
 
-    /* Fait et debbuger en partie avec l'IA */
-    public double calculatePassiveIncome(java.util.List<Upgrade> upgrades) {
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
+    public double calculatePassiveIncome(List<Upgrade> upgrades) {
         Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         double passiveIncomePerSec = 0;
         for (Upgrade u : upgrades) {
@@ -175,15 +177,14 @@ public class ClickerService {
         return passiveIncomePerSec;
     }
 
-    /* Fait et debbuger en partie avec l'IA */
     public long getTotalClickValue(User user) {
-        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
-        java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
+        List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         return calculateTotalClickValue(upgrades, slots);
     }
 
-    /* Fait et debbuger en partie avec l'IA */
-    public long calculateTotalClickValue(java.util.List<Upgrade> upgrades, java.util.List<Slot> slots) {
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
+    public long calculateTotalClickValue(List<Upgrade> upgrades, List<Slot> slots) {
         Map<String, UpgradeDefinition> configMap = gameConfigService.getUpgrades();
         long maxCarValue = gameConfigService.getClickerConfig().getBaseCarValue();
         for (Slot slot : slots) {
@@ -206,10 +207,11 @@ public class ClickerService {
         return maxCarValue;
     }
 
-    /* Fait avec l'IA */
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage (Je me plantais à 
+    chaque fois dans les calculs, je l'ai refait 15 fois au moins cette méthode) */
     private long calculateMaxPossibleGain(User user, long seconds) {
-        java.util.List<Upgrade> upgrades = upgradeRepository.findByUser(user);
-        java.util.List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
+        List<Upgrade> upgrades = upgradeRepository.findByUser(user);
+        List<Slot> slots = slotRepository.findByUserOrderBySlotIndexAsc(user);
         
         double passiveIncomePerSec = calculatePassiveIncome(upgrades);
         long maxCarValue = calculateTotalClickValue(upgrades, slots);

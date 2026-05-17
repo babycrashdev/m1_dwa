@@ -21,6 +21,7 @@ public class Slot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /*Aide de l'IA pour cette liaison*/
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @lombok.ToString.Exclude

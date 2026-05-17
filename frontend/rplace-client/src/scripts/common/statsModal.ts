@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useStatsStore, type UserStats } from '../../stores/stats';
 import { useAuthStore } from '../../stores/auth';

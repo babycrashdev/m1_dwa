@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 import { watch, onMounted, ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useAppStore } from '../stores/app';

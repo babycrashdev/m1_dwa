@@ -16,6 +16,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
     
     const activeDeliveries = ref<Delivery[]>([]);
 
+    /* Aider par l'IA pour structurer et faire fonctionner correctement */
     function startDelivery(weight: number) {
         if (weight <= 0) return;
 
@@ -39,6 +40,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
         }, 10000);
     }
 
+    /* Aider par l'IA pour structurer et faire fonctionner correctement */
     function completeDelivery(id: number) {
         const index = activeDeliveries.value.findIndex(d => d.id === id);
         if (index !== -1) {

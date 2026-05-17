@@ -1,6 +1,7 @@
 package com.example.m1dwa.service;
 
 import com.example.m1dwa.config.ClickerConfig;
+import com.example.m1dwa.config.UpgradeDefinition;
 import com.example.m1dwa.model.Slot;
 import com.example.m1dwa.model.Upgrade;
 import com.example.m1dwa.model.User;
@@ -64,6 +65,7 @@ public class SlotService {
     }
 
     @Transactional
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
     public List<Slot> unlockSlot(String username, int slotIndex) {
         Wallet wallet = walletRepository.findByUserUsernameWithLock(username)
                 .orElseThrow(() -> new RuntimeException("Portefeuille non trouvé"));
@@ -103,6 +105,7 @@ public class SlotService {
     }
 
     @Transactional
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
     public List<Slot> placeBuilding(String username, int slotIndex, String buildingType) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
@@ -140,6 +143,7 @@ public class SlotService {
     }
 
     @Transactional
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
     public List<Slot> activateBoost(String username, int slotIndex) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
@@ -170,6 +174,7 @@ public class SlotService {
     }
 
     @Transactional
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
     public List<Slot> activateAllBoosts(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         List<Slot> slots = getSlots(username);
@@ -197,6 +202,7 @@ public class SlotService {
     }
 
     @Transactional
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
     public List<Slot> destroyBuilding(String username, int slotIndex) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         Slot slot = slotRepository.findByUserAndSlotIndex(user, slotIndex).orElseThrow(() -> new RuntimeException("Slot non trouvé"));
@@ -224,13 +230,14 @@ public class SlotService {
         return getSlots(username);
     }
 
-    private boolean isBoostReady(Slot slot, com.example.m1dwa.config.UpgradeDefinition config, Upgrade upgrade, LocalDateTime now) {
+    /* Utilistaion de l'IA pour l'aide à la realisation et surtout le debbugage */
+    private boolean isBoostReady(Slot slot, UpgradeDefinition config, Upgrade upgrade, LocalDateTime now) {
         if (slot.getLastBoostAt() == null) return true;
 
         long baseCooldownMs = config.getBoosts().getCooldownMs();
         long reductionMs = 0;
 
-        for (java.util.Map.Entry<String, com.example.m1dwa.config.UpgradeDefinition.SubUpgradeDefinition> entry : config.getUpgrades().entrySet()) {
+        for (java.util.Map.Entry<String, UpgradeDefinition.SubUpgradeDefinition> entry : config.getUpgrades().entrySet()) {
             if (entry.getValue().getReductionPerLevelMs() != null) {
                 reductionMs += (long) upgrade.getEfficiencyLevel() * entry.getValue().getReductionPerLevelMs();
             }

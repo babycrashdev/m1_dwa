@@ -1,4 +1,5 @@
-/* Generer par IA*/
+/* Aider par l'IA pour structurer et faire fonctionner correctement 
+(la route une vrai galere j'y ai passez des heures seul l'IA avais trop de mal avec) */
 
 export const CITY_MAP_WIDTH = 7;
 export const CITY_MAP_HEIGHT = 4;

@@ -1,3 +1,6 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement, 
+ici il y a eu tellement de modif lors des debbugages et des merges que je sais plus quoi a etait fait a l'ia 
+et quoi a etait fait par moi */
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRPlaceStore } from '../../stores/rplace';
 import { useAuthStore } from '../../stores/auth';

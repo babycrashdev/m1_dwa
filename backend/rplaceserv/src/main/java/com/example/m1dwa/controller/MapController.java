@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement */
 package com.example.m1dwa.controller;
 
 import com.example.m1dwa.dto.SlotDTO;

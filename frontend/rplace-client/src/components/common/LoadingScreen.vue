@@ -1,4 +1,4 @@
-
+<!-- Utilisation en partie de l'IA nottament pour les svg -->
 <template>
   <Transition name="fade">
     <div v-if="isLoading" class="loading-overlay" :class="{ 'server-error': !isOnline }">

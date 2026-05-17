@@ -1,5 +1,5 @@
-// Généré à l'aide de l'IA
-
+// Généré à l'aide de l'IA (titouan)
+/* Je suis repansser dessus pour le faire fonctionner, sans l'aide des IA trop bête (Damien) */
 package com.example.m1dwa.service;
 
 import com.example.m1dwa.dto.ScoreboardEntryDTO;

@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement (j'en ai fait beaucoup moi meme, mais des partie debug par IA un peux partout)*/
 import { defineStore } from 'pinia';
 import { Client } from '@stomp/stompjs';
 import axios from 'axios';

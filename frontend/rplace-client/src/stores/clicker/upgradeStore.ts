@@ -1,3 +1,4 @@
+/* Aider par l'IA pour structurer et faire fonctionner correctement (juste un enfer je veux plus jamais y toucher)*/
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
